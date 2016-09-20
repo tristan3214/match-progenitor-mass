@@ -122,7 +122,10 @@ class CommandParser(object):
         
         if input[0] == "calcsfh":
             log.info("run calcsfh command - " + line)
-            pass
+            t = MatchThread(line, target=self.commands.calcsfh, args=(input[1],), name=getThreadNumber())
+            activeThreads[t.name] = t
+            t.start()
+
         if input[0] == "dAv":
             """
             Reserved for when one wants to find the best dAv using the script.
