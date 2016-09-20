@@ -215,7 +215,7 @@ class CommandMethods(object):
                 command = workQueue.get()
                 print(command)
                 if line == command:
-                    log.info("Canceled command in queue (%s)" %s line)
+                    log.info("Canceled command in queue (%s)" % line)
                 else:
                     tempQ.put(command)
             size = tempQ.qsize()
@@ -227,7 +227,7 @@ class CommandMethods(object):
             return
 
         # if a return was not reached then there was no similarly found command
-        log.info("Couldn't find command to cancel (%s)" % line
+        log.info("Couldn't find command to cancel (%s)" % line)
         
 class MatchThread(threading.Thread):
     """
