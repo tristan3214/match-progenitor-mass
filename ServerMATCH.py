@@ -122,7 +122,7 @@ class CommandParser(object):
         
         if input[0] == "calcsfh":
             log.info("run calcsfh command - " + line)
-            t = MatchThread(line, target=self.commands.calcsfh, args=(input[1],), name=getThreadNumber())
+            t = MatchThread(line, target=self.commands.calcsfh, args=(line,), name=getThreadNumber())
             activeThreads[t.name] = t
             t.start()
 
