@@ -7,6 +7,7 @@ import subprocess
 import sys
 
 from MatchParam import MatchParam
+import MyLogger
 
 __author__ = "Tristan J. Hillis"
 
@@ -112,7 +113,7 @@ def singleRun(args):
     command += "calcsfh "
     command += workingD + paramFile + " "
     command += workingD + photFile + " "
-    command += workingD + photFile + " "
+    command += workingD + fakeFile + " "
 
     # get next fit name
     fitName = getFitName()
@@ -125,6 +126,13 @@ def singleRun(args):
 
     # add forwarding to file in command
     command += " > " + fitName + ".co"
+
+    # write in logging
+    log = MyLogger.myLogger("generate commands", sys.argv[0] + "/generated_commands")
+    # create stripped down command (ie no working directory included)
+    stripCommand = "calcsfh " + paramFile + " " + photFile + " " + fakeFile + " " + fitName + " " + " ".join(flags) \
+                   + " > " + fitName + ".co"
+    log.info("Generated command (%s): %s" % (os.getcwd(), stripCommand)
 
     print(command)
 
