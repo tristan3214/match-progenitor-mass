@@ -184,6 +184,13 @@ def getFitName():
     # gather fit_* files
     files = glob.glob(workingD + "fit_*")
 
+    # get rid of those files with periods in their names
+    idx = []
+    for i, file in enumerate(files):
+        if "." in file:
+            idx.append(i)
+    files = [files[i] for i in xrange(len(files)) if i not in set(idx)]
+
     # retrieve the counters on fit_* files and make them integers
     numbers = [int(files[i].split("_")[1]) for i in xrange(len(files))]
 
