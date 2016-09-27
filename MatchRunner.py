@@ -30,6 +30,9 @@ This program also supports the following MATCH flags: -dAv, -zinc (autodetected 
 
 Ultimately, this program generates a MATCH command as a string and passes it to the MATCH server where it will be run.
 """
+# Global variables
+toExecutable = sys.argv[0].split("/")
+toExecutable = "/".join(toExecutable[:-1]) + "/"
 
 def main():
     args = sys.argv[1:]
@@ -94,7 +97,7 @@ def singleRun(args):
     param = None
     if paramFile is None: # generate ".param" file and save it in working directory.
         # sys.argv[0] gives the location of the executable
-        param = MatchParam(sys.argv[0] + "/default.param", workingD + photFile, workingD + fakeFile)
+        param = MatchParam(toExecutable + "/default.param", workingD + photFile, workingD + fakeFile)
         param.save()
         paramFile = param.name
         # make symbolic link here
@@ -128,7 +131,7 @@ def singleRun(args):
     command += " > " + fitName + ".co"
 
     # write in logging
-    log = MyLogger.myLogger("generate commands", sys.argv[0] + "/generated_commands")
+    log = MyLogger.myLogger("generate commands", toExecutable + "/generated_commands")
     # create stripped down command (ie no working directory included)
     stripCommand = "calcsfh " + paramFile + " " + photFile + " " + fakeFile + " " + fitName + " " + " ".join(flags) \
                    + " > " + fitName + ".co"
