@@ -48,7 +48,7 @@ def main():
         pass
 
     # send command to server
-    #send(commandList)
+    send(commandList)
 
 def singleRun(args):
     """
@@ -145,7 +145,7 @@ def singleRun(args):
                    + " > " + fitName + ".co"
     log.info("Generated command (%s): %s" % (os.getcwd(), stripCommand))
 
-    print(command)
+    #print(command)
 
     return [command]
 

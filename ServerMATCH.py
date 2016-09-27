@@ -179,6 +179,8 @@ class CommandMethods(object):
             with open(paramFile) as param:
                 lines = param.readlines()
                 f.writelines(lines)
+
+            f.write("\n")
             f.close()
             
         t.cancel = True
