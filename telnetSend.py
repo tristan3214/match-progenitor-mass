@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/astro/users/tjhillis/anaconda2/bin/python2
 from __future__ import print_function, division
 
 import sys
