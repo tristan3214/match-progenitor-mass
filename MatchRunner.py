@@ -108,7 +108,7 @@ def singleRun(args):
         param.save()
         paramFile = param.name
         # make symbolic link here
-        if os.path.isfile(workingD + "parameters.param"):
+        if not os.path.isfile(workingD + "parameters.param"):
             subprocess.call(["ln", "-s", param.savedTo, workingD + "parameters.param"])
 
     else: # passed in parameter file no need to call a save on a MatchParam object (mostly used to scan for zinc)
