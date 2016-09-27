@@ -572,9 +572,8 @@ class MatchParam(object):
         if size > 0:
             numbers = [int(files[i].split("_")[1].split(".")[0]) for i in xrange(len(files))]
             print(numbers)
-            numbers = sorted(numbers, key=int)[-1]
-
-
+            
+            numbers = sorted(numbers, key=int)
             nextVal = numbers[-1] + 1
 
             end = ""
