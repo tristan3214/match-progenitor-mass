@@ -132,7 +132,7 @@ def singleRun(args):
     # create stripped down command (ie no working directory included)
     stripCommand = "calcsfh " + paramFile + " " + photFile + " " + fakeFile + " " + fitName + " " + " ".join(flags) \
                    + " > " + fitName + ".co"
-    log.info("Generated command (%s): %s" % (os.getcwd(), stripCommand)
+    log.info("Generated command (%s): %s" % (os.getcwd(), stripCommand))
 
     print(command)
 
