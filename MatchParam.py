@@ -31,7 +31,7 @@ class MatchParam(object):
     def __init__(self, default, photFile, fakeFile):
         # Constructs a MATCH parameter file object from a default parameter file to reference the settings.
         # A fakeFile is also specified to construct the Vmin, Vmax, Imin, and Imax using completeness limits
-        self.default = default # symbolic link
+        self.default = default # symbolic link or can be regularly specified parameter file
         self.phot = photFile # photometry file to be fed to calcsfh
         self.fake = fakeFile # fake file to be fed to calcsfh
 
