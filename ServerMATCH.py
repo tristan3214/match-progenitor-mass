@@ -170,6 +170,16 @@ class CommandMethods(object):
             
         if not t.cancel:
             log.info("Completed computation of command - " + line)
+            # get directory of where the files are being put
+            directory = line.split(" ")[1] # second arg points to parameter file in the local directly
+            paramFile = directory.split("/") # collect everything but parameter file name
+            directory = "/".join(paramFile[:-1]) + "/"
+            f = open(directory + "run_log.log", 'a')
+            f.write("completed: %s" % line)
+            with open(paramFile) as param:
+                lines = param.readlines()
+                f.writelines(lines)
+            f.close()
             
         t.cancel = True
         doneThreads.append(activeThreads.pop(t.name))

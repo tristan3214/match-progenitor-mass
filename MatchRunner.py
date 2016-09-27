@@ -5,6 +5,7 @@ import glob
 import os
 import subprocess
 import sys
+import telnetlib
 
 from MatchParam import MatchParam
 import MyLogger
@@ -62,6 +63,7 @@ def singleRun(args):
     fakeFile = None
     photFile = None
     paramFile = None
+    fitName = None
 
     workingD = os.getcwd() + "/" # gets the directory the executable has been invoked in
 
@@ -81,6 +83,10 @@ def singleRun(args):
         if ".param" in arg:
             print("Found parameter file:", arg)
             paramFile = arg
+            idx.append(i)
+        if "fit" in arg:
+            print("Found fit name:", arg)
+            fitName = arg
             idx.append(i)
 
     # delete extracted file names in args
@@ -119,7 +125,8 @@ def singleRun(args):
     command += workingD + fakeFile + " "
 
     # get next fit name
-    fitName = getFitName()
+    if fitName is None:
+        fitName = getFitName()
 
     command += workingD + fitName
 
@@ -131,7 +138,7 @@ def singleRun(args):
     command += " > " + fitName + ".co"
 
     # write in logging
-    log = MyLogger.myLogger("generate commands", toExecutable + "/generated_commands")
+    log = MyLogger.myLogger("generate commands", toExecutable + "logs/generated_commands")
     # create stripped down command (ie no working directory included)
     stripCommand = "calcsfh " + paramFile + " " + photFile + " " + fakeFile + " " + fitName + " " + " ".join(flags) \
                    + " > " + fitName + ".co"
@@ -182,8 +189,22 @@ def send(commandList):
     """
     Takes a MATCH command and sends it to a server and writes info to the local command.log file in the
     working directory.
+    
+    Opens telnet connection useing "telnetlib" python package and sends the line to port 42424
     """
-    pass
+    log = MyLogger.myLogger("send", toExecutable + "/logs/send_log")
+    HOST = "localhost"
+    PORT = 42424
+
+    tn = telnetlib.Telnet(HOST, PORT)
+
+    for command in commandList:
+        tn.write(command + "\r\n") # twisted server appears to need the \r\n at the end; write to port
+        log.info("Sent command: %s" % (command))
+
+    # close connection cleanly
+    tn.close()
+
 
 
 def getFitName():
