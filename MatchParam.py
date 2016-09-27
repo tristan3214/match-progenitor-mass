@@ -566,17 +566,22 @@ class MatchParam(object):
         """
         cd = os.getcwd() + '/'
         files = glob.glob(cd + "parameters_*.param")
+        size = len(files)
 
-        numbers = [int(files[i].split("_")[1].split(".")[0]) for i in xrange(len(files))]
-        numbers = sorted(numbers, key=int)[-1]
-        
-        nextVal = numbers[-1] + 1
+        nextFile = ""
+        if size > 0:
+            numbers = [int(files[i].split("_")[1].split(".")[0]) for i in xrange(len(files))]
+            numbers = sorted(numbers, key=int)[-1]
 
-        end = ""
-        if nextVal < 10:
-            end = "_0%d" % nextVal
+            nextVal = numbers[-1] + 1
+
+            end = ""
+            if nextVal < 10:
+                end = "_0%d" % nextVal
+            else:
+                end = "_%d" % nextVal
+
+            nextFile = "parameters" + end + ".param"
         else:
-            end = "_%d" % nextVal
-
-        nextFile = "parameters" + end + ".param"
+            nextFile = "parameters_01.param"
         return nextFile

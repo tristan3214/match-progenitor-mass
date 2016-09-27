@@ -48,6 +48,7 @@ def main():
         pass
 
     # send command to server
+    #send(commandList)
 
 def singleRun(args):
     """
