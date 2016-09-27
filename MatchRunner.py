@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import telnetlib
+import time
 
 from MatchParam import MatchParam
 import MyLogger
@@ -41,7 +42,7 @@ def main():
     commandList = [] # holds the list of commands to be run by the send method
     
     if args[0] == 'single': # handles single runs
-        commandsList = singleRun(args[1:])
+        commandList = singleRun(args[1:])
     elif args[0] == 'list': # handles passed in list of directories
         pass
     else: # handles the case where one directory is passed in.
@@ -198,10 +199,11 @@ def send(commandList):
     PORT = 42424
 
     tn = telnetlib.Telnet(HOST, PORT)
-
+    #print("sleeping")
+    #time.sleep(1)
     for command in commandList:
         tn.write(command + "\r\n") # twisted server appears to need the \r\n at the end; write to port
-        log.info("Sent command: %s" % (command))
+        log.info("Sent command: %s" % command)
 
     # close connection cleanly
     tn.close()
