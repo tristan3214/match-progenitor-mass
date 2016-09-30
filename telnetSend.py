@@ -5,7 +5,7 @@ import sys
 import telnetlib
 import threading
 
-HOST = "localhost"
+HOST = "10.155.88.135"
 PORT = 42424
 
 def main():
