@@ -195,7 +195,7 @@ def send(commandList):
     Opens telnet connection useing "telnetlib" python package and sends the line to port 42424
     """
     log = MyLogger.myLogger("send", toExecutable + "/logs/send_log")
-    HOST = "localhost"
+    HOST = "10.155.88.135"
     PORT = 42424
 
     tn = telnetlib.Telnet(HOST, PORT)
