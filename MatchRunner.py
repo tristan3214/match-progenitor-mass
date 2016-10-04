@@ -113,7 +113,17 @@ def singleRun(args):
             subprocess.call(["ln", "-s", param.savedTo, workingD + "parameters.param"])
 
     else: # passed in parameter file no need to call a save on a MatchParam object (mostly used to scan for zinc)
-        param = MatchParam(workingD + paramFile, workingD + photFile, workingD + fakeFile)
+        if os.path.isfile(workingD + paramFile):
+            param = MatchParam(workingD + paramFile, workingD + photFile, workingD + fakeFile)
+        else:
+            answer = raw_input("User specified parameter file but we did not find it, make one with this name %s? (y/n) "
+                               % paramFile)
+            if answer == ['Y', 'y']:
+                param = MatchParam(toExecutable + "/default.param", workingD + photFile, workingD + fakeFile)
+                param.save(name=paramFile)
+            else:
+                print("Specified parameter name that does not exit in current directory...")
+                sys.exit(1)
 
     if param.zinc:
         flags.append("-zinc")
@@ -195,7 +205,7 @@ def send(commandList):
     Opens telnet connection useing "telnetlib" python package and sends the line to port 42424
     """
     log = MyLogger.myLogger("send", toExecutable + "/logs/send_log")
-    HOST = "10.155.88.135"
+    HOST = "10.155.88.139"
     PORT = 42424
 
     tn = telnetlib.Telnet(HOST, PORT)
