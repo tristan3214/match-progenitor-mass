@@ -4,6 +4,7 @@ from __future__ import print_function, division
 import sys
 import telnetlib
 import threading
+import time
 
 HOST = "10.155.88.139"
 PORT = 42424
