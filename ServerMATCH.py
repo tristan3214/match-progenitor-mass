@@ -153,7 +153,7 @@ class CommandParser(object):
                         # get and print all queue commands
                         for i in range(size):
                             command = workQueue.get()
-                            line += command + "/n"
+                            line += command + "\n"
                             tempQ.put(command)
                         # requeue commands
                         for i in range(size):
@@ -168,7 +168,7 @@ class CommandParser(object):
                     if len(keys) > 0:
                         for key in keys:
                             t = activeThreads[key]
-                            line += t.command + "/n"
+                            line += t.command + "\n"
                     else:
                         line += "no current threads running"
                     return line
@@ -182,7 +182,7 @@ class CommandParser(object):
                     # get and print all queue commands
                     for i in range(size):
                         command = workQueue.get()
-                        line += command + "/n"
+                        line += command + "\n"
                         tempQ.put(command)
                     # requeue commands
                     for i in range(size):
@@ -192,7 +192,7 @@ class CommandParser(object):
                 if len(keys) > 0:
                     for key in keys:
                         t = activeThreads[key]
-                        line += t.command + "/n"
+                        line += t.command + "\n"
 
                 if line == "":
                     return "no commands to show"
