@@ -17,7 +17,11 @@ def main():
     t.start()
 
     # any incoming data will be printed
-    print(tn.read_all())
+    while True:
+        msg = tn.read_very_eager()
+        if msg != "":
+            print(msg)
+        time.sleep(1)
 
 
 def printAll(tn):
