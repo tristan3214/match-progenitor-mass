@@ -275,6 +275,8 @@ class CommandMethods(object):
         """
         Matches the sent line to the internally set thread variable command.  If the same
         it will set this to cancel
+        TODO: Add cleanup of files for the command that is being canceled. Calcsfhs have predictable pattern
+        for grabing the fit name.
         """
         for key in activeThreads:
             t = activeThreads[key]

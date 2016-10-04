@@ -150,12 +150,17 @@ def singleRun(args):
     command += " > " + fitName + ".co"
 
     # write in logging
+    
     log = MyLogger.myLogger("generate commands", toExecutable + "logs/generated_commands")
     # create stripped down command (ie no working directory included)
     stripCommand = "calcsfh " + paramFile + " " + photFile + " " + fakeFile + " " + fitName + " " + " ".join(flags) \
                    + " > " + fitName + ".co"
+    # create empty file so getFitName can iterated to another fit number
+    f = open(os.getcwd() + "/" + fitName, 'w')
+    f.close()
+    
     log.info("Generated command (%s): %s" % (os.getcwd(), stripCommand))
-
+    
     #print(command)
 
     return [command]
@@ -236,8 +241,13 @@ def getFitName():
             idx.append(i)
     files = [files[i] for i in xrange(len(files)) if i not in set(idx)]
 
-    # retrieve the counters on fit_* files and make them integers
-    numbers = [int(files[i].split("_")[1]) for i in xrange(len(files))]
+    # retrieve the counters on fit_* files and make them integers also filter non numbered files
+    numbers = []
+    for i in xrange(len(files)):
+        try:
+            numbers.append(int(files[i].split("_")[1]))
+        except ValueError:
+            continue
 
     # sort numbers in order of least to most
     numbers = sorted(numbers, key=int)
