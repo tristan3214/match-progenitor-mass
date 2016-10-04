@@ -4,7 +4,7 @@ from __future__ import division
 
 import multiprocessing
 import os
-import Queue
+from Queue import Queue
 import signal
 import subprocess
 import sys
@@ -24,7 +24,7 @@ This server runs on port 42424
 
 # Global Variables
 CORE_COUNT = multiprocessing.cpu_count()
-workQueue = Queue.Queue()
+workQueue = Queue()
 activeThreads = {} # this should only every be one more larger than the number of CPUs on the system.
                    # main thread handles incoming data and one thread waits on events and the other threads
                    # execute the bash commands.
@@ -79,7 +79,9 @@ class MatchExecuter(basic.LineReceiver):
         input = line.split(" ")
         if len(activeThreads) + 1 <= CORE_COUNT or input[0] == "cancel": # If there are enough open threads then assign a command
             cp = CommandParser()
-            cp.parse(line)
+            data = cp.parse(line)
+            if data is not None:
+                self.sendData(data)
         else: # If all processes are used put received line in a work Queue
             log.info("All threads taking adding command to queue - " + line)
             workQueue.put(line) 
@@ -125,25 +127,85 @@ class CommandParser(object):
             t = MatchThread(line, target=self.commands.calcsfh, args=(line,), name=getThreadNumber())
             activeThreads[t.name] = t
             t.start()
+            return None
 
         if input[0] == "dAv":
             """
             Reserved for when one wants to find the best dAv using the script.
             """
-            pass
+            return None
         if input[0] == "ssp":
-            pass
+            return None
         if input[0] == "cancel":
             line = " ".join(input[1:])
             self.commands.cancel(line)
             log.info("canceling command - " + line)
+            return None
+        if input[0] == "show":
+            try:
+                input[1] # test if there is another key
+                if input[1] == "queue":
+                    size = workQueue.qsize()
+                    line = ""
+                    # show all the commands from the queue
+                    if size > 1:
+                        tempQ = Queue()
+                        # get and print all queue commands
+                        for i in range(size):
+                            command = workQueue.get()
+                            line += command + "/n"
+                            tempQ.put(command)
+                        # requeue commands
+                        for i in range(size):
+                            workQueue.put(tempQ.get())
+                    else:
+                        line += "no queued commands"
+                    return line
+                if input[1] == "threads":
+                    # show all the commands being run on active threads
+                    keys = activeThreads.keys()
+                    line = ""
+                    if len(keys) > 1:
+                        for key in keys:
+                            t = activeThreads[key]
+                            line += t.command + "/n"
+                    else:
+                        line += "no current threads running"
+                    return line
+            except IndexError:
+                # show all commands in queue and in thread
+                line = ""
+                size = workQueue.qsize()
+                # show all the commands from the queue
+                if size > 1:
+                    tempQ = Queue()
+                    # get and print all queue commands
+                    for i in range(size):
+                        command = workQueue.get()
+                        line += command + "/n"
+                        tempQ.put(command)
+                    # requeue commands
+                    for i in range(size):
+                        workQueue.put(tempQ.get())
 
+                keys = activeThreads.keys()
+                if len(keys) > 1:
+                    for key in keys:
+                        t = activeThreads[key]
+                        line += t.command + "/n"
+
+                if line == "":
+                    return "no commands to show"
+                else:
+                    return line
+            
         # for testing purposes
         if input[0] == "sleep":
             log.info("starting sleep thread")
             t = MatchThread(line, target=self.commands.sleep, args=(input[1],), name=getThreadNumber())
             activeThreads[t.name] = t
             t.start()
+            return None
 
 class CommandMethods(object):
     """
@@ -224,7 +286,7 @@ class CommandMethods(object):
         if workQueue.qsize() > 0:
             # empty queue into temporary one and check for the right command to get rid of.
             # at end put tempQ commands back into the workQueue
-            tempQ = Queue.Queue()
+            tempQ = Queue()
             size = workQueue.qsize()
             for i in range(size):
                 command = workQueue.get()
@@ -284,4 +346,3 @@ if __name__ == "__main__":
     watcher.start()
     reactor.listenTCP(42424, MatchExecuterFactory())
     reactor.run()
-
