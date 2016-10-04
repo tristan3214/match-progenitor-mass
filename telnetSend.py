@@ -30,7 +30,7 @@ def printAll(tn):
 
 def takeCommands(tn):
     while True:
-        command = raw_input("Command: ")
+        command = raw_input()
         tn.write(command + "\r\n") # twisted server appears to need the \r\n at the end
 
 if __name__ == "__main__":
