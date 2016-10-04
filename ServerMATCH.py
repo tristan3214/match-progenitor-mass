@@ -148,7 +148,7 @@ class CommandParser(object):
                     size = workQueue.qsize()
                     line = ""
                     # show all the commands from the queue
-                    if size > 1:
+                    if size > 0:
                         tempQ = Queue()
                         # get and print all queue commands
                         for i in range(size):
@@ -165,7 +165,7 @@ class CommandParser(object):
                     # show all the commands being run on active threads
                     keys = activeThreads.keys()
                     line = ""
-                    if len(keys) > 1:
+                    if len(keys) > 0:
                         for key in keys:
                             t = activeThreads[key]
                             line += t.command + "/n"
@@ -177,7 +177,7 @@ class CommandParser(object):
                 line = ""
                 size = workQueue.qsize()
                 # show all the commands from the queue
-                if size > 1:
+                if size > 0:
                     tempQ = Queue()
                     # get and print all queue commands
                     for i in range(size):
@@ -189,7 +189,7 @@ class CommandParser(object):
                         workQueue.put(tempQ.get())
 
                 keys = activeThreads.keys()
-                if len(keys) > 1:
+                if len(keys) > 0:
                     for key in keys:
                         t = activeThreads[key]
                         line += t.command + "/n"
