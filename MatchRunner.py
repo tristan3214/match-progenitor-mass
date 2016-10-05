@@ -118,6 +118,7 @@ def singleRun(args):
         else:
             answer = raw_input("User specified parameter file but we did not find it, make one with this name %s? (y/n) "
                                % paramFile)
+            print("answer:", answer)
             if answer in ['Y', 'y']:
                 param = MatchParam(toExecutable + "/default.param", workingD + photFile, workingD + fakeFile)
                 param.save(name=paramFile)
