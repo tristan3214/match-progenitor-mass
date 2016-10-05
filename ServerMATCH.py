@@ -238,7 +238,7 @@ class CommandMethods(object):
             directory = "/".join(paramFile[:-1]) + "/"
             f = open(directory + "run_log.log", 'a')
             f.write("completed: %s" % line)
-            param = open(paramFile, 'r')
+            param = open("/".join(paramFile), 'r')
             lines = param.readlines()
             f.writelines(lines)
 
