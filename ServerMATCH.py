@@ -237,12 +237,13 @@ class CommandMethods(object):
             paramFile = directory.split("/") # collect everything but parameter file name
             directory = "/".join(paramFile[:-1]) + "/"
             f = open(directory + "run_log.log", 'a')
-            f.write("completed: %s" % line)
+            stripLine = stripCalcsfh(line)
+            f.write("completed: %s\n" % stripLine)
             param = open("/".join(paramFile), 'r')
             lines = param.readlines()
             f.writelines(lines)
 
-            f.write("\n")
+            f.write("\n\n")
             f.close()
             
         t.cancel = True
@@ -307,7 +308,28 @@ class CommandMethods(object):
 
         # if a return was not reached then there was no similarly found command
         log.info("Couldn't find command to cancel (%s)" % line)
-        
+
+def stripCalcsfh(line):
+    """
+    This takes a calcsfh command line and will strip away the directory information and return
+    a less verbose version.  The command that is returned will only run in the respective directory
+    when calling calcsfh.
+    """
+    line = line.split()
+
+    # first entry is parameter file
+    line[1] = line[1].split("/")[-1]
+    # second entry is photometry file
+    line[2] = line[2].split("/")[-1]
+    # third entry is fake file
+    line[3] = line[3].split("/")[-1]
+    # fourth entry is fit name
+    line[4] = line[4].split("/")[-1]
+    # last entry is output file name
+    line[-1] = line[-1].split("/")[-1]
+
+    return line
+
 class MatchThread(threading.Thread):
     """
     This acts like a regular Thread object and is called the same only there are custom class variables.
