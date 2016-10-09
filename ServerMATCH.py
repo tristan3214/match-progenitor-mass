@@ -328,7 +328,7 @@ def stripCalcsfh(line):
     # last entry is output file name
     line[-1] = line[-1].split("/")[-1]
 
-    return line
+    return " ".join(line)
 
 class MatchThread(threading.Thread):
     """
