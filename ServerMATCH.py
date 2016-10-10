@@ -32,7 +32,6 @@ doneThreads = []
 event = threading.Event() # a single thread waits for set to join a certain thread
 log = MyLogger.myLogger("MatchServer", "server")
 
-
 def getThreadNumber():
     print(activeThreads)
     num = None
@@ -77,7 +76,8 @@ class MatchExecuter(basic.LineReceiver):
         
         log.info("Received:" +  line)
         input = line.split(" ")
-        if len(activeThreads) + 1 <= CORE_COUNT or input[0] == "cancel": # If there are enough open threads then assign a command
+        # If there are enough open threads then assign a command
+        if len(activeThreads) + 1 <= CORE_COUNT or input[0] == "cancel" or input[0] == "show": 
             cp = CommandParser()
             data = cp.parse(line)
             if data is not None:
