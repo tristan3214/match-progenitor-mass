@@ -187,6 +187,8 @@ class CommandMethods(object):
                 print(outputFile)
                 # get rid of the first bit so sspcombine will run properly
                 subprocess.call("tail -n +11 %s > %s" % (outputFile, outputFile), shell=True)
+                pipe = subprocess.Popen("tail -n +11 %s > %s" % (outputFile, outputFile), shell=True)
+                pipe.wait()
                 # make command
                 sspCommand = "sspcombine %s > %s.ssp" % (outputFile, fitName)
                 print(sspCommand)
