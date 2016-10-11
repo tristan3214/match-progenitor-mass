@@ -144,7 +144,7 @@ def singleRun(args):
                 print("Specified parameter name that does not exit in current directory...")
                 sys.exit(1)
 
-    if param.zinc:
+    if param.zinc and not param.ssp:
         flags.append("-zinc")
 
     command = "" # MATCH command that will be sent to server
