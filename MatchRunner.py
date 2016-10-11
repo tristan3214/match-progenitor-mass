@@ -100,12 +100,14 @@ def singleRun(args):
     if len(arg) > 0:
         flags = parse(args)
     print("Retrieved flags:", flags)
-
+    
     # if there is not passed in ".param" file then generate one based off the default one in the executable directory
     param = None
     if paramFile is None: # generate ".param" file and save it in working directory.
         # sys.argv[0] gives the location of the executable
         param = MatchParam(toExecutable + "/default.param", workingD + photFile, workingD + fakeFile)
+        if "-ssp" in flags:
+            param.ssp = True
         param.save()
         paramFile = param.name
         # make symbolic link here
@@ -115,12 +117,23 @@ def singleRun(args):
     else: # passed in parameter file no need to call a save on a MatchParam object (mostly used to scan for zinc)
         if os.path.isfile(workingD + paramFile):
             param = MatchParam(workingD + paramFile, workingD + photFile, workingD + fakeFile)
+            if "-ssp" in flags:
+                param.ssp = True
+            if param.zinc and param.ssp: # can't have zinc and ssp both true need to make a new file otherwise
+                newFileName = paramFile.split(".")[0] + "_ssp"
+                newFileName = ".".join(newFileName) 
+                answer = raw_input("Found zinc and ssp flags does the user want to create a new parameter file with name %s? (y/n) "
+                                   % newFileName)
+                if answer in ['Y', 'y']:
+                    param.save(name=newFileName)
         else:
             answer = raw_input("User specified parameter file but we did not find it, make one with this name %s? (y/n) "
                                % paramFile)
             print("answer:", answer)
             if answer in ['Y', 'y']:
                 param = MatchParam(toExecutable + "/default.param", workingD + photFile, workingD + fakeFile)
+                if "-ssp" in flags:
+                    param.ssp = True
                 param.save(name=paramFile)
             else:
                 print("Specified parameter name that does not exit in current directory...")
