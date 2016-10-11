@@ -184,13 +184,14 @@ class CommandMethods(object):
                 # run sspcombine
                 outputFile = line.split()[-1]
                 fitName = outputFile.split("/")[-1].split(".")[0]
+                path = "/".join(outputFile.split("/")[:-1]) + "/"
                 print(outputFile)
                 # get rid of the first bit so sspcombine will run properly
                 subprocess.call("tail -n +11 %s > %s" % (outputFile, outputFile), shell=True)
                 pipe = subprocess.Popen("tail -n +11 %s > %s" % (outputFile, outputFile), shell=True)
                 pipe.wait()
                 # make command
-                sspCommand = "sspcombine %s > %s.ssp" % (outputFile, fitName)
+                sspCommand = "sspcombine %s > %s.ssp" % (outputFile, path + fitName)
                 print(sspCommand)
 
                 pipe = subprocess.Popen(sspCommand, shell=True, preexec_fn=os.setsid)
