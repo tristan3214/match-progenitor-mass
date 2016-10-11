@@ -44,6 +44,7 @@ class MatchParam(object):
         
         # flags to tell if there is something like zinc
         self.zinc = False
+        self.ssp = False # if a an ssp flag is passed then this will be set to True
 
         self.savedTo = None
         self.name = None
@@ -87,7 +88,7 @@ class MatchParam(object):
                                             self.parameters["d(m-M)"], self.parameters["Avmin"], self.parameters["Avmax"],self.parameters["dAv"]))
 
         # line two (logZmin logZmax dlogZ) w/zinc (logZmin logZmax dlogZ initMin initMax presMin presMax)
-        if not self.zinc:
+        if not self.zinc or self.ssp:
             f.write("%.2f %.2f %.2f\n" % (self.parameters["logZmin"], self.parameters["logZmax"], self.parameters["dlogZ"]))
         else:
             f.write("%.2f %.2f %.2f %.2f %.2f %.2f %.2f\n" % (self.parameters["logZmin"], self.parameters["logZmax"],
