@@ -188,8 +188,8 @@ class CommandMethods(object):
                 print(outputFile)
                 print(path)
                 # get rid of the first bit so sspcombine will run properly
-                subprocess.call("tail -n +11 %s > %s" % (outputFile, path + "temp.txt"), shell=True)
-                subprocess.call("mv temp.txt %s" % outputFile, shell=True)
+                subprocess.call("tail -n +11 %s > %s.temp" % (outputFile, path + fitName), shell=True)
+                subprocess.call("mv %s.temp %s" % (path+fitName, outputFile), shell=True)
                 # make command
                 sspCommand = "sspcombine %s > %s.ssp" % (outputFile, path + fitName)
                 print(sspCommand)
@@ -204,9 +204,10 @@ class CommandMethods(object):
                 # run zcombine
                 outPutFile = line.split()[-1]
                 fitName = outputFile.split("/")[-1].split(".")[0]
+                path = "/".join(outputFile.split("/")[:-1]) + "/"
 
                 # make command
-                zcCommand = "zcombine -bestonly %s > %s.zc" % (fitName, fitName)
+                zcCommand = "zcombine -bestonly %s > %s.zc" % (path + fitName, path + fitName)
 
                 pipe = subprocess.Popen(zcCommand, shell=True, preexec_fn=os.setsid)
                 while pipe.poll() is None:
