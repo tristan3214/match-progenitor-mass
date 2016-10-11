@@ -123,16 +123,15 @@ class CommandParser(object):
         print("Split input:", input)
         
         if input[0] == "calcsfh":
-            log.info("run calcsfh command - " + line)
-            t = MatchThread(line, target=self.commands.calcsfh, args=(line,), name=getThreadNumber())
-            activeThreads[t.name] = t
-            t.start()
-            return None
+            # find the best dAv but can also pass in lower and upper bounds with a step (e.g. -finddAv=0.0,1.0,0.1)
+            if "-finddAv" in line:
+                pass
 
-        if input[0] == "dAv":
-            """
-            Reserved for when one wants to find the best dAv using the script.
-            """
+            else:
+                log.info("run calcsfh command - " + line)
+                t = MatchThread(line, target=self.commands.calcsfh, args=(line,), name=getThreadNumber())
+                activeThreads[t.name] = t
+                t.start()
             return None
         if input[0] == "ssp":
             return None
@@ -142,63 +141,8 @@ class CommandParser(object):
             log.info("canceling command - " + line)
             return None
         if input[0] == "show":
-            try:
-                input[1] # test if there is another key
-                if input[1] == "queue":
-                    size = workQueue.qsize()
-                    line = ""
-                    # show all the commands from the queue
-                    if size > 0:
-                        tempQ = Queue()
-                        # get and print all queue commands
-                        for i in range(size):
-                            command = workQueue.get()
-                            line += command + "\n"
-                            tempQ.put(command)
-                        # requeue commands
-                        for i in range(size):
-                            workQueue.put(tempQ.get())
-                    else:
-                        line += "no queued commands"
-                    return line
-                if input[1] == "threads":
-                    # show all the commands being run on active threads
-                    keys = activeThreads.keys()
-                    line = ""
-                    if len(keys) > 0:
-                        for key in keys:
-                            t = activeThreads[key]
-                            line += t.command + "\n"
-                    else:
-                        line += "no current threads running"
-                    return line
-            except IndexError:
-                # show all commands in queue and in thread
-                line = ""
-                size = workQueue.qsize()
-                # show all the commands from the queue
-                if size > 0:
-                    tempQ = Queue()
-                    # get and print all queue commands
-                    for i in range(size):
-                        command = workQueue.get()
-                        line += command + "\n"
-                        tempQ.put(command)
-                    # requeue commands
-                    for i in range(size):
-                        workQueue.put(tempQ.get())
-
-                keys = activeThreads.keys()
-                if len(keys) > 0:
-                    for key in keys:
-                        t = activeThreads[key]
-                        line += t.command + "\n"
-
-                if line == "":
-                    return "no commands to show"
-                else:
-                    return line
-            
+            line = self.commands.show(input)
+            return line
         # for testing purposes
         if input[0] == "sleep":
             log.info("starting sleep thread")
@@ -229,6 +173,38 @@ class CommandMethods(object):
                 os.killpg(os.getpgid(pipe.pid), signal.SIGTERM) # kills group of processes when present
                 break
             time.sleep(0.5)
+
+        
+        if not t.cancel:
+            if "-ssp" in line:
+                # run sspcombine
+                outputFile = line.split()[-1]
+                fitName = outputFile.split("/")[-1].split(".")[0]
+                # get rid of the first bit so sspcombine will run properly
+                subprocess.call("tail -n +11 %s > %s" % (outputFile, outputFile), shell=True)
+                # make command
+                sspCommand = "sspcombine %s > %s.ssp" % (outputFile, fitName)
+
+                pipe = subprocess.Popen(sspCommand, shell=True, preexec_fn=os.setsid)
+                while pipe.poll() is None:
+                    if t.cancel:
+                        os.killpg(os.getpgid(pipe.pid), signal.SIGTERM)
+                        break
+                    time.sleep(0.5)
+            else:
+                # run zcombine
+                outPutFile = line.split()[-1]
+                fitName = outputFile.split("/")[-1].split(".")[0]
+
+                # make command
+                zcCommand = "zcombine -bestonly %s > %s.zc" % (fitName, fitName)
+
+                pipe = subprocess.Popen(zcCommand, shell=True, preexec_fn=os.setsid)
+                while pipe.poll() is None:
+                    if t.cancel:
+                        os.killpg(os.getpgid(pipe.pid), signal.SIGTERM)
+                        break
+                    time.sleep(0.5)
             
         if not t.cancel:
             log.info("Completed computation of command - " + line)
@@ -252,6 +228,75 @@ class CommandMethods(object):
         event.set()
         event.clear()
 
+    def findBestdAv(self, line, lower=0.0, upper=1.0, step=0.1):
+        """
+        This method takes in a line and will find the best dAv by iterating through several calcsfh runs to search
+        for the best solution.  The user should specify a lower, upper and step for dAv otherwise it will take on 
+        defualt values.
+        """
+        pass
+
+    def show(self, input):
+        try:
+            input[1] # test if there is another key
+            if input[1] == "queue":
+                size = workQueue.qsize()
+                line = ""
+                # show all the commands from the queue
+                if size > 0:
+                    tempQ = Queue()
+                    # get and print all queue commands
+                    for i in range(size):
+                        command = workQueue.get()
+                        line += command + "\n"
+                        tempQ.put(command)
+                    # requeue commands
+                    for i in range(size):
+                        workQueue.put(tempQ.get())
+                else:
+                    line += "no queued commands"
+                return line
+            if input[1] == "threads":
+                # show all the commands being run on active threads
+                keys = activeThreads.keys()
+                line = ""
+                if len(keys) > 0:
+                    for key in keys:
+                        t = activeThreads[key]
+                        line += t.command + "\n"
+                else:
+                    line += "no current threads running"
+                return line
+        except IndexError:
+            # show all commands in queue and in thread
+            line = ""
+            size = workQueue.qsize()
+            # show all the commands from the queue
+            if size > 0:
+                tempQ = Queue()
+                # get and print all queue commands
+                for i in range(size):
+                    command = workQueue.get()
+                    line += command + "\n"
+                    tempQ.put(command)
+                # requeue commands
+                for i in range(size):
+                    workQueue.put(tempQ.get())
+
+            keys = activeThreads.keys()
+            if len(keys) > 0:
+                for key in keys:
+                    t = activeThreads[key]
+                    line += t.command + "\n"
+
+            if line == "":
+                return "no commands to show"
+            else:
+                return line
+
+
+
+        
     def sleep(self, stime):
         """
         Testing command by running a script that sleeps a process.
