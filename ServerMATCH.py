@@ -324,36 +324,22 @@ class CommandMethods(object):
         event.clear()
 
     def clearAll(self):
-        pass
-    """
+        """
+        This method, when called, will clear all the commands to be run in the queue as well as the threads.
+        """
+    
         if workQueue.qsize() > 0:
-            # empty queue into temporary one and check for the right command to get rid of.
-            # at end put tempQ commands back into the workQueue
-            tempQ = Queue()
+            # empty queue
             size = workQueue.qsize()
             for i in range(size):
-                command = workQueue.get()
-                print(command)
-                if line == command:
-                    log.info("Canceled command in queue (%s)" % line)
-                else:
-                    tempQ.put(command)
-            size = tempQ.qsize()
-            
-            # refill work queue
-            for i in range(size):
-                print(command)
-                workQueue.put(tempQ.get())
-            return
-
+                workQueue.get()
+                
         for key in activeThreads:
+            # cancel all the threads
             t = activeThreads[key]
-            if line == t.command:
-                log.info("Canceled command in running thread (%s)" % line)
-                t.cancel = True
-                return
-    """
-
+            t.cancel = True
+    
+        return
         
     def cancel(self, line):
         """
