@@ -136,9 +136,12 @@ class CommandParser(object):
         if input[0] == "ssp":
             return None
         if input[0] == "cancel":
-            line = " ".join(input[1:])
-            self.commands.cancel(line)
-            log.info("canceling command - " + line)
+            if input[1] == "all":
+                self.commands.clearAll()
+            else:
+                line = " ".join(input[1:])
+                self.commands.cancel(line)
+                log.info("canceling command - " + line)
             return None
         if input[0] == "show":
             line = self.commands.show(input)
@@ -176,14 +179,17 @@ class CommandMethods(object):
 
         
         if not t.cancel:
+            print("ENTERED NEXT STAGE")
             if "-ssp" in line:
                 # run sspcombine
                 outputFile = line.split()[-1]
                 fitName = outputFile.split("/")[-1].split(".")[0]
+                print(outputFile)
                 # get rid of the first bit so sspcombine will run properly
                 subprocess.call("tail -n +11 %s > %s" % (outputFile, outputFile), shell=True)
                 # make command
                 sspCommand = "sspcombine %s > %s.ssp" % (outputFile, fitName)
+                print(sspCommand)
 
                 pipe = subprocess.Popen(sspCommand, shell=True, preexec_fn=os.setsid)
                 while pipe.poll() is None:
@@ -317,13 +323,46 @@ class CommandMethods(object):
         event.set()
         event.clear()
 
+    def clearAll(self):
+        pass
+    """
+        if workQueue.qsize() > 0:
+            # empty queue into temporary one and check for the right command to get rid of.
+            # at end put tempQ commands back into the workQueue
+            tempQ = Queue()
+            size = workQueue.qsize()
+            for i in range(size):
+                command = workQueue.get()
+                print(command)
+                if line == command:
+                    log.info("Canceled command in queue (%s)" % line)
+                else:
+                    tempQ.put(command)
+            size = tempQ.qsize()
+            
+            # refill work queue
+            for i in range(size):
+                print(command)
+                workQueue.put(tempQ.get())
+            return
+
+        for key in activeThreads:
+            t = activeThreads[key]
+            if line == t.command:
+                log.info("Canceled command in running thread (%s)" % line)
+                t.cancel = True
+                return
+    """
+
+        
     def cancel(self, line):
         """
         Matches the sent line to the internally set thread variable command.  If the same
         it will set this to cancel
-        TODO: Add cleanup of files for the command that is being canceled. Calcsfhs have predictable pattern
+        TODO: Add cleanup of files for the command that is being canceled. Calcsfh's have predictable pattern
         for grabing the fit name.
         """
+
         for key in activeThreads:
             t = activeThreads[key]
             if line == t.command:
