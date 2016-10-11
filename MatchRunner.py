@@ -126,6 +126,9 @@ def singleRun(args):
                                    % newFileName)
                 if answer in ['Y', 'y']:
                     param.save(name=newFileName)
+                else:
+                    print("Zinc and ssp flags both specified...exiting")
+                    sys.exit(1)
         else:
             answer = raw_input("User specified parameter file but we did not find it, make one with this name %s? (y/n) "
                                % paramFile)
