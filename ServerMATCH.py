@@ -186,10 +186,10 @@ class CommandMethods(object):
                 fitName = outputFile.split("/")[-1].split(".")[0]
                 path = "/".join(outputFile.split("/")[:-1]) + "/"
                 print(outputFile)
+                print(path)
                 # get rid of the first bit so sspcombine will run properly
-                #subprocess.call("tail -n +11 %s > %s" % (outputFile, outputFile), shell=True)
-                pipe = subprocess.Popen("tail -n +11 %s > %s" % (outputFile, outputFile), shell=True)
-                pipe.wait()
+                subprocess.call("tail -n +11 %s > %s" % (outputFile, path + "temp.txt"), shell=True)
+                subprocess.call("mv temp.txt %s" % outputFile, shell=True)
                 # make command
                 sspCommand = "sspcombine %s > %s.ssp" % (outputFile, path + fitName)
                 print(sspCommand)
