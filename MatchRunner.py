@@ -121,7 +121,8 @@ def singleRun(args):
                 param.ssp = True
             if param.zinc and param.ssp: # can't have zinc and ssp both true need to make a new file otherwise
                 print(paramFile.split("."))
-                newFileName = paramFile.split(".")[0] + "_ssp"
+                newFileName = paramFile.split(".")
+                newFileName[0] += "_ssp"
                 newFileName = ".".join(newFileName) 
                 answer = raw_input("Found zinc and ssp flags does the user want to create a new parameter file with name %s? (y/n) "
                                    % newFileName)
