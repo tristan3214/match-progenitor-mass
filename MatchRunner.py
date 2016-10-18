@@ -152,6 +152,21 @@ def singleRun(args):
                 param = MatchParam(toExecutable + "/default.param", workingD + photFile, workingD + fakeFile)
                 if "-ssp" in flags:
                     param.ssp = True
+                background = param.get("background")
+                print("BACKGROUND:", background)
+                if background is not None and "default" in background:
+                    input = raw_input("Specify Background: ")
+                    param.change("background=%s" % (workingD + input))
+                if param.get("scale") == "scale":
+                    input = raw_input("Specify scale: ")
+                try:
+                    input = float(input)
+                except ValueError:
+                    print("Not a float try again...")
+                    input = raw_input("Specify scale: ")
+                      
+                param.change("scale=%f" % float(input))
+
                 param.save(name=paramFile)
             else:
                 print("Specified parameter name that does not exit in current directory...")
