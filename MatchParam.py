@@ -38,7 +38,7 @@ class MatchParam(object):
         # dictionary that will fill with all the parameters (some are to be added in parseDefalut method)
         self.parameters = {"IMF":None, "m-Mmin":None, "d(m-M)":None, "Avmin":None, "Avmax":None, "dAv":None,
                            "logZmin":None, "logZmax":None, "dlogZ":None, "BF":None, "Bad0":None, "Bad1":None,
-                           "Ncmds":None, "background":None}
+                           "Ncmds":None, "background":None, "scale":-1}
 
         self.filterSet = []
         
@@ -67,6 +67,18 @@ class MatchParam(object):
             self.parameters[key] = valType(value)
         else:
             print("Key not found check and try again")
+
+    def get(self, key):
+        """
+        Pass in a key to retrieve the value of from the self.parameters dictionary."
+        """
+        if key in self.parameters.keys():
+            return self.parameters[key]
+        else:
+            print("Did not find key:", key)
+            #sys.exit(1)
+    
+            
             
     def save(self, path=None, name=None):
         """
@@ -143,7 +155,7 @@ class MatchParam(object):
             f.write("  %.2f  %.2f\n" % (time, end[i]))
 
         # last line
-        f.write("%s %s %s" % (self.parameters["lLine_1"], self.parameters["lLine_2"], self.parameters["lLine_3"]))
+        f.write("%s %s %s" % (self.parameters["lLine_1"], self.parameters["lLine_2"], str(self.parameters["scale"])))
         if self.parameters["background"] is not None:
             f.write("%s" % self.parameters["background"])
 
@@ -426,9 +438,17 @@ class MatchParam(object):
                 sys.exit(1)
             self.parameters["lLine_1"] = params[0]
             self.parameters["lLine_2"] = params[1]
-            self.parameters["lLine_3"] = params[2][:2]
-            if ".dat" in params[2]:
-                self.parameters["background"] = params[2][2:]
+            idx = self._testTillString(params[2])
+            
+            if idx is not None: # if the returned idx is None then no string was found in the last line arg3
+                try:
+                    self.parameters["scale"] = float(params[2][:idx])
+                    self.parameters["background"] = params[2][idx:]
+                except ValueError: # this assumes somebody indicates "scale" in last line to determine the scale at a later time
+                    self.parameters["scale"] = None
+                    self.parameters["background"] = params[2][5:] # "scale" is 5 char long
+            else:
+                self.parameters["scale"] = float(params[2])
 
         except ValueError: # potential background
             print("Could not convert to string in last line:")
@@ -436,7 +456,24 @@ class MatchParam(object):
             sys.exit(1)
 
         f.close()
-    
+
+    def _testTillString(self, s):
+        """
+        Takes in a string s and will check when a string starts assuming there is a float before it.
+        """
+        size = len(s)
+        idx = None
+        for i in xrange(size):
+            substring = s[:i+1]
+            if i == 0 and substring == "-": # if there is a negative in front
+                continue
+            try:
+                float(substring)
+            except ValueError:
+                idx = i
+                break
+        return idx
+                
     def _checkForEnd(self, s):
         if s == "":
             print("Reached end of file unexpectedly in default parameter file...exiting")
