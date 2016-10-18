@@ -110,17 +110,17 @@ def singleRun(args):
             param.ssp = True
         background = param.get("background")
         if background is not None and "default" in background:
-            input = raw_input("Specify Background: ")
-            param.change("background=%s" % (workingD + input))
+            back = raw_input("Specify Background: ")
+            param.change("background=%s" % (workingD + back))
         if param.get("scale") == "scale":
-            input = raw_input("Specify scale: ")
+            scale = raw_input("Specify scale: ")
             try:
-                input = float(input)
+                scale = float(scale)
             except ValueError:
                 print("Not a float try again...")
-                input = raw_input("Specify scale: ")
+                scale = raw_input("Specify scale: ")
                       
-            param.change("scale=%f" % float(input))
+            param.change("scale=%f" % float(scale))
         param.save()
         paramFile = param.name
         # make symbolic link here
@@ -155,17 +155,18 @@ def singleRun(args):
                 background = param.get("background")
                 print("BACKGROUND:", background)
                 if background is not None and "default" in background:
-                    input = raw_input("Specify Background: ")
-                    param.change("background=%s" % (workingD + input))
+                    back = raw_input("Specify Background: ")
+                    param.change("background=%s" % (workingD + back))
                 if param.get("scale") == "scale":
-                    input = raw_input("Specify scale: ")
-                try:
-                    input = float(input)
-                except ValueError:
-                    print("Not a float try again...")
-                    input = raw_input("Specify scale: ")
+                    scale = raw_input("Specify scale: ")
+                    
+                    try:
+                        scale = float(scale)
+                    except ValueError:
+                        print("Not a float try again...")
+                        scale = raw_input("Specify scale: ")
                       
-                param.change("scale=%f" % float(input))
+                    param.change("scale=%f" % float(scale))
 
                 param.save(name=paramFile)
             else:
