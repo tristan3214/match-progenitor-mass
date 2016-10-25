@@ -77,7 +77,7 @@ class MatchExecuter(basic.LineReceiver):
         log.info("Received:" +  line)
         input = line.split(" ")
         # If there are enough open threads then assign a command
-        if len(activeThreads) + 1 <= CORE_COUNT or input[0] == "cancel" or input[0] == "show": 
+        if len(activeThreads) + 1 <= CORE_COUNT or input[0] == "cancel" or input[0] == "show" or "-finddAv" in line: 
             cp = CommandParser()
             data = cp.parse(line)
             if data is not None:
@@ -123,9 +123,19 @@ class CommandParser(object):
         print("Split input:", input)
         
         if input[0] == "calcsfh":
-            # find the best dAv but can also pass in lower and upper bounds with a step (e.g. -finddAv=0.0,1.0,0.1)
-            if "-finddAv" in line:
-                pass
+            # find the best dAv but can also pass in lower and upper bounds with a step (e.g. -dAvrange=0.0,1.0,0.1)
+            if "-dAvrange" in line:
+                # get attributes
+                dAv = ""
+                for i, arg in enumerate(input):
+                    if "-dAvRange" in arg:
+                        dAv = arg
+
+                dAv = dAv.split("=").split(",")
+
+                lower = dAv[0]
+                upper = dAv[1]
+                step = dAv[2]
 
             else:
                 log.info("run calcsfh command - " + line)
@@ -179,7 +189,6 @@ class CommandMethods(object):
 
         
         if not t.cancel:
-            print("ENTERED NEXT STAGE")
             if "-ssp" in line:
                 # run sspcombine
                 outputFile = line.split()[-1]
@@ -238,13 +247,25 @@ class CommandMethods(object):
         event.set()
         event.clear()
 
-    def findBestdAv(self, line, lower=0.0, upper=1.0, step=0.1):
+    def dAvRange(self, line, lower=0.0, upper=1.0, step=0.1):
         """
-        This method takes in a line and will find the best dAv by iterating through several calcsfh runs to search
-        for the best solution.  The user should specify a lower, upper and step for dAv otherwise it will take on 
-        defualt values.
+        This method takes in a calcsfh command along with the custom -dAvRange and makes several calcsfh commands
+        that will comprise of the total dAv range.  These commands are added to the queue for later.
         """
-        pass
+        line = line.split(" ")
+        numSteps = int((upper - lower) / step) + 1 # will underestimate by one so I add one
+
+        commands = [] # list of commands to be added to queue
+        
+        currentDaV = lower
+        for i in xrange(numSteps):
+            for j, arg in enumerate(line):
+                if "-dAvRange" in arg:
+                    line[j] = "-dAv=%f" % currentDaV
+
+            commands.append(" ".join(line))
+            currentDaV += step
+        print(commands)
 
     def show(self, input):
         try:
