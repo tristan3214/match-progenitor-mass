@@ -136,6 +136,7 @@ class CommandParser(object):
                 lower = dAv[0]
                 upper = dAv[1]
                 step = dAv[2]
+                self.commands.dAvRange(lower, upper, step)
 
             else:
                 log.info("run calcsfh command - " + line)
@@ -264,8 +265,9 @@ class CommandMethods(object):
                     line[j] = "-dAv=%f" % currentDaV
 
             commands.append(" ".join(line))
+            print(commands[i])
             currentDaV += step
-        print(commands)
+
 
     def show(self, input):
         try:
