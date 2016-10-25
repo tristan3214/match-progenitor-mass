@@ -23,7 +23,8 @@ This server runs on port 42424
 """
 
 # Global Variables
-CORE_COUNT = multiprocessing.cpu_count()
+#CORE_COUNT = multiprocessing.cpu_count()
+CORE_COUNT = 8
 workQueue = Queue()
 activeThreads = {} # this should only every be one more larger than the number of CPUs on the system.
                    # main thread handles incoming data and one thread waits on events and the other threads
@@ -264,7 +265,7 @@ class CommandMethods(object):
             for j, arg in enumerate(line):
                 if "-dAvrange" in arg:
                     # add the dAv in 
-                    newLine[j] = "-dAv=%f" % currentDaV
+                    newLine[j] = "-dAv=%.3f" % currentDaV
                     # put in new file names
                     args = list(line)
 
