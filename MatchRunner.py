@@ -244,7 +244,12 @@ def parse(args):
         if "-ssp" in arg:
             flags.append(arg)
             idx.append(i)
-    args = [args[i] for i in xrange(len(args)) if i not in set(idx)] 
+
+        if "-kroupa" in arg:
+            flags.append("-kroupa")
+            idx.append(i)
+            
+    args = [args[i] for i in xrange(len(args)) if i not in set(idx)] # make a list excluding those in idx
     if len(args) > 0:
         print("Unknown flags found:", args)
         sys.exit(1)
