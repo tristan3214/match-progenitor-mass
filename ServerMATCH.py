@@ -256,6 +256,9 @@ class CommandMethods(object):
         line = line.split(" ")
         numSteps = int((upper - lower) / step) + 1 # will underestimate by one so I add one
 
+        print()
+        print(lower, upper, step)
+        
         commands = [] # list of commands to be added to queue
         
         currentDaV = lower
