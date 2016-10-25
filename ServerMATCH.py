@@ -138,7 +138,10 @@ class CommandParser(object):
                 lower = float(dAv[0])
                 upper = float(dAv[1])
                 step = float(dAv[2])
-                self.commands.dAvRange(line, lower, upper, step)
+                log.info("generating dAv commands in the specified range with step - " + line)
+                t = MatchThread(line, target=self.commands.dAvRange, args=(line, lower, upper, step), name="dAv")
+                activeThreads[t.name] = t
+                t.start()
 
             else:
                 log.info("run calcsfh command - " + line)
