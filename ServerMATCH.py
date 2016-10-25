@@ -128,7 +128,7 @@ class CommandParser(object):
                 # get attributes
                 dAv = ""
                 for i, arg in enumerate(input):
-                    if "-dAvRange" in arg:
+                    if "-dAvrange" in arg:
                         dAv = arg
 
                 dAv = dAv.split("=")[1].split(",")
