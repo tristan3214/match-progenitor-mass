@@ -1,6 +1,7 @@
 #!/astro/users/tjhillis/anaconda2/bin/python2
 from __future__ import print_function
 from __future__ import division
+from __future__ import absolute_import
 
 import multiprocessing
 import os
@@ -287,6 +288,12 @@ class CommandMethods(object):
             print(commands[i])
             print()
             currentDaV += step
+
+        for command in commands:
+            workQueue.put(command)
+
+        event.set()
+        event.clear()
 
 
     def show(self, input):
