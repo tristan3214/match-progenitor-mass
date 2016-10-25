@@ -484,6 +484,8 @@ def threadWatcher():
     """
     while True:
         event.wait()
+        # get names
+
         # find thread that activated event using "cancel" internal boolean
         for t in doneThreads:
             # join thread
@@ -494,8 +496,8 @@ def threadWatcher():
                 print(workQueue)
                 cp = CommandParser()
                 cp.parse(workQueue.get())
-
-    
+            del t
+        print("Length of doneThreads:", len(doneThreads))
 if __name__ == "__main__":
     watcher = Thread(target=threadWatcher, name="watcher")
     watcher.daemon = True
