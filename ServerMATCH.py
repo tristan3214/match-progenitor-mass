@@ -139,7 +139,7 @@ class CommandParser(object):
                 upper = float(dAv[1])
                 step = float(dAv[2])
                 log.info("generating dAv commands in the specified range with step - " + line)
-                t = MatchThread(line, target=self.commands.dAvRange, args=(line, lower, upper, step), name="dAv")
+                t = MatchThread(line, target=self.commands.dAvRange, args=(line, lower, upper, step), name=getThreadNumber())
                 activeThreads[t.name] = t
                 t.start()
 
@@ -258,11 +258,13 @@ class CommandMethods(object):
         This method takes in a calcsfh command along with the custom -dAvRange and makes several calcsfh commands
         that will comprise of the total dAv range.  These commands are added to the queue for later.
         """
+        t = threading.current_thread()
+
         line = line.split(" ")
         numSteps = int((upper - lower) / step) + 1 # will underestimate by one so I add one
-        
+
         commands = [] # list of commands to be added to queue
-        
+
         currentDaV = lower
         for i in xrange(numSteps):
             newLine = list(line)
@@ -294,6 +296,9 @@ class CommandMethods(object):
 
         for command in commands:
             workQueue.put(command)
+
+        t.cancel = True
+        doneThreads.append(activeThreads.pop(t.name))
 
         event.set()
         event.clear()
