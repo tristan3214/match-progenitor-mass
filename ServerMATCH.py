@@ -266,8 +266,10 @@ class CommandMethods(object):
             for j, arg in enumerate(line):
                 newLine = list(line)
                 if "-dAvrange" in arg:
+                    print(newLine)
                     print(currentDaV)
                     newLine[j] = "-dAv=%f" % currentDaV
+                    print(newLine)
 
             commands.append(" ".join(newLine))
             print(commands[i])
