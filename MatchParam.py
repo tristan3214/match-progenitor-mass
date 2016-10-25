@@ -8,16 +8,16 @@ import sys
 import numpy as np
 
 """
-IMF m-Mmin m-Mmax d(m-M) Avmin Avmax dAv
-    logZmin logZmax dlogZ
-    BF Bad0 Bad1
-    Ncmds
-    Vstep V-Istep fake_sm V-Imin V-Imax V,I  (per CMD)
-    Vmin Vmax V                              (per filter)
-    Imin Imax I                              (per filter)
-    Nexclude_gates exclude_gates Ncombine_gates combine_gates (per CMD)
-    Ntbins
-      To Tf (for each time bin)
+m-Mmin m-Mmax d(m-M) Avmin Avmax dAv
+logZmin logZmax dlogZ
+BF Bad0 Bad1
+Ncmds
+Vstep V-Istep fake_sm V-Imin V-Imax V,I  (per CMD)
+Vmin Vmax V                              (per filter)
+Imin Imax I                              (per filter)
+Nexclude_gates exclude_gates Ncombine_gates combine_gates (per CMD)
+Ntbins
+To Tf (for each time bin)
 
 """
 
@@ -36,7 +36,7 @@ class MatchParam(object):
         self.fake = fakeFile # fake file to be fed to calcsfh
 
         # dictionary that will fill with all the parameters (some are to be added in parseDefalut method)
-        self.parameters = {"IMF":None, "m-Mmin":None, "d(m-M)":None, "Avmin":None, "Avmax":None, "dAv":None,
+        self.parameters = {"m-Mmin":None, "d(m-M)":None, "Avmin":None, "Avmax":None, "dAv":None,
                            "logZmin":None, "logZmax":None, "dlogZ":None, "BF":None, "Bad0":None, "Bad1":None,
                            "Ncmds":None, "background":None, "scale":-1}
 
@@ -96,8 +96,8 @@ class MatchParam(object):
         f = open(path + name, 'w')
 
         # line one (IMF m-Mmin m-Mmax d(m-M) Avmin Avmax dAv)
-        f.write("%.2f %.2f %.2f %.2f %.3f %.3f %.2f\n" % (self.parameters["IMF"], self.parameters["m-Mmin"], self.parameters["m-Mmax"],
-                                            self.parameters["d(m-M)"], self.parameters["Avmin"], self.parameters["Avmax"],self.parameters["dAv"]))
+        f.write("%.2f %.2f %.2f %.3f %.3f %.2f\n" % (self.parameters["m-Mmin"], self.parameters["m-Mmax"], self.parameters["d(m-M)"],
+                                                     self.parameters["Avmin"], self.parameters["Avmax"],self.parameters["dAv"]))
 
         # line two (logZmin logZmax dlogZ) w/zinc (logZmin logZmax dlogZ initMin initMax presMin presMax)
         if not self.zinc or self.ssp:
@@ -172,20 +172,19 @@ class MatchParam(object):
         line = self._checkForEnd(f.readline())
         try:
             params = map(float, line.split())
-            if len(params) < 7 or len(params) > 7:
+            if len(params) < 6 or len(params) > 6:
                 print("Missing/extra paramter(s) in line one of default parameter file:")
                 print(line)
                 sys.exit(1)
             else:
 
-                self.parameters["IMF"] = params[0]
-                self.parameters["m-Mmin"] = params[1]
-                self.parameters["m-Mmax"] = params[2]
-                self.parameters["d(m-M)"] = params[3]
-                self.parameters["Avmin"] = params[4]
-                self.parameters["Avmax"] = params[5]
-                print("param 6", params[6])
-                self.parameters["dAv"] = params[6]
+                self.parameters["m-Mmin"] = params[0]
+                self.parameters["m-Mmax"] = params[1]
+                self.parameters["d(m-M)"] = params[2]
+                self.parameters["Avmin"] = params[3]
+                self.parameters["Avmax"] = params[4]
+                print("param 6", params[5])
+                self.parameters["dAv"] = params[5]
 
         except ValueError:
             print("Could not convert one of the arguments to a float:")
