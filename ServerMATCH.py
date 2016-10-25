@@ -266,6 +266,7 @@ class CommandMethods(object):
 
             commands.append(" ".join(line))
             print(commands[i])
+            print()
             currentDaV += step
 
 
