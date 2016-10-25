@@ -265,6 +265,7 @@ class CommandMethods(object):
         for i in xrange(numSteps):
             for j, arg in enumerate(line):
                 if "-dAvrange" in arg:
+                    print(currentDaV)
                     line[j] = "-dAv=%f" % currentDaV
 
             commands.append(" ".join(line))
