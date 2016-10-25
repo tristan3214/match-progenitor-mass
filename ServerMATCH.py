@@ -136,7 +136,7 @@ class CommandParser(object):
                 lower = float(dAv[0])
                 upper = float(dAv[1])
                 step = float(dAv[2])
-                self.commands.dAvRange(lower, upper, step)
+                self.commands.dAvRange(line, lower, upper, step)
 
             else:
                 log.info("run calcsfh command - " + line)
@@ -248,7 +248,7 @@ class CommandMethods(object):
         event.set()
         event.clear()
 
-    def dAvRange(self, line, lower=0.0, upper=1.0, step=0.1):
+    def dAvRange(self, line, lower=0.0, upper=1.0, step=0.2):
         """
         This method takes in a calcsfh command along with the custom -dAvRange and makes several calcsfh commands
         that will comprise of the total dAv range.  These commands are added to the queue for later.
@@ -261,7 +261,7 @@ class CommandMethods(object):
         currentDaV = lower
         for i in xrange(numSteps):
             for j, arg in enumerate(line):
-                if "-dAvRange" in arg:
+                if "-dAvrange" in arg:
                     line[j] = "-dAv=%f" % currentDaV
 
             commands.append(" ".join(line))
