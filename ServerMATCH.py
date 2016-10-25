@@ -269,7 +269,7 @@ class CommandMethods(object):
                     print(currentDaV)
                     newLine[j] = "-dAv=%f" % currentDaV
 
-            commands.append(" ".join(line))
+            commands.append(" ".join(newLine))
             print(commands[i])
             print()
             currentDaV += step
