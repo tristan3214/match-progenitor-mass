@@ -233,7 +233,10 @@ def parse(args):
             except ValueError:
                 print("Could not convert -dAv value into a float...please check argument.")
                 sys.exit(1)
-
+        if "-dAvrange=" in arg:
+            flags.append(arg)
+            idx.append(i)
+                
         if "-mcdata" in arg:
             flags.append(arg)
             idx.append(i)
