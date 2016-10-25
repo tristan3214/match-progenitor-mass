@@ -131,7 +131,7 @@ class CommandParser(object):
                     if "-dAvRange" in arg:
                         dAv = arg
 
-                dAv = dAv.split("=").split(",")
+                dAv = dAv.split("=")[1].split(",")
 
                 lower = dAv[0]
                 upper = dAv[1]
