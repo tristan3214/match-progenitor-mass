@@ -133,9 +133,9 @@ class CommandParser(object):
 
                 dAv = dAv.split("=")[1].split(",")
 
-                lower = dAv[0]
-                upper = dAv[1]
-                step = dAv[2]
+                lower = float(dAv[0])
+                upper = float(dAv[1])
+                step = float(dAv[2])
                 self.commands.dAvRange(lower, upper, step)
 
             else:
