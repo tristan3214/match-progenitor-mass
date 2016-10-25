@@ -255,9 +255,6 @@ class CommandMethods(object):
         """
         line = line.split(" ")
         numSteps = int((upper - lower) / step) + 1 # will underestimate by one so I add one
-
-        print()
-        print(lower, upper, step)
         
         commands = [] # list of commands to be added to queue
         
@@ -266,10 +263,24 @@ class CommandMethods(object):
             newLine = list(line)
             for j, arg in enumerate(line):
                 if "-dAvrange" in arg:
-                    #print(newLine)
-                    print(currentDaV)
+                    # add the dAv in 
                     newLine[j] = "-dAv=%f" % currentDaV
-                    #print(newLine)
+                    # put in new file names
+                    args = list(line)
+
+                    name = args[3].split("/")
+                    name[-1] += ("_dAv_%.2f" % currentDaV).replace(".", "-")
+                    name = "/".join(name)
+                    newLine[3] = name
+
+                    output = args[-1].split("/")
+                    outputName = output[-1].split(".")
+                    outputName[0] += ("_dAv_%.2f" % currentDaV).replace(".", "-")
+                    outputName = ".".join(outputName)
+                    output[-1] = outputName
+                    output = "/".join(output)
+                    newLine[-1] = output
+                    
 
             commands.append(" ".join(newLine))
             print(commands[i])
