@@ -77,7 +77,7 @@ class MatchExecuter(basic.LineReceiver):
         log.info("Received:" +  line)
         input = line.split(" ")
         # If there are enough open threads then assign a command
-        if len(activeThreads) + 1 <= CORE_COUNT or input[0] == "cancel" or input[0] == "show" or "-finddAv" in line: 
+        if len(activeThreads) + 1 <= CORE_COUNT or input[0] == "cancel" or input[0] == "show" or "-dAvrange" in line: 
             cp = CommandParser()
             data = cp.parse(line)
             if data is not None:
