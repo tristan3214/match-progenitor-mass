@@ -30,7 +30,7 @@ workQueue = Queue()
 activeThreads = {} # this should only every be one more larger than the number of CPUs on the system.
                    # main thread handles incoming data and one thread waits on events and the other threads
                    # execute the bash commands.
-doneThreads = []
+doneThreads = Queue()
 event = threading.Event() # a single thread waits for set to join a certain thread
 log = MyLogger.myLogger("MatchServer", "server")
 
@@ -248,7 +248,7 @@ class CommandMethods(object):
             f.close()
             
         t.cancel = True
-        doneThreads.append(activeThreads.pop(t.name))
+        doneThreads.put(activeThreads.pop(t.name))
         
         event.set()
         event.clear()
@@ -298,7 +298,7 @@ class CommandMethods(object):
             workQueue.put(command)
 
         t.cancel = True
-        doneThreads.append(activeThreads.pop(t.name))
+        doneThreads.put(activeThreads.pop(t.name))
 
         event.set()
         event.clear()
@@ -380,7 +380,7 @@ class CommandMethods(object):
             time.sleep(0.5) # add sleep so this isn't as intensive
             
         t.cancel = True # says this thread is ready to be joined and removed from the dictionary
-        doneThreads.append(activeThreads.pop(t.name))
+        doneThreads.put(activeThreads.pop(t.name))
         
         event.set()
         event.clear()
@@ -462,6 +462,11 @@ def stripCalcsfh(line):
 
     return " ".join(line)
 
+def emptyQueue(queue):
+    size = queue.qsize()
+    for i in xrange(size):
+        queue.get()
+
 class MatchThread(threading.Thread):
     """
     This acts like a regular Thread object and is called the same only there are custom class variables.
@@ -485,18 +490,29 @@ def threadWatcher():
     while True:
         event.wait()
         # get names
-
+        
         # find thread that activated event using "cancel" internal boolean
-        for t in doneThreads:
+        size = doneThreads.qsize()
+        for i in xrange(size):
+            t = doneThreads.get()
             # join thread
             t.join()
-            
+            """
+            if t.name == "dAv":
+                activeCount = len(activeThreads)
+                left = CORE_COUNT - activeCount
+                if left > 0:
+                    for j in xrange(left):
+                        cp = CommandParser()
+                        cp.parse(workQueue.get())
+                continue
+            """
             # if something is in the work queue set another thread to the task
             if workQueue.qsize() > 0:
                 print(workQueue)
                 cp = CommandParser()
                 cp.parse(workQueue.get())
-            del t
+                
         print("Length of doneThreads:", len(doneThreads))
 if __name__ == "__main__":
     watcher = Thread(target=threadWatcher, name="watcher")
