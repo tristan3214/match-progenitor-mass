@@ -139,7 +139,7 @@ class CommandParser(object):
                 upper = float(dAv[1])
                 step = float(dAv[2])
                 log.info("generating dAv commands in the specified range with step - " + line)
-                t = MatchThread(line, target=self.commands.dAvRange, args=(line, lower, upper, step), name=getThreadNumber())
+                t = MatchThread(line, target=self.commands.dAvRange, args=(line, lower, upper, step), name="dAv")
                 activeThreads[t.name] = t
                 t.start()
 
@@ -497,7 +497,7 @@ def threadWatcher():
             t = doneThreads.get()
             # join thread
             t.join()
-            """
+            
             if t.name == "dAv":
                 activeCount = len(activeThreads)
                 left = CORE_COUNT - activeCount
@@ -506,14 +506,13 @@ def threadWatcher():
                         cp = CommandParser()
                         cp.parse(workQueue.get())
                 continue
-            """
+            
             # if something is in the work queue set another thread to the task
             if workQueue.qsize() > 0:
                 print(workQueue)
                 cp = CommandParser()
                 cp.parse(workQueue.get())
                 
-        print("Length of doneThreads:", size)
 if __name__ == "__main__":
     watcher = Thread(target=threadWatcher, name="watcher")
     watcher.daemon = True
