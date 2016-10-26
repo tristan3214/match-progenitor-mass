@@ -513,7 +513,7 @@ def threadWatcher():
                 cp = CommandParser()
                 cp.parse(workQueue.get())
                 
-        print("Length of doneThreads:", len(doneThreads))
+        print("Length of doneThreads:", size)
 if __name__ == "__main__":
     watcher = Thread(target=threadWatcher, name="watcher")
     watcher.daemon = True
