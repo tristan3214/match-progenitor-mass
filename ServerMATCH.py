@@ -217,7 +217,7 @@ class CommandMethods(object):
                     time.sleep(0.5)
             else:
                 # run zcombine
-                outPutFile = line.split()[-1]
+                outputFile = line.split()[-1]
                 fitName = outputFile.split("/")[-1].split(".")[0]
                 path = "/".join(outputFile.split("/")[:-1]) + "/"
 
