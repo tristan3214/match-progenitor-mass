@@ -275,10 +275,10 @@ class CommandMethods(object):
                     # put in new file names
                     args = list(line)
 
-                    name = args[3].split("/")
+                    name = args[4].split("/")
                     name[-1] += ("_dAv_%.2f" % currentDaV).replace(".", "-")
                     name = "/".join(name)
-                    newLine[3] = name
+                    newLine[4] = name
 
                     output = args[-1].split("/")
                     outputName = output[-1].split(".")
@@ -290,6 +290,7 @@ class CommandMethods(object):
                     
 
             commands.append(" ".join(newLine))
+            print(newLine)
             print(commands[i])
             print()
             currentDaV += step
