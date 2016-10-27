@@ -248,8 +248,8 @@ def parse(args):
             flags.append(arg)
             idx.append(i)
 
-        if "-kroupa" in arg:
-            flags.append("-kroupa")
+        if "-Kroupa" in arg:
+            flags.append(arg)
             idx.append(i)
             
     args = [args[i] for i in xrange(len(args)) if i not in set(idx)] # make a list excluding those in idx
