@@ -249,6 +249,7 @@ class CommandMethods(object):
             f.close()
             
         t.cancel = True
+        print("ACTIVE THREADS:", activeThreads)
         doneThreads.put(activeThreads.pop(t.name))
         
         event.set()
