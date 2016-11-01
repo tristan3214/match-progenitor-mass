@@ -502,6 +502,7 @@ def threadWatcher():
             if t.name == "dAv":
                 activeCount = len(activeThreads)
                 left = CORE_COUNT - activeCount
+                print("CORES LEFT", left)
                 if left > 0:
                     for j in xrange(left):
                         cp = CommandParser()
