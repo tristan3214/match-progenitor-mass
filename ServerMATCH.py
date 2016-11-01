@@ -518,6 +518,7 @@ def threadWatcher():
                 print(workQueue)
                 cp = CommandParser()
                 cp.parse(workQueue.get())
+        print("BACK TO WAITING")
                 
 if __name__ == "__main__":
     watcher = Thread(target=threadWatcher, name="watcher")
