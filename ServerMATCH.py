@@ -494,6 +494,7 @@ def threadWatcher():
         
         # find thread that activated event using "cancel" internal boolean
         size = doneThreads.qsize()
+        print("ACTIVE THREADS:", activeThreads)
         for i in xrange(size):
             t = doneThreads.get()
             # join thread
