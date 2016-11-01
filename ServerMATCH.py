@@ -189,6 +189,7 @@ class CommandMethods(object):
         
         while pipe.poll() is None:
             if t.cancel:
+                print("CANCELED", t.name)
                 os.killpg(os.getpgid(pipe.pid), signal.SIGTERM) # kills group of processes when present
                 break
             time.sleep(0.5)
@@ -227,7 +228,6 @@ class CommandMethods(object):
                 pipe = subprocess.Popen(zcCommand, shell=True, preexec_fn=os.setsid)
                 while pipe.poll() is None:
                     if t.cancel:
-                        print("CANCELED", t.name)
                         os.killpg(os.getpgid(pipe.pid), signal.SIGTERM)
                         break
                     time.sleep(0.5)
