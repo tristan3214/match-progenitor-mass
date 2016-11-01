@@ -491,6 +491,7 @@ def threadWatcher():
     such an event is sending a command for the thread to be canceled or if the thread encounters an error.
     """
     while True:
+        print("WAITING")
         event.wait()
         # get names
         print("TRIGGERED THREAD WATCHER")
