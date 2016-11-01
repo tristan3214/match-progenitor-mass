@@ -511,7 +511,7 @@ def threadWatcher():
                     for j in xrange(left):
                         cp = CommandParser()
                         cp.parse(workQueue.get())
-                continue
+                #continue
             
             # if something is in the work queue set another thread to the task
             if workQueue.qsize() > 0:
