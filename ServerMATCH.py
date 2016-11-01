@@ -493,7 +493,7 @@ def threadWatcher():
     while True:
         event.wait()
         # get names
-        
+        print("TRIGGERED THREAD WATCHER")
         # find thread that activated event using "cancel" internal boolean
         size = doneThreads.qsize()
         print("ACTIVE THREADS:", activeThreads)
