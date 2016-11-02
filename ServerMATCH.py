@@ -494,7 +494,7 @@ def threadWatcher():
         print("WAITING")
         event.wait()
         # get names
-        print("TRIGGERED THREAD WATCHER")
+        print("TRIGGERED THREAD WATCHER", t.name)
         # find thread that activated event using "cancel" internal boolean
         size = doneThreads.qsize()
         print("ACTIVE THREADS:", activeThreads)
@@ -511,7 +511,8 @@ def threadWatcher():
                     for j in xrange(left):
                         cp = CommandParser()
                         cp.parse(workQueue.get())
-                #continue
+                        print("HELLO")
+                continue
             
             # if something is in the work queue set another thread to the task
             if workQueue.qsize() > 0:
