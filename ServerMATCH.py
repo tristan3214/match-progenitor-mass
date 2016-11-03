@@ -493,13 +493,15 @@ def threadWatcher():
     while True:
         print("WAITING")
         event.wait()
-        # get names
+
         print("TRIGGERED THREAD WATCHER")
         # find thread that activated event using "cancel" internal boolean
         size = doneThreads.qsize()
         print("ACTIVE THREADS:", activeThreads)
-        for i in xrange(size):
+        for i in xrange(size):            
             t = doneThreads.get()
+            # join thread
+            t.join()
             print("THREAD NAME:", t.name)
             if t.name == "dAv":
                 activeCount = len(activeThreads)
@@ -517,9 +519,6 @@ def threadWatcher():
                 print(workQueue)
                 cp = CommandParser()
                 cp.parse(workQueue.get())
-
-            # join thread
-            t.join()
 
         print("BACK TO WAITING")
                 
