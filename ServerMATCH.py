@@ -508,10 +508,17 @@ def threadWatcher():
                 left = CORE_COUNT - activeCount
                 print("CORES LEFT", left)
                 if left > 0:
-                    for j in xrange(left):
-                        cp = CommandParser()
-                        cp.parse(workQueue.get())
-                        print("HELLO")
+                    workSize = workQueue.qsize()
+                    if workSize > left:
+                        for j in xrange(left):
+                            cp = CommandParser()
+                            cp.parse(workQueue.get())
+                            print("Queue is large: Parsing dAv line")
+                    else:
+                        for j in xrange(workSize):
+                            cp = CommandParser()
+                            cp.parse(workQueue.get())
+                            print("Queue is small: Parsing dAv line")
                 continue
             
             # if something is in the work queue set another thread to the task
