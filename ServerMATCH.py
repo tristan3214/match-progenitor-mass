@@ -494,6 +494,7 @@ def threadWatcher():
         print("WAITING")
         event.wait()
 
+        log.info("Thread finished starting more processes")
         print("TRIGGERED THREAD WATCHER")
         # find thread that activated event using "cancel" internal boolean
         size = doneThreads.qsize()
@@ -502,7 +503,10 @@ def threadWatcher():
             t = doneThreads.get()
             # join thread
             t.join()
+
             print("THREAD NAME:", t.name)
+            # Start all the dAv commands that were fed to queue as long as there are
+            # threads open.
             if t.name == "dAv":
                 activeCount = len(activeThreads)
                 left = CORE_COUNT - activeCount
