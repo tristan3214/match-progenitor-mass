@@ -51,6 +51,7 @@ def main():
 
     # send command to server
     #send(commandList)
+    print(commandList)
 
 def listRun(run_list):
     """
