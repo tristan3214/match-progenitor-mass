@@ -44,13 +44,55 @@ def main():
     if args[0] == 'single': # handles single runs
         commandList = singleRun(args[1:])
     elif args[0] == 'list': # handles passed in list of directories
+        commandList = listRun(args[1])
         pass
     else: # handles the case where one directory is passed in.
         pass
 
     # send command to server
-    send(commandList)
+    #send(commandList)
 
+def listRun(run_list):
+    """
+    This takes in a list of lines that give the parameter, photometry, and fake files along with the fit name
+    and any flags the user wants to user.
+    """
+    f = open(run_list, "r")
+    commands = []
+    for line in f:
+        line = line.split()
+
+        # grab the files and check if they exist
+        files = [line[0], line[1], line[2]]
+        paramFile = None
+        photFile = None
+        fakeFile = None
+        for file in files:
+            if file.split(".")[-1] == "param":
+                paramFile = file
+            elif file.split(".")[-1] == "phot":
+                photFile = file
+            elif file.split(".")[-1] == "fake":
+                fakeFile = file
+            else:
+                print("Didn't find one of the three files ending in param, phot, or fake...")
+                sys.exit(1)
+        fitName = line[3]
+
+        flags = None
+        try:
+            flags = parse(line[4:])
+        except KeyError: # no flags
+            pass
+            
+        # build calcsfh commands up
+        command = "calcsfh %s %s %s %s" % (paramFile, photFile, fakeFile, fitName)
+        for flag in flags:
+            command += " %s" % flag
+        command += " > %s.co" % fitName
+        commands.append(command)
+    return commands
+    
 def singleRun(args):
     """
     Takes in a string of arguments that are required to have a ".phot" and ".fake" file followed by optional
