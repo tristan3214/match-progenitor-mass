@@ -18,7 +18,6 @@ Imin Imax I                              (per filter)
 Nexclude_gates exclude_gates Ncombine_gates combine_gates (per CMD)
 Ntbins
 To Tf (for each time bin)
-
 """
 
 class MatchParam(object):
