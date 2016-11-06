@@ -50,8 +50,8 @@ def main():
         pass
 
     # send command to server
-    #send(commandList)
-    print(commandList)
+    send(commandList)
+    #print(commandList[0])
 
 def listRun(run_list):
     """
@@ -292,6 +292,10 @@ def parse(args):
             idx.append(i)
 
         if "-Kroupa" in arg:
+            flags.append(arg)
+            idx.append(i)
+
+        if "-zinc" in arg:
             flags.append(arg)
             idx.append(i)
             
