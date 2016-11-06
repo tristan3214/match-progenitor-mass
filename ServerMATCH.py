@@ -73,7 +73,7 @@ def getdAvName():
             else:
                 break
         num = count
-    return num
+    return int(num)
 
 class MatchExecuter(basic.LineReceiver):
     """
