@@ -139,7 +139,7 @@ class CommandParser(object):
                 upper = float(dAv[1])
                 step = float(dAv[2])
                 log.info("generating dAv commands in the specified range with step - " + line)
-                t = MatchThread(line, target=self.commands.dAvRange, args=(line, lower, upper, step), name="dAv")
+                t = MatchThread(line, target=self.commands.dAvRange, args=(line, lower, upper, step), name=None)
                 activeThreads[t.name] = t
                 t.start()
 
@@ -507,7 +507,7 @@ def threadWatcher():
             print("THREAD NAME:", t.name)
             # Start all the dAv commands that were fed to queue as long as there are
             # threads open.
-            if t.name == "dAv":
+            if t.name == None: # if the name is None then it is a run that used dAvrange
                 activeCount = len(activeThreads)
                 left = CORE_COUNT - activeCount
                 print("CORES LEFT", left)
