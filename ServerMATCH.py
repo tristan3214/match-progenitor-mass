@@ -30,6 +30,7 @@ workQueue = Queue()
 activeThreads = {} # this should only every be one more larger than the number of CPUs on the system.
                    # main thread handles incoming data and one thread waits on events and the other threads
                    # execute the bash commands.
+dAvRangeThreads = {}
 doneThreads = Queue()
 event = threading.Event() # a single thread waits for set to join a certain thread
 log = MyLogger.myLogger("MatchServer", "server")
@@ -41,6 +42,26 @@ def getThreadNumber():
         num = '1'
     else: # get the thread number that is missing in the range of 1 to 8
         keys = activeThreads.keys()
+        print(keys)
+        keys = map(int, keys)
+        keys = sorted(keys, key=int)
+        print(keys)
+        count = 1
+        for name in keys:
+            if count == name:
+                count += 1 
+            else:
+                break
+        num = count
+    return num
+def getdAvName():
+    print(dAvRangeThreads)
+    num = None
+    if len(dAvRangeThreads) == 0: # no threads yet
+        num = '1'
+    else: # get the thread number that is missing in the range of 1 to 8
+        keys = dAvRangeThreads.keys()
+        keys = [key.split("_")[-1] for key in keys]
         print(keys)
         keys = map(int, keys)
         keys = sorted(keys, key=int)
@@ -139,8 +160,8 @@ class CommandParser(object):
                 upper = float(dAv[1])
                 step = float(dAv[2])
                 log.info("generating dAv commands in the specified range with step - " + line)
-                t = MatchThread(line, target=self.commands.dAvRange, args=(line, lower, upper, step), name=None)
-                activeThreads[t.name] = t
+                t = MatchThread(line, target=self.commands.dAvRange, args=(line, lower, upper, step), name="dAv_%d"%getdAvName())
+                dAvRangeThreads[t.name] = t
                 t.start()
 
             else:
@@ -301,7 +322,7 @@ class CommandMethods(object):
             workQueue.put(command)
 
         t.cancel = True
-        doneThreads.put(activeThreads.pop(t.name))
+        doneThreads.put(dAvRangeThreads.pop(t.name))
 
         event.set()
         event.clear()
@@ -507,7 +528,7 @@ def threadWatcher():
             print("THREAD NAME:", t.name)
             # Start all the dAv commands that were fed to queue as long as there are
             # threads open.
-            if t.name == None: # if the name is None then it is a run that used dAvrange
+            if "dAv" in t.name: # if the name is None then it is a run that used dAvrange
                 activeCount = len(activeThreads)
                 left = CORE_COUNT - activeCount
                 print("CORES LEFT", left)
