@@ -156,7 +156,9 @@ class MatchParam(object):
         # last line
         f.write("%s %s %s" % (self.parameters["lLine_1"], self.parameters["lLine_2"], str(self.parameters["scale"])))
         if self.parameters["background"] is not None:
-            f.write("%s" % self.parameters["background"])
+            f.write("%s\n" % self.parameters["background"])
+        else:
+            f.write("\n")
 
         f.close()
 
