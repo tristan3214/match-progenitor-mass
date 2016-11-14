@@ -361,7 +361,8 @@ class CommandMethods(object):
                 return line
             if input[1] == "number":
                 count = len(activeThreads) + workQueue.qsize()
-                print("Process to run:", count)
+                line = "Process to run: " + str(count)
+                return line
         except IndexError:
             # show all commands in queue and in thread
             line = ""
