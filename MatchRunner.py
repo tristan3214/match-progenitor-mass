@@ -28,7 +28,7 @@ One does so by putting sinlge after the executable call.  If a .param file is no
 this will code will use the default file in it's own directory and build a parameter file off of this and copy it over.
 
 This program also supports the following MATCH flags: -dAv, -zinc (autodetected through parameter file), more to come (-full,
-                                                      -ssp, -mcdata)
+                                                      -ssp, -mcdata, -full)
 
 Ultimately, this program generates a MATCH command as a string and passes it to the MATCH server where it will be run.
 """
@@ -324,6 +324,7 @@ def send(commandList):
     for command in commandList:
         tn.write(command + "\r\n") # twisted server appears to need the \r\n at the end; write to port
         log.info("Sent command: %s" % command)
+        time.sleep(0.5)
 
     # close connection cleanly
     tn.close()
