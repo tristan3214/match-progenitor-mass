@@ -98,7 +98,6 @@ class MatchExecuter(basic.LineReceiver):
         Method desc.
         """
         log.info("Received:" +  line)
-        """
         input = line.split(" ")
         # If there are enough open threads then assign a command
         if len(activeThreads) + 1 <= CORE_COUNT or input[0] == "cancel" or input[0] == "show" or "-dAvrange" in line: 
@@ -109,7 +108,7 @@ class MatchExecuter(basic.LineReceiver):
         else: # If all processes are used put received line in a work Queue
             log.info("All threads taking adding command to queue - " + line)
             workQueue.put(line) 
-        """
+        
     def sendData(self, data):
         """
         Decorator method to self.sendMessage(...) so that it
