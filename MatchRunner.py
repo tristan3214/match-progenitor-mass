@@ -248,7 +248,7 @@ def singleRun(args):
                    + " > " + fitName + ".co"
     # create empty file so getFitName can iterated to another fit number
     #subprocess.call('touch %s' % (os.getcwd() + "/" + fitName), shell=True)
-    f = open(os.getcwd() + "/" + fitName, 'w')
+    f = open(workingD + fitName, "w")
     f.close()
     
     log.info("Generated command (%s): %s" % (os.getcwd(), stripCommand))
