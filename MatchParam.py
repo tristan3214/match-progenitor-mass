@@ -49,9 +49,9 @@ class MatchParam(object):
         self.name = None
 
         self._parseDefault()
-        print(self.parameters.keys())
-        print(self.parameters["dAv"])
-        print(self.parameters["background"])
+        #print(self.parameters.keys())
+        #print(self.parameters["dAv"])
+        #print(self.parameters["background"])
 
     def change(self, string):
         """
@@ -502,6 +502,140 @@ class MatchParam(object):
         """
         Calculates the 50 percent completeness limit for the passed in fake file.
         """
+
+                # change this to get finer/coarser binning
+        size_of_bin = 0.1 # set size of bin
+
+        # read in fake file columns
+        f336_in, f438_in, f814_in, f336_outin, f438_outin, f814_outin = np.loadtxt(self.fake,
+                                                                                   usecols=[0, 1, 2, 3, 4, 5], unpack=True)
+
+        ### Get the 50% completeness of F336W
+
+        good_idx = np.where(f336_in < 30.0)[0]
+        f336_in, f336_outin = f336_in[good_idx], f336_outin[good_idx]
+        f336_brightest, f336_faintest = f336_in.min(), f336_in.max()
+        number_of_bins = int(np.ceil((f336_faintest - f336_brightest) / size_of_bin))
+
+        f336_mag = []
+        f336_fraction = []
+
+        begin_mag = f336_brightest
+        end_mag = f336_brightest + size_of_bin
+        for i in xrange(number_of_bins):
+            idx = np.where((f336_in >= begin_mag) & (f336_in < end_mag))[0]
+            recovered = f336_outin[idx]
+            recovered = recovered[(recovered>=-1.0) & (recovered<=1.0)]
+            if i == 0:
+                f336_mag.append(begin_mag)
+                f336_mag.append(end_mag)
+
+                if idx.size <= 0:
+                    f336_fraction.append(1.0)
+                    f336_fraction.append(1.0)
+                else:
+                    f336_fraction.append(recovered.size / idx.size)
+                    f336_fraction.append(recovered.size / idx.size)
+            else:
+                f336_mag.append(end_mag)
+
+                if idx.size <= 0:
+                    f336_fraction.append(1.0)
+                else:
+                    f336_fraction.append(recovered.size / idx.size)
+
+            begin_mag = end_mag
+            end_mag = end_mag + size_of_bin
+
+        f336_mag, f336_fraction = np.asarray(f336_mag), np.asarray(f336_fraction)
+        f336_50 = self._interpolate50Mag(f336_mag, f336_fraction)
+
+        #### Get the 50% completeness for F438W
+
+        good_idx = np.where(f438_in < 30.0)[0]
+        f438_in, f438_outin = f438_in[good_idx], f438_outin[good_idx]
+        f438_brightest, f438_faintest = f438_in.min(), f438_in.max()
+        number_of_bins = int(np.ceil((f438_faintest - f438_brightest) / size_of_bin))
+
+        f438_mag = []
+        f438_fraction = []
+
+        begin_mag = f438_brightest
+        end_mag = f438_brightest + size_of_bin
+        for i in xrange(number_of_bins):
+            idx = np.where((f438_in >= begin_mag) & (f438_in < end_mag))[0]
+            recovered = f438_outin[idx]
+            recovered = recovered[(recovered>-1.0) & (recovered<1.0)]
+            if i == 0:
+                f438_mag.append(begin_mag)
+                f438_mag.append(end_mag)
+
+                if idx.size <= 0:
+                    f438_fraction.append(1.0)
+                    f438_fraction.append(1.0)
+                else:
+                    f438_fraction.append(recovered.size / idx.size)
+                    f438_fraction.append(recovered.size / idx.size)
+            else:
+                f438_mag.append(end_mag)
+
+                if idx.size <= 0:
+                    f438_fraction.append(1.0)
+                else:
+                    f438_fraction.append(recovered.size / idx.size)
+
+            begin_mag = end_mag
+            end_mag = end_mag + size_of_bin
+
+        f438_mag, f438_fraction = np.asarray(f438_mag), np.asarray(f438_fraction)
+        f438_50 = self._interpolate50Mag(f438_mag, f438_fraction)
+
+        ### Get the 50% completeness for F814W
+
+        good_idx = np.where(f814_in < 30.0)[0]
+        f814_in, f814_outin = f814_in[good_idx], f814_outin[good_idx]
+        f814_brightest, f814_faintest = f814_in.min(), f814_in.max()
+        number_of_bins = int(np.ceil((f814_faintest - f814_brightest) / size_of_bin))
+
+        f814_mag = []
+        f814_fraction = []
+
+        begin_mag = f814_brightest
+        end_mag = f814_brightest + size_of_bin
+        for i in xrange(number_of_bins):
+            idx = np.where((f814_in >= begin_mag) & (f814_in < end_mag))[0]
+            recovered = f814_outin[idx]
+            recovered = recovered[(recovered>-1.0) & (recovered<1.0)]
+            if i == 0:
+                f814_mag.append(begin_mag)
+                f814_mag.append(end_mag)
+
+                if idx.size <= 0:
+                    f814_fraction.append(1.0)
+                    f814_fraction.append(1.0)
+                else:
+                    f814_fraction.append(recovered.size / idx.size)
+                    f814_fraction.append(recovered.size / idx.size)
+            else:
+                f814_mag.append(end_mag)
+
+                if idx.size <= 0:
+                    f814_fraction.append(1.0)
+                else:
+                    f814_fraction.append(recovered.size / idx.size)
+
+            begin_mag = end_mag
+            end_mag = end_mag + size_of_bin
+
+        f814_mag, f814_fraction = np.asarray(f814_mag), np.asarray(f814_fraction)
+        f814_50 = self._interpolate50Mag(f814_mag, f814_fraction)
+
+        # Print interpolations
+        print("F336W 50%:", f336_50)
+        print("F438W 50%:", f438_50)
+        print("F814W 50%:", f814_50)
+
+        """
         f336_in, f438_in, f814_in, f336_outin, f438_outin, f814_outin = np.loadtxt(self.fake,
                                                                                    usecols=[0, 1, 2, 3, 4, 5],
                                                                                    unpack=True)
@@ -576,10 +710,12 @@ class MatchParam(object):
         f438_50 = round(self._extrapolate50Mag(f438_mags, f438_fraction), 1)
         f814_50 = round(self._extrapolate50Mag(f814_mags, f814_fraction), 1)
 
+
         # return these magnitude values
         return [f336_50, f438_50, f814_50]
+        """
 
-    def _extrapolate50Mag(self, mags, fracs):
+    def _interpolate50Mag(self, mags, fracs):
         """
         Linearly extrapolates between the points that bound 0.5. 
         """
@@ -609,7 +745,7 @@ class MatchParam(object):
         nextFile = ""
         if size > 0:
             numbers = [int(files[i].split("_")[1].split(".")[0]) for i in xrange(len(files))]
-            print(numbers)
+            #print(numbers)
             
             numbers = sorted(numbers, key=int)
             nextVal = numbers[-1] + 1
