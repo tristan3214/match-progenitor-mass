@@ -631,89 +631,11 @@ class MatchParam(object):
         f814_50 = self._interpolate50Mag(f814_mag, f814_fraction)
 
         # Print interpolations
-        print("F336W 50%:", f336_50)
-        print("F438W 50%:", f438_50)
-        print("F814W 50%:", f814_50)
+        #print("F336W 50%:", f336_50)
+        #print("F438W 50%:", f438_50)
+        #print("F814W 50%:", f814_50)
 
-        """
-        f336_in, f438_in, f814_in, f336_outin, f438_outin, f814_outin = np.loadtxt(self.fake,
-                                                                                   usecols=[0, 1, 2, 3, 4, 5],
-                                                                                   unpack=True)
-
-        tolerance = 1.0  # leniency on recovered stars
-        size_of_bin = 0.2
-
-        tot_counter = 0
-        recovered_counter = 0
-        sorted_f336_index = np.argsort(f336_in)
-        sorted_f438_index = np.argsort(f438_in)
-        sorted_f814_index = np.argsort(f814_in)
-
-        binList = []
-        firstMag = f336_in[sorted_f336_index[0]]
-
-        for i in sorted_f336_index:
-            if f336_in[i] - firstMag >= size_of_bin:
-                fraction = 1.0 * recovered_counter / tot_counter
-                tot_counter = 0
-                recovered_counter = 0
-                firstMag = f336_in[i]
-                binList.append(fraction)
-
-            if abs(f336_outin[i]) <= tolerance:
-                recovered_counter += 1
-            tot_counter += 1
-        f336_fraction = np.asarray(binList)
-        f336_mags = np.array([f336_in[sorted_f336_index[0]] + i * size_of_bin for i in range(f336_fraction.size)])
-
-        binList = []
-        firstMag = f438_in[sorted_f438_index[0]]
-        recovered_counter = 0
-        tot_counter = 0
-
-        for i in sorted_f438_index:
-            if f438_in[i] - firstMag >= size_of_bin:
-                fraction = 1.0 * recovered_counter / tot_counter
-                tot_counter = 0
-                recovered_counter = 0
-                firstMag = f438_in[i]
-                binList.append(fraction)
-
-            if abs(f438_outin[i]) <= tolerance:
-                recovered_counter += 1
-            tot_counter += 1
-        f438_fraction = np.asarray(binList)
-        f438_mags = np.array([f438_in[sorted_f438_index[0]] + i * size_of_bin for i in range(f438_fraction.size)])
-
-
-        binList = []
-        firstMag = f814_in[sorted_f814_index[0]]
-        recovered_counter = 0
-        tot_counter = 0
-
-        for i in sorted_f814_index:
-            if f814_in[i] - firstMag >= size_of_bin:
-                fraction = 1.0 * recovered_counter / tot_counter
-                tot_counter = 0
-                recovered_counter = 0
-                firstMag = f814_in[i]
-                binList.append(fraction)
-
-            if abs(f814_outin[i]) <= tolerance:
-                recovered_counter += 1
-            tot_counter += 1
-        f814_fraction = np.asarray(binList)
-        f814_mags = np.array([f814_in[sorted_f814_index[0]] + i * size_of_bin for i in range(f814_fraction.size)])
-
-        # print the point of 50% completeness
-        f336_50 = round(self._extrapolate50Mag(f336_mags, f336_fraction), 1)
-        f438_50 = round(self._extrapolate50Mag(f438_mags, f438_fraction), 1)
-        f814_50 = round(self._extrapolate50Mag(f814_mags, f814_fraction), 1)
-
-
-        # return these magnitude values
         return [f336_50, f438_50, f814_50]
-        """
 
     def _interpolate50Mag(self, mags, fracs):
         """
