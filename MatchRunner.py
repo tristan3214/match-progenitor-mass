@@ -247,8 +247,9 @@ def singleRun(args):
     stripCommand = "calcsfh " + paramFile + " " + photFile + " " + fakeFile + " " + fitName + " " + " ".join(flags) \
                    + " > " + fitName + ".co"
     # create empty file so getFitName can iterated to another fit number
-    f = open(os.getcwd() + "/" + fitName, 'w')
-    f.close()
+    subprocess.call(['touch', os.getcwd() + "/" + fitName])
+    #f = open(os.getcwd() + "/" + fitName, 'w')
+    #f.close()
     
     log.info("Generated command (%s): %s" % (os.getcwd(), stripCommand))
     
