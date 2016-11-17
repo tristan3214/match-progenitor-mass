@@ -183,6 +183,8 @@ def singleRun(args):
                 answer = raw_input("Found zinc and ssp flags does the user want to create a new parameter file with name %s? (y/n) "
                                    % newFileName)
                 if answer in ['Y', 'y']:
+                    # change the logZmin
+                    param.change("logZmin=-1.5")
                     param.save(name=newFileName)
                 else:
                     print("Zinc and ssp flags both specified...exiting")
