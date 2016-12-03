@@ -1,3 +1,5 @@
+Lots of documentation still needed.
+
 This encapsulates MATCH functionality into Python scripts so one doesn't need to write files by hand.  It includes
 an automatic pipeline that will run the MATCH command and reduce the output with basic commands.  These basic commands should
 be overwriteable to do more complex commands.
