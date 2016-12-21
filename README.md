@@ -1,7 +1,7 @@
 ##Underwork
 This code is still not ready for wide spread use and only truely works for my specific tasks.
 
-Please feel free to submit issues as "enhancements" to describe your usage of the program and I will work to those MATCH commands AND flags coded in.
+Please feel free to submit issues as "enhancements" to describe your usage of the program and I will work to code those MATCH commands AND flags in.
 
 Lots of documentation still needed.
 
