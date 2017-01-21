@@ -18,6 +18,7 @@ from twisted.internet import protocol, reactor
 from threading import Thread
 
 import MyLogger
+from Calcsfh import Sleep
 
 """
 This server runs on port 42424
@@ -131,7 +132,8 @@ class MatchExecuterFactory(protocol.ServerFactory):
     """
     protocol = MatchExecuter
     clients = []
-    
+
+
 class CommandParser(object):
     def __init__(self):
         self.commands = CommandMethods()
@@ -183,14 +185,31 @@ class CommandParser(object):
         if input[0] == "show":
             line = self.commands.show(input)
             return line
+
+
+        # sleep for testing object based MatchExecuter
+        if input[0] == "sleep":
+            print("starting object sleep thread")
+            log.info("starting object sleep thread")
+
+            startCommand(line, self.commands.sleep2, (input[1],), name=getThreadNumber())
+            return None
+            
         # for testing purposes
+        """
         if input[0] == "sleep":
             log.info("starting sleep thread")
             t = MatchThread(line, target=self.commands.sleep, args=(input[1],), name=getThreadNumber())
             activeThreads[t.name] = t
             t.start()
             return None
+        """
 
+def startCommand(line, method, args, name):
+    t = MatchThread(line, target=method, args=args, name=name)
+    activeThreads[t.name] = t
+    t.start()
+    
 class CommandMethods(object):
     """
     This method executes the commands that are sent to this server.  Examples include calcsfh and the find best
@@ -198,7 +217,7 @@ class CommandMethods(object):
     """
     def __init__(self):
         pass
-
+    
     def calcsfh(self, line):
         """
         This runs caclsfh commands of all types.  Users should make sure to specify paths to their files in
@@ -413,6 +432,20 @@ class CommandMethods(object):
         event.set()
         event.clear()
 
+    def sleep2(self, stime):
+        """
+        Testing command for running object oriented MatchExecuter.
+        """
+        sleepObj = Sleep(stime)
+        sleepObj.run()
+
+        print("Done sleeping")
+        time.sleep(0.5)
+        sleepObj.afterSleep()
+        sleepObj.run()
+
+        cleanupThread(doneThreads)
+        
     def clearAll(self):
         """
         This method, when called, will clear all the commands to be run in the queue as well as the threads.
@@ -469,6 +502,18 @@ class CommandMethods(object):
         # if a return was not reached then there was no similarly found command
         log.info("Couldn't find command to cancel (%s)" % line)
 
+def cleanupThread(threadQueue):
+    """
+    Passed in thread must be MatchThread
+    """
+    t = threading.current_thread()
+    t.cancel = True
+
+    threadQueue.put(activeThreads.pop(t.name))
+
+    event.set()
+    event.clear()
+        
 def stripCalcsfh(line):
     """
     This takes a calcsfh command line and will strip away the directory information and return

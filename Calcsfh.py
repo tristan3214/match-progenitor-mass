@@ -9,8 +9,6 @@ import subprocess
 import threading
 import time
 
-
-
 __author__ = "Tristan J. Hillis"
 
 class ProcessRunner(object):
@@ -73,6 +71,9 @@ class DefaultCalcsfh(ProcessRunner):
         # save command initially
         self.curr_command = command # variable is populated for running in the run() method
 
+        self.zcombine_name = None # initialize
+        self.co_file = None # initialize
+        
         ### parse the command of the attributes
         command = command.split()
         print(command)
@@ -97,6 +98,9 @@ class DefaultCalcsfh(ProcessRunner):
         self.fit = command[4].split("/")[-1]
         print(self.fit)
 
+        # cmd file name
+        self.cmd_file = self.fit + ".cmd"
+        
         # caclsfh output file
         if ">" in command: # in case command doesn't have direction file
             self.co_file = command[-1].split("/")[-1]
@@ -112,31 +116,6 @@ class DefaultCalcsfh(ProcessRunner):
 
         # DEPRECATED: ServerMatch will run this command.
         #self.run() # run the current command which will be the initially passed in calcsfh command
-
-    def run(self):
-        """
-        This is called to run the current command.  For example, when the object is first made, this is called to run the calcsfh command.
-        However, after the variable "self.curr_command" can be changed to something else, and calling this will execute that command.
-        """
-
-        # This thread, t, should always be a MatchThread that has the attribute of a cancel variable.  If this cancel
-        # is ever changed from False to True then this method will exit.
-        t = threading.current_thread()
-        
-        pipe = subprocess.Popen(self.curr_command, shell=True, preexec_fn=os.setsid)
-
-        # poll the status of the process
-        while pipe.poll() is None:
-            # if the thread is to be canceled then this will kill the process.
-            if t.cancel:
-                print("CANCELED", t.name)
-                os.killpg(os.getpgid(pipe.pid), signal.SIGTERM) # kills group of processes when present
-                self._cleanup()
-                break
-            time.sleep(0.5)
-
-        if t.cancel is False:
-            self.cmd_file = self.fit + ".cmd"
 
     def zcombine(self):
         """
@@ -154,7 +133,7 @@ class DefaultCalcsfh(ProcessRunner):
                  self.cwd+self.co_file, self.cwd+self.zcombine_name, self.cwd+self.cmd_file]
         self.curr_command = "./scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
                             (self.parameter, self.phot, self.fake, self.fit, self.co_file, self.zcombine_name, self.cmd_file)
-        
+
     def _getDAv(self):
         """
         This will take the flags and process for a dAv
@@ -172,7 +151,20 @@ class DefaultCalcsfh(ProcessRunner):
         This is canceled when the process is canceled abruptly, in which the files corresponding to this run
         of calcsfh will be erased.
         """
-        pass
+        files = [self.cwd+self.parameter, self.cwd+self.phot, self.cwd+self.fake, self.cwd+self.fit,
+                 self.cwd+self.co_file, self.cwd+self.zcombine_name, self.cwd+self.cmd_file]
+        for file in files:
+            if self._checkFile(file):
+                os.remove(file)
+        
+    def _checkFile(self, file):
+        """
+        This is used by cleanup to check the exisentce of a file
+        """
+        if file is not None and os.path.isfile(file):
+            return True
+        else:
+            return False
 
 class SSPCalcsfh(object):
     def __init__(self):
