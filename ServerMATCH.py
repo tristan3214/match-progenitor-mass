@@ -19,6 +19,7 @@ from threading import Thread
 
 import MyLogger
 from Calcsfh import Sleep
+from Calcsfh import DefaultCalcsfh
 
 """
 This server runs on port 42424
@@ -168,9 +169,12 @@ class CommandParser(object):
 
             else:
                 log.info("run calcsfh command - " + line)
-                t = MatchThread(line, target=self.commands.calcsfh, args=(line,), name=getThreadNumber())
+                startCommand(line, self.commands.calcsfh2, (line,), name=getThreadNumber())
+                """
+                t = MatchThread(line, target=self.commands.calcsfh2, args=(line,), name=getThreadNumber())
                 activeThreads[t.name] = t
                 t.start()
+                """
             return None
         if input[0] == "ssp":
             return None
@@ -217,6 +221,21 @@ class CommandMethods(object):
     """
     def __init__(self):
         pass
+
+    def calcsfh2(self, line):
+        calcsfh = DefaultCalcsfh(line)
+        # run the initial command
+        calcsfh.run()
+
+        # run zcombine at the end
+        calcsfh.zcombine()
+        calcsfh.run()
+
+        # process files after
+        calcsfh.processFit()
+        calcsfh.run()
+
+        cleanupThread(doneThreads)
     
     def calcsfh(self, line):
         """
