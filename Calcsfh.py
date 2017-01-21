@@ -201,6 +201,6 @@ class Sleep(ProcessRunner):
 
 #test = extendProcessRunner("sleep 10")
 #test.printCommand()
-calcsfh = DefaultCalcsfh("calcsfh /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_parameter_file_M199_ssp.param /astro/users/tjhillis/M83/remnants/M199/set001_phot_stars_M199.phot /astro/users/tjhillis/M83/remnants/M199/fake_stars_M048.fake /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_ssp -Kroupa -dAv=1.500000 -ssp -full > /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_ssp.co")
+#calcsfh = DefaultCalcsfh("calcsfh /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_parameter_file_M199_ssp.param /astro/users/tjhillis/M83/remnants/M199/set001_phot_stars_M199.phot /astro/users/tjhillis/M83/remnants/M199/fake_stars_M048.fake /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_ssp -Kroupa -dAv=1.500000 -ssp -full > /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_ssp.co")
 
-calcsfh.zcombine()
+#calcsfh.zcombine()
