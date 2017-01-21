@@ -132,7 +132,7 @@ class DefaultCalcsfh(ProcessRunner):
         files = [self.cwd+self.parameter, self.cwd+self.phot, self.cwd+self.fake, self.cwd+self.fit,
                  self.cwd+self.co_file, self.cwd+self.zcombine_name, self.cwd+self.cmd_file]
         self.curr_command = "./scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
-                            (self.parameter, self.phot, self.fake, self.fit, self.co_file, self.zcombine_name, self.cmd_file)
+                            (files[0], files[1], files[2], files[3], files[4], files[5], files[6])
 
     def _getDAv(self):
         """
