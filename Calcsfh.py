@@ -123,7 +123,7 @@ class DefaultCalcsfh(ProcessRunner):
         to employ something more complex than the default zcombine command
         """
         # set the current command
-        self.curr_command = "zcombine -bestonly %s > %s.zc"
+        self.curr_command = "zcombine -bestonly %s > %s.zc" % (self.cwd + self.fit, self.cwd + self.fit)
         # set a file name for the new zcombine name
         self.zcombine_name = self.fit + ".zc"
         print(self.zcombine_name)
