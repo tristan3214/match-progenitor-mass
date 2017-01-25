@@ -69,6 +69,7 @@ class DefaultCalcsfh(ProcessRunner):
         calcsfh command.
         """
         # save command initially
+        super(DefaultCalcsfh, self).__init__(self.curr_command)
         self.curr_command = command # variable is populated for running in the run() method
 
         self.zcombine_name = None # initialize
