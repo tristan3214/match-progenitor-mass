@@ -151,8 +151,8 @@ class DefaultCalcsfh(ProcessRunner):
         This is canceled when the process is canceled abruptly, in which the files corresponding to this run
         of calcsfh will be erased.
         """
-        files = [self.cwd+self.parameter, self.cwd+self.phot, self.cwd+self.fake, self.cwd+self.fit,
-                 self.cwd+self.co_file, (self.cwd+self.zcombine_name if self.zcombine_name is not None else None), (self.cwd+self.cmd_file if self.cmd_file is not None else None)]
+        files = [self.cwd+self.fit, self.cwd+self.co_file, (self.cwd+self.zcombine_name if self.zcombine_name is not None else None),
+                 (self.cwd+self.cmd_file if self.cmd_file is not None else None)]
         for file in files:
             if self._checkFile(file):
                 os.remove(file)
