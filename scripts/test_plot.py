@@ -15,11 +15,11 @@ csf = SFH(zc, cumulative=True, bins=1, label="Test")
 
 csf.calculateCSF()
 
-print(csf.getX())
-print(csf.getY())
+#print(csf.getX())
+#print(csf.getY())
 
 plt.plot(csf.getX(), csf.getY())
 
-print(os.getcwd())
+#print(os.getcwd())
 
 plt.savefig("/astro/users/tjhillis/M83/remnants/testExecuter/testCSF.png")
