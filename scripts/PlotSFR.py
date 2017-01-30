@@ -419,7 +419,7 @@ class SFH(object):
         """
         To, Tf, SFR, plusError, minusError = self._extractData()
 
-        To, Tf, SFR, plusError, minusError = np.array([To]), np.array([Tf]), np.array([SFR])
+        To, Tf, SFR, plusError, minusError = np.array([To]), np.array([Tf]), np.array([SFR]), np.array([plusError]), np.array([minusError])
         print(SFR, type(SFR))
         
         To_linear = 10**To
