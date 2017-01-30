@@ -70,6 +70,7 @@ class DefaultCalcsfh(ProcessRunner):
         """
         # save command initially
         super(DefaultCalcsfh, self).__init__(command)
+        self.original = command # this is the original beginning command
         self.curr_command = command # variable is populated for running in the run() method
 
         self.zcombine_name = None # initialize
@@ -113,7 +114,7 @@ class DefaultCalcsfh(ProcessRunner):
 
         self._getDAv()
         self._checkGroup()
-        print("GOING TO RUN THIS COMMAND:", self.curr_command) 
+        #print("GOING TO RUN THIS COMMAND:", self.curr_command) 
         # keep a boolean in the command needs to be canceled.  The thread running this will have, in tandem, a cancel key also.
         #self.cancel = False #
 
@@ -150,7 +151,7 @@ class DefaultCalcsfh(ProcessRunner):
                 idx = i
                 self._group = flag.split("=")[-1]
 
-        # remove group name from command
+        # remove group name from command so that it can run in bash
         if self._group is not None:
             command = self.curr_command.split()
             command.pop(5 + idx)
@@ -189,6 +190,20 @@ class DefaultCalcsfh(ProcessRunner):
             return True
         else:
             return False
+
+class GroupProcess(ProcessRunner):
+    """
+    This class makes a list of DefaultCalcsfh's and will run a script for them using a path and baseName.
+    Note it is up to the user to decide what to do with the path name and baseName.
+    """
+    def __init__(self, path, baseName):
+        """
+        Takes in a path and a baseName and will pass this to a script that will run the appropriate base name.
+        """
+        # set the current command to run a bash script and pass in the path and baseName to the script
+        
+        super(GroupProcess, self).__init__("./scripts/group_script.sh %s %s" % (path, baseName))
+        
 
 class SSPCalcsfh(object):
     def __init__(self):

@@ -236,7 +236,15 @@ class CommandMethods(object):
         calcsfh.processFit()
         calcsfh.run()
 
+        # check for group and run if it is the last one in the group
+        if calcsfh._group is not None:
+            dAvRangeGroup[calcsfh._group][calcsfh.original] = True
+            self.runGroup(dAvRangeGroup[calcsfh._group])
+            
+
+        # cleanup the thread that is done
         cleanupThread(doneThreads)
+
     
     def calcsfh(self, line):
         """
@@ -365,14 +373,13 @@ class CommandMethods(object):
         for command in commands:
             dAvRangeGroup[t.name][command] = False # add that this command is not done
             workQueue.put(command)
-            print(command)
+            #print(command)
 
         t.cancel = True
         doneThreads.put(dAvRangeThreads.pop(t.name))
 
         event.set()
         event.clear()
-
 
     def show(self, input):
         try:
@@ -436,7 +443,19 @@ class CommandMethods(object):
             else:
                 return line
 
-
+    def runGroup(self, dictionary):
+        """
+        Passed in is a list of commands belonging to a group of commands.
+        This method will run a script to process these grouped fits.
+        """
+        # check if all the commands in the dictionary are set to true
+        done = dictionary.values()
+        if all(bool is True for bool in done) is True:
+            # run code on group
+        else:
+            # do nothing to group
+            pass
+        pass
 
         
     def sleep(self, stime):
