@@ -112,6 +112,7 @@ class DefaultCalcsfh(ProcessRunner):
         print(self.flags)
 
         self._getDAv()
+        self._checkGroup()
         # keep a boolean in the command needs to be canceled.  The thread running this will have, in tandem, a cancel key also.
         #self.cancel = False #
 
@@ -134,6 +135,27 @@ class DefaultCalcsfh(ProcessRunner):
                  self.cwd+self.co_file, self.cwd+self.zcombine_name, self.cwd+self.cmd_file]
         self.curr_command = "./scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
                             (files[0], files[1], files[2], files[3], files[4], files[5], files[6])
+
+
+    def _checkGroup(self):
+        """
+        This will check the flags for a group name and assign it a variable
+        """
+        self._group = None
+        idx = None
+        for i, flag in enumerate(self.flags):
+            if "-group=" in flag:
+                # assign variable with group name
+                idx = i
+                self._group = flag.split("=")[-1]
+
+        # remove group name from command
+        if self._group is not None:
+            command = self.curr_command.split()
+            command.pop(5 + idx)
+            self.flags.pop(idx)
+            self.curr_command = " ".join(command)
+    
 
     def _getDAv(self):
         """
