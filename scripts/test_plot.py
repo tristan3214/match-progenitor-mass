@@ -15,7 +15,7 @@ csf = SFH(zc, cumulative=True, bins=1, label="Test")
 
 csf.calculateCSF()
 
-#plt.plot(csf.getX(), csf.getY())
+plt.plot(csf.getX(), csf.getY())
 
 print(os.getcwd())
 
