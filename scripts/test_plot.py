@@ -19,4 +19,4 @@ plt.plot(csf.getX(), csf.getY())
 
 print(os.getcwd())
 
-plt.savefig("~/M83/remnants/testExecuter/test_plot.py")
+plt.savefig("~/M83/remnants/testExecuter/testCSF.png")
