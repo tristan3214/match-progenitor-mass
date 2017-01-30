@@ -113,6 +113,7 @@ class DefaultCalcsfh(ProcessRunner):
 
         self._getDAv()
         self._checkGroup()
+        print("GOING TO RUN THIS COMMAND:", self.curr_command) 
         # keep a boolean in the command needs to be canceled.  The thread running this will have, in tandem, a cancel key also.
         #self.cancel = False #
 
