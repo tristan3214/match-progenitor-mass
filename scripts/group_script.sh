@@ -1,2 +1,7 @@
-#!/astro/apps6/anaconda/bin/python
+#!/usr/bin/env bash
 
+### List of passed in variables
+# $1 - Path name to working directory
+# $2 - Base name of fit.
+
+echo "Passed in quantities ${1} and ${2}"

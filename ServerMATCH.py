@@ -20,6 +20,7 @@ from threading import Thread
 import MyLogger
 from Calcsfh import Sleep
 from Calcsfh import DefaultCalcsfh
+from Calcsfh import GroupProcess
 
 """
 This server runs on port 42424
@@ -451,9 +452,22 @@ class CommandMethods(object):
         # check if all the commands in the dictionary are set to true
         done = dictionary.values()
         if all(bool is True for bool in done) is True:
-            # run code on group
+            ## run code on group
+            # isolate working directory
+            print("DONE:", done
+            keys = done.keys()
+            workingD = keys[1].split(" ")[4].split("/")[:-1]
+
+            # isolate base name
+            baseName = keys[1].split(" ")[4].split("/")[-1]
+            baseName = baseName.split("_").pop(-2)
+            baseName = "_".join(baseName)
+
+            group = GroupProcess(workingD, baseName)
+            group.run()
         else:
             # do nothing to group
+            print("CURRENTLY DONE:", done)
             pass
         pass
 
