@@ -418,7 +418,8 @@ class SFH(object):
         The plot goes from "100%" down to "0%" with increasing time.
         """
         To, Tf, SFR, plusError, minusError = self._extractData()
-        print(SFR)
+        
+        print(SFR, type(SFR))
         
         To_linear = 10**To
         Tf_linear = 10**Tf
