@@ -33,6 +33,7 @@ activeThreads = {} # this should only every be one more larger than the number o
                    # main thread handles incoming data and one thread waits on events and the other threads
                    # execute the bash commands.
 dAvRangeThreads = {}
+dAvRangeGroup = {} # dictionary that holds a dictionary of commands
 doneThreads = Queue()
 event = threading.Event() # a single thread waits for set to join a certain thread
 log = MyLogger.myLogger("MatchServer", "server")
@@ -320,7 +321,7 @@ class CommandMethods(object):
         that will comprise of the total dAv range.  These commands are added to the queue for later.
         """
         t = threading.current_thread()
-
+        
         line = line.split(" ")
         numSteps = int((upper - lower) / step) + 1 # will underestimate by one so I add one
 
@@ -348,6 +349,9 @@ class CommandMethods(object):
                     output[-1] = outputName
                     output = "/".join(output)
                     newLine[-1] = output
+
+                    # put in a custom flag called -group=groupName
+                    newLine.insert(-2, "-group=%s" % (t.name))
                     
 
             commands.append(" ".join(newLine))
@@ -356,8 +360,12 @@ class CommandMethods(object):
             print()
             currentDaV += step
 
+        dAvRangeGroup[t.name] = {} # add a dictionary 
+            
         for command in commands:
+            dAvRangeGroup[t.name][command] = False # add that this command is not done
             workQueue.put(command)
+            print(command)
 
         t.cancel = True
         doneThreads.put(dAvRangeThreads.pop(t.name))
