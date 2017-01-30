@@ -454,7 +454,7 @@ class CommandMethods(object):
         if all(bool is True for bool in done) is True:
             ## run code on group
             # isolate working directory
-            print("DONE:", done
+            print("DONE:", done)
             keys = done.keys()
             workingD = keys[1].split(" ")[4].split("/")[:-1]
 
