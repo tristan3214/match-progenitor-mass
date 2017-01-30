@@ -18,8 +18,8 @@ csf.calculateCSF()
 print(csf.getX())
 print(csf.getY())
 
-#plt.plot(csf.getX(), csf.getY())
+plt.plot(csf.getX(), csf.getY())
 
 print(os.getcwd())
 
-#plt.savefig("~/M83/remnants/testExecuter/testCSF.png")
+plt.savefig("/astro/users/tjhillis/M83/remnants/testExecuter/testCSF.png")
