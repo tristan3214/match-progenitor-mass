@@ -456,13 +456,16 @@ class CommandMethods(object):
             # isolate working directory
             print("DONE:", done)
             keys = dictionary.keys()
-            print("KEYS:", keys)
-            workingD = keys[1].split(" ")[4].split("/")[:-1]
+            #print("KEYS:", keys[0])
+            workingD = keys[0].split(" ")
+            print("WORKING DIRECTORY:", workingD)
 
             # isolate base name
-            baseName = keys[1].split(" ")[4].split("/")[-1]
-            baseName = baseName.split("_").pop(-2)
-            baseName = "_".join(baseName)
+            baseName = keys[1].split(" ")
+            print("BASE NAME:", baseName)
+            #baseName = baseName[4].split("/")[-1]
+            #baseName = baseName.split("_").pop(-2)
+            #baseName = "_".join(baseName)
 
             #group = GroupProcess(workingD, baseName)
             #group.run()
