@@ -455,7 +455,7 @@ class CommandMethods(object):
             ## run code on group
             # isolate working directory
             print("DONE:", done)
-            keys = done.keys()
+            keys = dictionary.keys()
             workingD = keys[1].split(" ")[4].split("/")[:-1]
 
             # isolate base name
