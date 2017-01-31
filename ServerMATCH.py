@@ -456,6 +456,7 @@ class CommandMethods(object):
             # isolate working directory
             print("DONE:", done)
             keys = dictionary.keys()
+            print("KEYS:", keys)
             workingD = keys[1].split(" ")[4].split("/")[:-1]
 
             # isolate base name
@@ -463,8 +464,8 @@ class CommandMethods(object):
             baseName = baseName.split("_").pop(-2)
             baseName = "_".join(baseName)
 
-            group = GroupProcess(workingD, baseName)
-            group.run()
+            #group = GroupProcess(workingD, baseName)
+            #group.run()
         else:
             # do nothing to group
             print("CURRENTLY DONE:", done)
