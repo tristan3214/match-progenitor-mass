@@ -115,7 +115,7 @@ def processDAv(path, baseName):
     params = {'mathtext.default': 'regular' }
     plt.rcParams.update(params)
     
-    csfs = [SFH(file+".zc", cumulative=True, bins=2) for file in files]
+    csfs = [SFH(file+".zc", cumulative=True, bins=24) for file in files]
 
     fig = plt.figure(figsize=(16.0, 9.0))
     #fig = plt.figure()
