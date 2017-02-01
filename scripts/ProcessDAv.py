@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+plt.ioff() # turn interactive maptlotlib off
 from scipy.interpolate import interp1d
 import seaborn
 

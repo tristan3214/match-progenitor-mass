@@ -319,7 +319,8 @@ def send(commandList):
     """
     log = MyLogger.myLogger("send", toExecutable + "/logs/send_log")
     #HOST = "10.155.88.139"
-    HOST = "10.155.88.135"
+    #HOST = "10.155.88.135"
+    HOST = "10.155.88.133"
     PORT = 42424
 
     tn = telnetlib.Telnet(HOST, PORT)
