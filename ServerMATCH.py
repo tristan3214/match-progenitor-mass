@@ -471,8 +471,8 @@ class CommandMethods(object):
 
             
 
-            #group = GroupProcess(workingD, baseName)
-            #group.run()
+            group = GroupProcess(workingD, baseName)
+            group.run()
         else:
             # do nothing to group
             print("CURRENTLY DONE:", done)
