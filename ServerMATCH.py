@@ -467,7 +467,7 @@ class CommandMethods(object):
             baseName = baseName[4].split("/")[-1]
             baseName = baseName.split("_")
             baseName = "_".join(baseName)
-            print("BASE NAME:", baseName[:-2])
+            print("BASE NAME:", baseName[:-3])
 
             
 
