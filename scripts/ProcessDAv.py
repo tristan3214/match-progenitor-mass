@@ -3,6 +3,7 @@ from __future__ import print_function, division, absolute_import
 
 import glob
 import subprocess
+import sys
 
 import numpy as np
 import pandas as pd
@@ -309,6 +310,11 @@ def getBestFit(fileName):
             val = fit.split("=")[-1]
             return float(val)
 
+path = sys.argv[1]
+basName = sys.argv[2]
+processDAv(path, baseName)
+
+        
 """
 if __name__ == "__main__":
     main()
