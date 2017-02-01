@@ -115,7 +115,7 @@ def processDAv(path, baseName):
     params = {'mathtext.default': 'regular' }
     plt.rcParams.update(params)
     
-    csfs = [SFH(file+".zc", cumulative=True, bins=12) for file in files]
+    csfs = [SFH(file+".zc", cumulative=True, bins=2) for file in files]
 
     fig = plt.figure(figsize=(16.0, 9.0))
     #fig = plt.figure()
@@ -311,7 +311,7 @@ def getBestFit(fileName):
             return float(val)
 
 path = sys.argv[1]
-basName = sys.argv[2]
+baseName = sys.argv[2]
 processDAv(path, baseName)
 
         
