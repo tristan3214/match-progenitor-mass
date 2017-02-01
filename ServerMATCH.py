@@ -459,14 +459,17 @@ class CommandMethods(object):
             #print("KEYS:", keys[0])
             workingD = keys[0].split(" ")
             workingD = workingD[4].split("/")[:-1]
+            workingD = "/".join(workingD)
             print("WORKING DIRECTORY:", workingD)
 
             # isolate base name
             baseName = keys[1].split(" ")
             baseName = baseName[4].split("/")[-1]
-            print("BASE NAME:", baseName)
-            #baseName = baseName.split("_").pop(-2)
-            #baseName = "_".join(baseName)
+            baseName = baseName.split("_")
+            baseName = "_".join(baseName)
+            print("BASE NAME:", baseName[:-2])
+
+            
 
             #group = GroupProcess(workingD, baseName)
             #group.run()
