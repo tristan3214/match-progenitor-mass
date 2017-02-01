@@ -8,6 +8,7 @@ import sys
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
+mpl.use("Agg")
 import matplotlib.pyplot as plt
 plt.ioff() # turn interactive maptlotlib off
 from scipy.interpolate import interp1d
