@@ -458,12 +458,13 @@ class CommandMethods(object):
             keys = dictionary.keys()
             #print("KEYS:", keys[0])
             workingD = keys[0].split(" ")
+            workingD = workingD[4].split("/")[:-1]
             print("WORKING DIRECTORY:", workingD)
 
             # isolate base name
             baseName = keys[1].split(" ")
+            baseName = baseName[4].split("/")[-1]
             print("BASE NAME:", baseName)
-            #baseName = baseName[4].split("/")[-1]
             #baseName = baseName.split("_").pop(-2)
             #baseName = "_".join(baseName)
 
