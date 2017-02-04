@@ -253,7 +253,6 @@ def processDAv(path, baseName, photFile):
     ax = fig.add_subplot(133)
     
     data = fits.getdata(path+"field.gst.fits")
-    print(data)
     field_f438, field_f814 = data["F438W_VEGA"], data["F814W_VEGA"]
     phot_f438, phot_f814 = np.loadtxt(path+photFile, usecols=[1,2], unpack=True)
 
@@ -268,7 +267,7 @@ def processDAv(path, baseName, photFile):
     color = plt.cm.gray
     color.set_bad("w")
     col = ax.pcolormesh(xedges, yedges, np.ma.masked_values(H.T, 0), cmap=color)
-    cbar = plt.colorbar()
+    cbar = ax.colorbar()
 
     # plot SNR data as scatter plot
     ax.scatter(phot_f438-phot_f814, phot_f814, color='r', s=12)
