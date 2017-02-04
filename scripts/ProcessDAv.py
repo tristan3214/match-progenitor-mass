@@ -12,6 +12,7 @@ mpl.use("Agg")
 import matplotlib.pyplot as plt
 plt.ioff() # turn interactive maptlotlib off
 from scipy.interpolate import interp1d
+from astropy.io import fits
 import seaborn
 
 from PlotSFR import SFH
@@ -45,7 +46,7 @@ def main():
     #processDAv("/home/tristan/BenResearch/M83/mount/remnants/M151/", "set001_fit_001")
 """
 
-def processDAv(path, baseName):
+def processDAv(path, baseName, photFile):
     """
     Takes in a path with a baseName that will follow standard dAv naming conventions.
     """
@@ -124,7 +125,7 @@ def processDAv(path, baseName):
         
     # plot Cumulative stellar mass functions
     rainbow = iter(plt.cm.rainbow(np.linspace(0, 1, len(csfs))))
-    ax = fig.add_subplot(121)
+    ax = fig.add_subplot(131)
     for i, csf in enumerate(csfs):
         csf.calculateCSF()
         c = next(rainbow)
@@ -242,12 +243,42 @@ def processDAv(path, baseName):
     #plt.gca().tick_params(labelsize=20, which='major')
     
     # plot best fit values vs dAvs
-    ax = fig.add_subplot(122)
+    ax = fig.add_subplot(132)
     ax.scatter(dAvs, bestFits, color='k')
     ax.set_axis_bgcolor('0.8')
     plt.ylabel("Fit value (arbitrary)", fontsize=20)
     plt.xlabel("dAv", fontsize=20)
 
+    # plot cmd with photometry file
+    ax = fig.add_subplot(133)
+    
+    data = fits.getdata("field.gst.fits")
+    field_f438, field_f814 = data["F438W_VEGA"], data["F814W_VEGA"]
+    phot_f438, phot_f814 = np.loadtxt(path+photFile, usecols=[1,2], unpack=True)
+
+    field_mask = (field_f438 < 30.0) & (field_f814 < 30.0)
+    phot_mask = (phot_f438 < 30.0) & (phot_f814 < 30.0)
+
+    field_f438, field_f814 = field_f438[field_mask], field_f814[field_mask]
+    phot_f438, phot_f814 = phot_f438[phot_mask], phot_f814[phot_mask]
+
+    # plot field data as 2d histogram
+    H, xedges, yedges = np.histogram2d(field_f438-field_f814, field_f814, bins=[75, 75])
+    color = plt.cm.gray
+    color.set_bad("w")
+    col = ax.pcolormesh(xedges, yedges, np.ma.masked_values(H.T, 0), cmap=color)
+    cbar = plt.colorbar()
+
+    # plot SNR data as scatter plot
+    ax.scatter(phot_f438-phot_f814, phot_f814, color='r', s=12)
+
+    plt.xlabel("F438W - F814W", fontsize=18)
+    plt.ylabel("F814W", fontsize=18)
+    plt.xlim([-1.0, 6.0])
+    plt.ylim([17.0, 27.0])
+
+    ax.invert_yaxis()
+    
     plt.gca().tick_params(labelsize=16, which='major')
     
     plt.tight_layout()
@@ -314,7 +345,8 @@ def getBestFit(fileName):
 
 path = sys.argv[1]
 baseName = sys.argv[2]
-processDAv(path, baseName)
+photometry = sys.argv[3]
+processDAv(path, baseName, photometry)
 
         
 """

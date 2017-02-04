@@ -5,4 +5,4 @@
 # $2 - Base name of fit.
 
 echo "Passed in quantities ${1} and ${2}"
-./scripts/ProcessDAv.py $1 $2
+./scripts/ProcessDAv.py $1 $2 $3

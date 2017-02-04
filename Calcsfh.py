@@ -196,14 +196,13 @@ class GroupProcess(ProcessRunner):
     This class makes a list of DefaultCalcsfh's and will run a script for them using a path and baseName.
     Note it is up to the user to decide what to do with the path name and baseName.
     """
-    def __init__(self, path, baseName):
+    def __init__(self, path, baseName, commands):
         """
         Takes in a path and a baseName and will pass this to a script that will run the appropriate base name.
         """
         # set the current command to run a bash script and pass in the path and baseName to the script
-        
-        super(GroupProcess, self).__init__("./scripts/group_script.sh %s %s" % (path, baseName))
-        
+        calcsfhs = [DefaultCalcsfh(calcsfh) for calcsfh in commands]
+        super(GroupProcess, self).__init__("./scripts/group_script.sh %s %s %s" % (path, baseName, calcsfhs[0].phot))
 
 class SSPCalcsfh(object):
     def __init__(self):

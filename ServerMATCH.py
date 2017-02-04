@@ -469,7 +469,7 @@ class CommandMethods(object):
             baseName = "_".join(baseName[:-2])
             print("BASE NAME:", baseName)
 
-            group = GroupProcess(workingD, baseName)
+            group = GroupProcess(workingD, baseName, keys)
             group.run()
         else:
             # do nothing to group
