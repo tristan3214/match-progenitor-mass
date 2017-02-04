@@ -248,6 +248,7 @@ def processDAv(path, baseName, photFile):
     ax.set_axis_bgcolor('0.8')
     plt.ylabel("Fit value (arbitrary)", fontsize=20)
     plt.xlabel("dAv", fontsize=20)
+    plt.gca().tick_params(labelsize=16, which='major')
 
     # plot cmd with photometry file
     ax = fig.add_subplot(133)
