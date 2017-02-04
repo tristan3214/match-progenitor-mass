@@ -267,7 +267,7 @@ def processDAv(path, baseName, photFile):
     color = plt.cm.gray
     color.set_bad("w")
     col = ax.pcolormesh(xedges, yedges, np.ma.masked_values(H.T, 0), cmap=color)
-    cbar = ax.colorbar()
+    cbar = plt.colorbar(col)
 
     # plot SNR data as scatter plot
     ax.scatter(phot_f438-phot_f814, phot_f814, color='r', s=12)
