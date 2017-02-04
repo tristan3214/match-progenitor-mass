@@ -252,7 +252,7 @@ def processDAv(path, baseName, photFile):
     # plot cmd with photometry file
     ax = fig.add_subplot(133)
     
-    data = fits.getdata("field.gst.fits")
+    data = fits.getdata(path+"field.gst.fits")
     field_f438, field_f814 = data["F438W_VEGA"], data["F814W_VEGA"]
     phot_f438, phot_f814 = np.loadtxt(path+photFile, usecols=[1,2], unpack=True)
 
