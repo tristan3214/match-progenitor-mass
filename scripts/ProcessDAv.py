@@ -276,7 +276,7 @@ def processDAv(path, baseName, photFile):
     plt.xlabel("F438W - F814W", fontsize=18)
     plt.ylabel("F814W", fontsize=18)
     plt.xlim([-1.0, 6.0])
-    plt.ylim([17.0, 27.0])
+    plt.ylim([17.0, 26.0])
 
     ax.invert_yaxis()
     
