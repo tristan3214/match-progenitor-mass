@@ -3,6 +3,8 @@ from __future__ import print_function, division
 import sys
 
 import numpy as np
+import matplotlib as mpl
+mpl.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn
 

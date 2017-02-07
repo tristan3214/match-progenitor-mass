@@ -50,7 +50,7 @@ def processDAv(path, baseName, photFile):
     """
     Takes in a path with a baseName that will follow standard dAv naming conventions.
     """
-    dAvfile = open(path+baseName+"_dAvs.ls", 'a')
+    dAvfile = open(path+"best_dAvs.ls", 'a')
     metallicity = "z_0-19" # Defines the metallicity to use for plotting isochrones
     
     path = path.strip("")
@@ -72,7 +72,7 @@ def processDAv(path, baseName, photFile):
 
     # get best fits values
     vec_getBestFit = np.vectorize(getBestFit) # vectorize function
-    bestFits = vec_getBestFit(files)
+    bestFits, bestAvs = vec_getBestFit(files)
     #print(bestFits)
     
     # make the fit with the best fit value the fit with the main string name.
@@ -82,9 +82,9 @@ def processDAv(path, baseName, photFile):
 
     # print out the SNR with best dAv
     #print(repr(path),path.split("/"))
-    name = path.split("/")[-2]
     best_dAv = dAvs[best_idx]
-    dAvfile.write("%s %f\n" % (name, best_dAv))
+    best_Av = bestAvs[best_idx]
+    dAvfile.write("%s %f %f\n" % (baseName, best_dAv, best_Av))
     
     # change the names
     new_names = []
@@ -284,7 +284,7 @@ def processDAv(path, baseName, photFile):
     
     plt.tight_layout()
 
-    plt.savefig(path+baseName+"_fig2", dpi=512)
+    plt.savefig(path+baseName, dpi=512)
     
     #plt.show()
 
@@ -340,9 +340,15 @@ def getBestFit(fileName):
     f = open(fileName+".co", 'r')
     for line in f:
         if "Best" in line: # reached line where there is the best fit number
+            # get fit value 
             fit = line.split()[-1]
             val = fit.split("=")[-1]
-            return float(val)
+
+            # get Av value
+            Av = line.split()[-3]
+            Av = Av.split("=")[-1][:-1]
+
+            return (float(val), float(Av))
 
 path = sys.argv[1]
 baseName = sys.argv[2]
