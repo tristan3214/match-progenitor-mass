@@ -28,7 +28,7 @@ This server runs on port 42424
 
 # Global Variables
 #CORE_COUNT = multiprocessing.cpu_count()
-CORE_COUNT = 16
+CORE_COUNT = 6
 workQueue = Queue()
 activeThreads = {} # this should only every be one more larger than the number of CPUs on the system.
                    # main thread handles incoming data and one thread waits on events and the other threads
