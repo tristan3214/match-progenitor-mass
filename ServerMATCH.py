@@ -28,7 +28,7 @@ This server runs on port 42424
 
 # Global Variables
 #CORE_COUNT = multiprocessing.cpu_count()
-CORE_COUNT = 14
+CORE_COUNT = 4
 workQueue = Queue()
 activeThreads = {} # this should only every be one more larger than the number of CPUs on the system.
                    # main thread handles incoming data and one thread waits on events and the other threads
@@ -62,10 +62,17 @@ def getThreadNumber():
 def getdAvName():
     print(dAvRangeThreads)
     num = None
-    if len(dAvRangeThreads) == 0: # no threads yet
+    grouped = dAvRangeGroup.keys()
+    grouped = [key for key in grouped if "dAv" in key]
+    if len(dAvRangeThreads) == 0 and len(grouped) == 0: # no threads yet
         num = '1'
     else: # get the thread number that is missing in the range of 1 to 8
-        keys = dAvRangeThreads.keys()
+        keys = []
+        if len(dAvRangeThreads) != 0:
+            keys += dAvRangeThreads.keys()
+        if len(grouped) != 0:
+            keys += grouped
+        
         keys = [key.split("_")[-1] for key in keys]
         print(keys)
         keys = map(int, keys)
@@ -242,7 +249,6 @@ class CommandMethods(object):
             dAvRangeGroup[calcsfh._group][calcsfh.original] = True
             self.runGroup(dAvRangeGroup[calcsfh._group])
             
-
         # cleanup the thread that is done
         cleanupThread(doneThreads)
 
