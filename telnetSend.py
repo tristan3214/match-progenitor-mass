@@ -7,7 +7,7 @@ import threading
 import time
 
 #HOST = "10.155.88.139"
-HOST = "10.155.88.135"
+HOST = "10.155.88.139"
 PORT = 42424
 
 def main():
