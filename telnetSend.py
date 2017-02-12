@@ -6,8 +6,8 @@ import telnetlib
 import threading
 import time
 
-#HOST = "10.155.88.139"
-HOST = "10.155.88.135" # astrolab18
+HOST = "10.155.88.139"
+#HOST = "10.155.88.135" # astrolab18
 PORT = 42424
 
 def main():
