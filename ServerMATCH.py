@@ -673,7 +673,8 @@ def condor_thread_watcher():
                 print("QUEUE SIZE CONSTANT")
                 break
         # grab commands from queue and make a list of sfh objects
-        makeCommandList()
+        commands = makeCommandList()
+        print(commands)
         print("STARTING CONDOR")
 
 def threadWatcher():
