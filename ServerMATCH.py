@@ -28,7 +28,8 @@ This server runs on port 42424
 
 # Global Variables
 #CORE_COUNT = multiprocessing.cpu_count()
-CORE_COUNT = 15
+CORE_COUNT = 0
+MAX_CONDOR_SIZE = 50 # this controlls the maximum size of a condor run
 workQueue = Queue()
 activeThreads = {} # this should only every be one more larger than the number of CPUs on the system.
                    # main thread handles incoming data and one thread waits on events and the other threads
@@ -36,7 +37,8 @@ activeThreads = {} # this should only every be one more larger than the number o
 dAvRangeThreads = {}
 dAvRangeGroup = {} # dictionary that holds a dictionary of commands
 doneThreads = Queue()
-event = threading.Event() # a single thread waits for set to join a certain thread
+watcherEvent = threading.Event() # a single thread waits for set to join a certain thread
+condorEvent = threading.Event() # activates the condor thread
 log = MyLogger.myLogger("MatchServer", "server")
 
 def getThreadNumber():
@@ -327,8 +329,8 @@ class CommandMethods(object):
         print("ACTIVE THREADS:", activeThreads)
         doneThreads.put(activeThreads.pop(t.name))
         
-        event.set()
-        event.clear()
+        watcherEvent.set()
+        watcherEvent.clear()
 
     def dAvRange(self, line, lower=0.0, upper=1.0, step=0.2):
         """
@@ -385,8 +387,8 @@ class CommandMethods(object):
         t.cancel = True
         doneThreads.put(dAvRangeThreads.pop(t.name))
 
-        event.set()
-        event.clear()
+        watcherEvent.set()
+        watcherEvent.clear()
 
     def show(self, input):
         try:
@@ -501,8 +503,8 @@ class CommandMethods(object):
         t.cancel = True # says this thread is ready to be joined and removed from the dictionary
         doneThreads.put(activeThreads.pop(t.name))
         
-        event.set()
-        event.clear()
+        watcherEvent.set()
+        watcherEvent.clear()
 
     def sleep2(self, stime):
         """
@@ -583,8 +585,8 @@ def cleanupThread(threadQueue):
 
     threadQueue.put(activeThreads.pop(t.name))
 
-    event.set()
-    event.clear()
+    watcherEvent.set()
+    watcherEvent.clear()
         
 def stripCalcsfh(line):
     """
@@ -626,7 +628,32 @@ class MatchThread(threading.Thread):
         self.command = line # Saves the command sent to this thread
         self.name = name
 
+
+def condor_thread_watcher():
+    """
+    This method moderates condor through a thread.
+    """
+    ### Put condor_thread_watcher methods here
+    
+    
+    ### Start condor thread_watcher
+    while True:
+        print("CONDOR WAITING")
+        condorEvent.wait()
+
+        currentSize = workQueue.qsize()
+        while True:
+            time.sleep(1)
+            newSize = workQueue.qsize()
+            if newSize - currentSize != 0:
+                currentSize = workQueue.qsize()
+                print("QUEUE SIZE CHANGING")
+            else:
+                print("QUEUE SIZE SOLID")
+                break
         
+        print("STARTING CONDOR")
+
 def threadWatcher():
     """
     This method waits for a thread to set an event and will then join that thread.  An example of
@@ -634,7 +661,7 @@ def threadWatcher():
     """
     while True:
         print("WAITING")
-        event.wait()
+        watcherEvent.wait()
 
         log.info("Thread finished starting more processes")
         print("TRIGGERED THREAD WATCHER")
@@ -679,5 +706,9 @@ if __name__ == "__main__":
     watcher = Thread(target=threadWatcher, name="watcher")
     watcher.daemon = True
     watcher.start()
+    condor_watcher_thread = Thread(target=condor_thread_watcher, name="condorWatcher")
+    condor_watcher_thread.daemon = True
+    condor_watcher_thread.start()
+
     reactor.listenTCP(42424, MatchExecuterFactory())
     reactor.run()
