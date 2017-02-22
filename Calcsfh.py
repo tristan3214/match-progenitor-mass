@@ -135,9 +135,19 @@ class DefaultCalcsfh(ProcessRunner):
     def processFit(self):
         files = [self.cwd+self.parameter, self.cwd+self.phot, self.cwd+self.fake, self.cwd+self.fit,
                  self.cwd+self.co_file, self.cwd+self.zcombine_name, self.cwd+self.cmd_file]
-        self.curr_command = "./scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
+        self.curr_command = "/astro/users/tjhillis/M83/MatchExecuter/scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
                             (files[0], files[1], files[2], files[3], files[4], files[5], files[6])
 
+    def condorCommands(self):
+        """
+        Return a list of all the commands that will be run to put into a condor config file.
+        """
+        forCondor = [self.curr_command]
+        self.zcombine()
+        forCondor.append(self.curr_command)
+        self.processFit()
+        forCondor.append(self.curr_command)
+        return forCondor
 
     def _checkGroup(self):
         """

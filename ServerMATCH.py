@@ -653,8 +653,28 @@ def condor_thread_watcher():
             commands.append(filterCommand(workQueue.get()))
 
         return commands
-            
 
+    def makeCondorConfig(commands):
+        f = open("jobs.cfg", 'w')
+        # write condor config header information
+        f.write("Notification = never\n")
+        f.write("getenv = true\n")
+        f.write("Executable = /astro/users/tjhillis/MatchExecuter/scripts/condor_script.sh\n")
+        f.write("Initialdir = /astro/users/tjhillis/MatchExecuter/scripts/\n")
+        f.write("Universe = vanilla\n\n")
+
+        # write commands as queued jobs
+        for job in commands:
+            f.write("Log = /dev/null\n")
+            f.write("Output = /dev/null\n")
+            f.write("Error = /dev/null\n")
+            # string of commands
+            analysis = job.condorCommands()
+            analysis = " | ".join(analysis)
+            f.write("\"%s\"\n" % analysis)
+            f.write("Queue\n")
+
+        f.close()
 
     ### Start condor thread_watcher
     while True:
@@ -675,6 +695,8 @@ def condor_thread_watcher():
         # grab commands from queue and make a list of sfh objects
         commands = makeCommandList()
         print(commands)
+        # write config file
+        makeCondorConfig(commands)
         print("STARTING CONDOR")
 
 def threadWatcher():
