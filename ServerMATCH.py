@@ -676,6 +676,18 @@ def condor_thread_watcher():
 
         f.close()
 
+    def runCondor():
+        ssh = subprocess.Popen('ssh -xtt condor', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        ssh.stdin.write("condor_submit /astro/users/tjhillis/M83/MatchExecuter/jobs.cfg\n")
+        ssh.stdin.write("condor_q\n")
+        ssh.stdin.write("exit\n")
+        ssh.stdin.close()
+        ssh.wait()
+
+        lines = ssh.stdout.readlines()
+        for line in lines:
+            print(line)
+        
     ### Start condor thread_watcher
     while True:
         print("CONDOR WAITING")
@@ -698,6 +710,7 @@ def condor_thread_watcher():
         # write config file
         makeCondorConfig(commands)
         print("STARTING CONDOR")
+        runCondor()
 
 def threadWatcher():
     """
