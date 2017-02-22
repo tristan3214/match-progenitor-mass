@@ -688,7 +688,7 @@ class CondorWatcher(threading.Thread):
         f.write("Universe = vanilla\n\n")
 
         # write commands as queued jobs
-        for i, job in enumerate(self, commands):
+        for i, job in enumerate(commands):
             f.write("Log = /astro/users/tjhillis/M83/remnants/condorTest/log_%d.txt\n" % i)
             f.write("Output = /astro/users/tjhillis/M83/remnants/condorTest/run_%d.out\n" % i)
             f.write("Error = /astro/users/tjhillis/M83/remnants/condorTest/run_%d.err\n" % i)
@@ -743,7 +743,7 @@ def condor_thread_watcher():
 
         return commands
 
-    def makeCondorConfig(commands):
+    def makeCondorConfig(self, commands):
         f = open("jobs.cfg", 'w')
         # write condor config header information
         f.write("Notification = never\n")
