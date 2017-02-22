@@ -664,10 +664,10 @@ def condor_thread_watcher():
         f.write("Universe = vanilla\n\n")
 
         # write commands as queued jobs
-        for job in commands:
-            f.write("Log = /dev/null\n")
-            f.write("Output = /dev/null\n")
-            f.write("Error = /dev/null\n")
+        for i, job in enumerate(commands):
+            f.write("Log = /astro/users/tjhillis/M83/remnants/condorTest/log_%d.txt\n" % i)
+            f.write("Output = /astro/users/tjhillis/M83/remnants/condorTest/run_%d.out\n" % i)
+            f.write("Error = /astro/users/tjhillis/M83/remnants/condorTest/run_%d.err\n" % i)
             # string of commands
             analysis = job.condorCommands()
             analysis = " | ".join(analysis)
