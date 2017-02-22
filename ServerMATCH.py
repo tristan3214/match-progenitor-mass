@@ -634,6 +634,7 @@ class MatchThread(threading.Thread):
 class CondorWatcher(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
+
     def run(self):
         while True:
             print("CONDOR WAITING")
@@ -657,6 +658,12 @@ class CondorWatcher(threading.Thread):
             self.makeCondorConfig(commands)
             print("STARTING CONDOR")
             self.runCondor()
+
+            # wait for job to end
+            while self.condorRunning():
+                time.sleep(30)
+                print("JOBS STILL RUNNING")
+                
 
 
     ### Put condor_thread_watcher methods here
@@ -717,57 +724,7 @@ class CondorWatcher(threading.Thread):
         """
         Checks to see if there is still jobs and returns True if there is.
         """
-        pass
-
-            
-def condor_thread_watcher():
-    """
-    This method moderates condor through a thread.
-    """
-    ### Put condor_thread_watcher methods here
-    def filterCommand(command):
-        command_list = command.split()
-        if command_list[0] == "calcsfh":
-            return DefaultCalcsfh(command)
-    
-    def makeCommandList():
-        commands = []
-        size = workQueue.qsize()
-        stop = 0
-        if size < MAX_CONDOR_SIZE:
-            stop = size
-        else:
-            stop = MAX_CONDOR_SIZE
-        for i in range(stop):
-            commands.append(filterCommand(workQueue.get()))
-
-        return commands
-
-    def makeCondorConfig(self, commands):
-        f = open("jobs.cfg", 'w')
-        # write condor config header information
-        f.write("Notification = never\n")
-        f.write("getenv = true\n")
-        f.write("Executable = /astro/users/tjhillis/M83/MatchExecuter/scripts/condor_script.sh\n")
-        f.write("Initialdir = /astro/users/tjhillis/M83/MatchExecuter/scripts/\n")
-        f.write("Universe = vanilla\n\n")
-
-        # write commands as queued jobs
-        for i, job in enumerate(commands):
-            f.write("Log = /astro/users/tjhillis/M83/remnants/condorTest/log_%d.txt\n" % i)
-            f.write("Output = /astro/users/tjhillis/M83/remnants/condorTest/run_%d.out\n" % i)
-            f.write("Error = /astro/users/tjhillis/M83/remnants/condorTest/run_%d.err\n" % i)
-            # string of commands
-            analysis = job.condorCommands()
-            analysis = " | ".join(analysis)
-            f.write("Arguments = \"%s\"\n" % analysis)
-            f.write("Queue\n\n")
-
-        f.close()
-
-    def runCondor():
         ssh = subprocess.Popen('ssh -xtt condor', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-        ssh.stdin.write("condor_submit /astro/users/tjhillis/M83/MatchExecuter/jobs.cfg\n")
         ssh.stdin.write("condor_q\n")
         ssh.stdin.write("exit\n")
         ssh.stdin.close()
@@ -775,37 +732,12 @@ def condor_thread_watcher():
 
         lines = ssh.stdout.readlines()
         lines = [line.rstrip() for line in lines]
-        for line in lines:
-            print(line)
+        status = int(lines[-3][0])
 
-    def condorRunning():
-        """
-        Checks to see if there is still jobs and returns True if there is.
-        """
-            
-    ### Start condor thread_watcher
-    while True:
-        print("CONDOR WAITING")
-        condorEvent.wait()
-        print("CONDOR NOT WAITING")
-        currentSize = workQueue.qsize()
-        print("SIZE:", currentSize)
-        while True:
-            time.sleep(1)
-            newSize = workQueue.qsize()
-            if newSize - currentSize != 0:
-                currentSize = workQueue.qsize()
-                print("QUEUE SIZE CHANGING")
-            else:
-                print("QUEUE SIZE CONSTANT")
-                break
-        # grab commands from queue and make a list of sfh objects
-        commands = makeCommandList()
-        print(commands)
-        # write config file
-        makeCondorConfig(commands)
-        print("STARTING CONDOR")
-        runCondor()
+        if status == 0:
+            return False
+        else:
+            return True
 
 def threadWatcher():
     """
