@@ -636,8 +636,26 @@ def condor_thread_watcher():
     This method moderates condor through a thread.
     """
     ### Put condor_thread_watcher methods here
+    def filterCommand(command):
+        command_list = command.split()
+        if command_list[0] == "calcsfh":
+            return DefaultCalcsfh(command)
     
-    
+    def makeCommandList():
+        commands = []
+        size = workQueue.qsize()
+        stop = 0
+        if size < MAX_CONDOR_SIZE:
+            stop = size
+        else:
+            stop = MAX_CONDOR_SIZE
+        for i in range(stop):
+            commands.append(filterCommand(workQueue.get()))
+
+        return commands
+            
+
+
     ### Start condor thread_watcher
     while True:
         print("CONDOR WAITING")
@@ -652,9 +670,10 @@ def condor_thread_watcher():
                 currentSize = workQueue.qsize()
                 print("QUEUE SIZE CHANGING")
             else:
-                print("QUEUE SIZE SOLID")
+                print("QUEUE SIZE CONSTANT")
                 break
-        
+        # grab commands from queue and make a list of sfh objects
+        makeCommandList()
         print("STARTING CONDOR")
 
 def threadWatcher():
