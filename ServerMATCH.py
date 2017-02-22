@@ -1,4 +1,4 @@
-#!/astro/users/tjhillis/miniconda/miniconda2/bin/python2
+#!/astro/users/tjhillis/anaconda2/bin/python2
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
@@ -631,6 +631,14 @@ class MatchThread(threading.Thread):
         self.name = name
 
 
+class CondorWatcher(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+    def run(self):
+        while True:
+            time.sleep(1)
+            print("WATCHING CONDOR")
+        
 def condor_thread_watcher():
     """
     This method moderates condor through a thread.
@@ -688,7 +696,12 @@ def condor_thread_watcher():
         lines = [line.rstrip() for line in lines]
         for line in lines:
             print(line)
-        
+
+    def condorRunning():
+        """
+        Checks to see if there is still jobs and returns True if there is.
+        """
+            
     ### Start condor thread_watcher
     while True:
         print("CONDOR WAITING")
@@ -765,7 +778,8 @@ if __name__ == "__main__":
     watcher = Thread(target=threadWatcher, name="watcher")
     watcher.daemon = True
     watcher.start()
-    condor_watcher_thread = Thread(target=condor_thread_watcher, name="condorWatcher")
+    condor_watcher_thread = CondorWatcher()
+    #condor_watcher_thread = Thread(target=condor_thread_watcher, name="condorWatcher")
     condor_watcher_thread.daemon = True
     condor_watcher_thread.start()
 
