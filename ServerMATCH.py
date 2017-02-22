@@ -642,8 +642,9 @@ def condor_thread_watcher():
     while True:
         print("CONDOR WAITING")
         condorEvent.wait()
-
+        print("CONDOR NOT WAITING")
         currentSize = workQueue.qsize()
+        print("SIZE:", currentSize)
         while True:
             time.sleep(1)
             newSize = workQueue.qsize()
