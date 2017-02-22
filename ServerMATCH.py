@@ -671,8 +671,8 @@ def condor_thread_watcher():
             # string of commands
             analysis = job.condorCommands()
             analysis = " | ".join(analysis)
-            f.write("\"%s\"\n" % analysis)
-            f.write("Queue\n")
+            f.write("Arguements = \"%s\"\n" % analysis)
+            f.write("Queue\n\n")
 
         f.close()
 
