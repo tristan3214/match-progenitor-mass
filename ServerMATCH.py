@@ -659,8 +659,8 @@ def condor_thread_watcher():
         # write condor config header information
         f.write("Notification = never\n")
         f.write("getenv = true\n")
-        f.write("Executable = /astro/users/tjhillis/MatchExecuter/scripts/condor_script.sh\n")
-        f.write("Initialdir = /astro/users/tjhillis/MatchExecuter/scripts/\n")
+        f.write("Executable = /astro/users/tjhillis/M83/MatchExecuter/scripts/condor_script.sh\n")
+        f.write("Initialdir = /astro/users/tjhillis/M83/MatchExecuter/scripts/\n")
         f.write("Universe = vanilla\n\n")
 
         # write commands as queued jobs
@@ -685,6 +685,7 @@ def condor_thread_watcher():
         ssh.wait()
 
         lines = ssh.stdout.readlines()
+        lines = [line.rstrip() for line in lines]
         for line in lines:
             print(line)
         
