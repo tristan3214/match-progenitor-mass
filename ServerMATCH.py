@@ -119,6 +119,7 @@ class MatchExecuter(basic.LineReceiver):
             if data is not None:
                 self.sendData(data)
         else: # If all processes are used put received line in a work Queue
+            condorEvent.set()
             log.info("All threads taking adding command to queue - " + line)
             workQueue.put(line) 
         
