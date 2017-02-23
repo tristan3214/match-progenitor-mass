@@ -27,6 +27,7 @@ for i, redirect in enumerate(redirects):
     else:
 
         firstArg = commands[i].split()[0]
+        print("FIRST ARGUEMENT:", firstArg)
         if firstArg is "group":
             HOST = "10.155.88.139" # eagle
             PORT = 42424
