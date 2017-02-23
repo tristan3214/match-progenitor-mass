@@ -13,6 +13,8 @@ commands = [command.split() for command in commands]
 print(commands[0])
 print()
 print(commands[1])
+for command in commands:
+    print(command)
 redirects = [command[-1] if ">" in command else None if command[0] is "group" else None for command in commands]
 print()
 print(redirects)
