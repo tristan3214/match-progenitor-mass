@@ -14,7 +14,7 @@ print(commands[0])
 print()
 print(commands[1])
 for command in commands:
-    print(command)
+    print(command[-1])
 redirects = [command[-1] if ">" in command else None if command[0] is "group" else None for command in commands]
 print()
 print(redirects)
