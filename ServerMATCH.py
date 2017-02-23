@@ -196,7 +196,7 @@ class CommandParser(object):
             groupName = input[1]
             command = input[2]
             dAvRangeGroup[groupName][command] = True
-            self.runGroup(dAvRangeGroup[groupName])
+            runGroup(dAvRangeGroup[groupName])
 
         if input[0] == "cancel":
             if input[1] == "all":
