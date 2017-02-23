@@ -2,6 +2,7 @@
 from __future__ import print_function, division, absolute_import
 
 import subprocess
+import telnetlib
 import sys
 
 #stdout = sys.stdout
@@ -20,8 +21,18 @@ print()
 print(commands)
 for i, redirect in enumerate(redirects):
     if redirect is not None:
-        f = open(redirect, 'w')
-        subprocess.call(commands[i], stdout=f, shell=True)
-        f.close()
+        firstArg = commands[i].split()[0]
+        if firstArg is "group":
+            HOST = "10.155.88.139" # eagle
+            PORT = 42424
+
+            tn = telnetlib.Telnet(HOST, PORT)
+            tn.write(commands[i] + "\r\n") # twisted server appears to need the \r\n at the end; write to port
+            tn.close()
+
+        else:
+            f = open(redirect, 'w')
+            subprocess.call(commands[i], stdout=f, shell=True)
+            f.close()
     else:
         subprocess.call(commands[i], shell=True)

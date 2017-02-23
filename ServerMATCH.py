@@ -113,7 +113,7 @@ class MatchExecuter(basic.LineReceiver):
         log.info("Received:" +  line)
         input = line.split(" ")
         # If there are enough open threads then assign a command
-        if len(activeThreads) + 1 <= CORE_COUNT or input[0] == "cancel" or input[0] == "show" or "-dAvrange" in line: 
+        if len(activeThreads) + 1 <= CORE_COUNT or input[0] == "cancel" or input[0] == "show" or "-dAvrange" in line or input[0] == "group": 
             cp = CommandParser()
             data = cp.parse(line)
             if data is not None:
@@ -191,6 +191,13 @@ class CommandParser(object):
             return None
         if input[0] == "ssp":
             return None
+        
+        if input[0] == "group":
+            groupName = input[1]
+            command = input[2]
+            dAvRangeGroup[groupName][command] = True
+            self.runGroup(dAvRangeGroup[groupName])
+
         if input[0] == "cancel":
             if input[1] == "all":
                 self.commands.clearAll()
@@ -389,6 +396,9 @@ class CommandMethods(object):
         t.cancel = True
         doneThreads.put(dAvRangeThreads.pop(t.name))
 
+        condorEvent.set()
+        condorEvent.clear()
+        
         watcherEvent.set()
         watcherEvent.clear()
 
@@ -578,6 +588,38 @@ class CommandMethods(object):
         # if a return was not reached then there was no similarly found command
         log.info("Couldn't find command to cancel (%s)" % line)
 
+def runGroup(dictionary):
+    """
+    Passed in is a list of commands belonging to a group of commands.
+    This method will run a script to process these grouped fits.
+    """
+    # check if all the commands in the dictionary are set to true
+    done = dictionary.values()
+    if all(bool is True for bool in done) is True:
+        ## run code on group
+        # isolate working directory
+        print("DONE:", done)
+        keys = dictionary.keys()
+        #print("KEYS:", keys[0])
+        workingD = keys[0].split(" ")
+        workingD = workingD[4].split("/")[:-1]
+        workingD = "/".join(workingD) + "/"
+        print("WORKING DIRECTORY:", workingD)
+
+        # isolate base name
+        baseName = keys[1].split(" ")
+        baseName = baseName[4].split("/")[-1]
+        baseName = baseName.split("_")
+        baseName = "_".join(baseName[:-2])
+        print("BASE NAME:", baseName)
+
+        group = GroupProcess(workingD, baseName, keys)
+        group.run()
+    else:
+        # do nothing to group
+        print("CURRENTLY DONE:", done)
+        pass
+
 def cleanupThread(threadQueue):
     """
     Passed in thread must be MatchThread
@@ -663,9 +705,7 @@ class CondorWatcher(threading.Thread):
             while self.condorRunning():
                 time.sleep(30)
                 print("JOBS STILL RUNNING")
-                
-
-
+            
     ### Put condor_thread_watcher methods here
     def filterCommand(self, command):
         command_list = command.split()

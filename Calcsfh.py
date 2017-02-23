@@ -147,6 +147,8 @@ class DefaultCalcsfh(ProcessRunner):
         forCondor.append(self.curr_command)
         self.processFit()
         forCondor.append(self.curr_command)
+        if self._group is not None:
+            forCondor.append("group %s %s" % (self._group, self.original))
         return forCondor
 
     def _checkGroup(self):
