@@ -15,7 +15,15 @@ print()
 print(commands[1])
 for command in commands:
     print(command[-1])
-redirects = [None if command[0] is "group" else command[-1] if ">" in command else None for command in commands]
+redirects = []
+for command in commands:
+    if "group" in command:
+        redirects.append(None)
+    elif ">" in command and "group" not in command:
+        redirects.append(command[-1])
+    else:
+        redirects.append(None)
+#redirects = [None if command[0] is "group" else command[-1] if ">" in command else None for command in commands]
 print()
 print(redirects)
 commands = [" ".join(command[:-2]) if ">" in command else " ".join(command) for command in commands]
