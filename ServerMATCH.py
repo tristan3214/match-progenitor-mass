@@ -753,7 +753,7 @@ class CondorWatcher(threading.Thread):
     def runCondor(self):
         ssh = subprocess.Popen('ssh -xtt condor', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         ssh.stdin.write("condor_submit /astro/users/tjhillis/M83/MatchExecuter/jobs.cfg\n")
-        ssh.stdin.write("condor_q\n")
+        ssh.stdin.write("condor_q -sub tjhillis\n")
         ssh.stdin.write("exit\n")
         ssh.stdin.close()
         ssh.wait()
@@ -768,7 +768,7 @@ class CondorWatcher(threading.Thread):
         Checks to see if there is still jobs and returns True if there is.
         """
         ssh = subprocess.Popen('ssh -xtt condor', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-        ssh.stdin.write("condor_q\n")
+        ssh.stdin.write("condor_q -sub tjhillis\n")
         ssh.stdin.write("exit\n")
         ssh.stdin.close()
         ssh.wait()
