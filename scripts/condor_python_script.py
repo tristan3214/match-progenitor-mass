@@ -26,13 +26,14 @@ for command in commands:
 #redirects = [None if command[0] is "group" else command[-1] if ">" in command else None for command in commands]
 print()
 print(redirects)
-commands = [" ".join(command[:-2]) if ">" in command else " ".join(command) for command in commands]
+commands = [" ".join(command) for command in commands]
 print()
 print(commands)
 for i, redirect in enumerate(redirects):
     if redirect is not None:
+        command = " ".join(commands[i].split()[:-2])
         f = open(redirect, 'w')
-        subprocess.call(commands[i], stdout=f, shell=True)
+        subprocess.call(command, stdout=f, shell=True)
         f.close()
     else:
 
