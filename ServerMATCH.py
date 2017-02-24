@@ -198,6 +198,7 @@ class CommandParser(object):
             print("GROUP COMMANDS:", dAvRangeGroup[groupName])
             print(groupName, command)
             dAvRangeGroup[groupName][command] = True
+            startCommand(None, runGroup, (dAvRangeGroup[groupName],), name=None)
             runGroup(dAvRangeGroup[groupName])
 
         if input[0] == "cancel":
