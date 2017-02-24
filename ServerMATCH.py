@@ -194,7 +194,7 @@ class CommandParser(object):
         
         if input[0] == "group":
             groupName = input[1]
-            command = input[2]
+            command = " ".join(input[2:])
             print("GROUP COMMANDS:", dAvRangeGroup[groupName])
             print(groupName, command)
             dAvRangeGroup[groupName][command] = True
