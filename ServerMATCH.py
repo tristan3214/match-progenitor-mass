@@ -681,9 +681,11 @@ class CondorWatcher(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
+        currentSize = 0
         while True:
             print("CONDOR WAITING")
-            condorEvent.wait()
+            if currentSize == 0:
+                condorEvent.wait()
             print("CONDOR NOT WAITING")
             currentSize = workQueue.qsize()
             print("SIZE:", currentSize)
@@ -708,6 +710,7 @@ class CondorWatcher(threading.Thread):
             while self.condorRunning():
                 time.sleep(30)
                 print("JOBS STILL RUNNING")
+            currentSize = workQueue.qsize()
             
     ### Put condor_thread_watcher methods here
     def filterCommand(self, command):
