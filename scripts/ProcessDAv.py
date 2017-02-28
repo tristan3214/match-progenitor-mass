@@ -287,8 +287,7 @@ def processDAv(path, baseName, photFile):
     plt.savefig(path+baseName, dpi=512)
     
     #plt.show()
-
-
+    
 def interpolate(interpVals, x, y):
     if type(interpVals) != list:
         idx1 = np.where(y >= interpVals)[0][-1] # get the upper value
