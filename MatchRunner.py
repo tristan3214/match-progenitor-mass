@@ -9,6 +9,7 @@ import telnetlib
 import time
 
 from MatchParam import MatchParam
+from UserParameters import *
 import MyLogger
 
 __author__ = "Tristan J. Hillis"
@@ -318,10 +319,11 @@ def send(commandList):
     Opens telnet connection useing "telnetlib" python package and sends the line to port 42424
     """
     log = MyLogger.myLogger("send", toExecutable + "/logs/send_log")
-    HOST = "10.155.88.139" # eagle
+    HOST = HOST_IP_ADDRESS
+    #HOST = "10.155.88.139" # eagle
     #HOST = "10.155.88.135" # astrolab18
     #HOST = "10.155.88.133"
-    PORT = 42424
+    PORT = PORT_NUMBER
 
     tn = telnetlib.Telnet(HOST, PORT)
     #print("sleeping")

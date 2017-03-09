@@ -6,9 +6,10 @@ import telnetlib
 import threading
 import time
 
-HOST = "10.155.88.139"
+from UserParameters import *
+HOST = HOST_IP_ADDRESS
 #HOST = "10.155.88.135" # astrolab18
-PORT = 42424
+PORT = PORT_NUMBER
 
 def main():
     tn = telnetlib.Telnet(HOST, PORT)
