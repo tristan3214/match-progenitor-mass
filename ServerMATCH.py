@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
+import getpass
 import multiprocessing
 import os
 from Queue import Queue
@@ -17,6 +18,7 @@ from twisted.protocols import basic
 from twisted.internet import protocol, reactor
 from threading import Thread
 
+from UserParameters import *
 import MyLogger
 from Calcsfh import Sleep
 from Calcsfh import DefaultCalcsfh
@@ -28,8 +30,10 @@ This server runs on port 42424
 
 # Global Variables
 #CORE_COUNT = multiprocessing.cpu_count()
-CORE_COUNT = 8
-MAX_CONDOR_SIZE = 3000 # this controlls the maximum size of a condor run
+#CORE_COUNT = 15
+#MAX_CONDOR_SIZE = 3000 # this controlls the maximum size of a condor run
+#CONDOR_ON = True
+
 workQueue = Queue()
 activeThreads = {} # this should only every be one more larger than the number of CPUs on the system.
                    # main thread handles incoming data and one thread waits on events and the other threads
@@ -37,8 +41,11 @@ activeThreads = {} # this should only every be one more larger than the number o
 dAvRangeThreads = {}
 dAvRangeGroup = {} # dictionary that holds a dictionary of commands
 doneThreads = Queue()
+
+# Events for watchdogs
 watcherEvent = threading.Event() # a single thread waits for set to join a certain thread
 condorEvent = threading.Event() # activates the condor thread
+
 log = MyLogger.myLogger("MatchServer", "server")
 
 def getThreadNumber():
@@ -198,7 +205,7 @@ class CommandParser(object):
             print("GROUP COMMANDS:", dAvRangeGroup[groupName])
             print(groupName, command)
             dAvRangeGroup[groupName][command] = True
-            startCommand(None, runGroup, (dAvRangeGroup[groupName],), name=None)
+            startCommand(None, runGroup, (dAvRangeGroup[groupName],), name=getThreadNumber())
             runGroup(dAvRangeGroup[groupName])
 
         if input[0] == "cancel":
@@ -732,19 +739,20 @@ class CondorWatcher(threading.Thread):
         return commands
 
     def makeCondorConfig(self, commands):
-        f = open("jobs.cfg", 'w')
+        f = open("jobs.cfg", 'w') # create config file in the ServerMatch directory
+        self.to_job_config = os.getcwd() + "/jobs.cfg"
         # write condor config header information
         f.write("Notification = never\n")
         f.write("getenv = true\n")
-        f.write("Executable = /astro/users/tjhillis/M83/MatchExecuter/scripts/condor_script.sh\n")
-        f.write("Initialdir = /astro/users/tjhillis/M83/MatchExecuter/scripts/\n")
+        f.write("Executable = %s/scripts/condor_script.sh\n" % os.getcwd())
+        f.write("Initialdir = %s/scripts/\n" % os.getcwd())
         f.write("Universe = vanilla\n\n")
 
         # write commands as queued jobs
         for i, job in enumerate(commands):
-            f.write("Log = /astro/users/tjhillis/M83/remnants/condorTest/log_%d.txt\n" % i)
-            f.write("Output = /astro/users/tjhillis/M83/remnants/condorTest/run_%d.out\n" % i)
-            f.write("Error = /astro/users/tjhillis/M83/remnants/condorTest/run_%d.err\n" % i)
+            f.write("Log = /dev/null\n")
+            f.write("Output = /dev/null\n")
+            f.write("Error = /dev/null\n")
             # string of commands
             analysis = job.condorCommands()
             analysis = " | ".join(analysis)
@@ -755,8 +763,8 @@ class CondorWatcher(threading.Thread):
 
     def runCondor(self):
         ssh = subprocess.Popen('ssh -xtt condor', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-        ssh.stdin.write("condor_submit /astro/users/tjhillis/M83/MatchExecuter/jobs.cfg\n")
-        ssh.stdin.write("condor_q -sub tjhillis\n")
+        ssh.stdin.write("condor_submit %s\n" % self.to_job_config)
+        ssh.stdin.write("condor_q -sub %s\n" % getpass.getuser())
         ssh.stdin.write("exit\n")
         ssh.stdin.close()
         ssh.wait()
@@ -771,7 +779,7 @@ class CondorWatcher(threading.Thread):
         Checks to see if there is still jobs and returns True if there is.
         """
         ssh = subprocess.Popen('ssh -xtt condor', stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-        ssh.stdin.write("condor_q -sub tjhillis\n")
+        ssh.stdin.write("condor_q -sub %s\n" % getpass.getuser())
         ssh.stdin.write("exit\n")
         ssh.stdin.close()
         ssh.wait()
@@ -798,6 +806,7 @@ def threadWatcher():
         print("TRIGGERED THREAD WATCHER")
         # find thread that activated event using "cancel" internal boolean
         size = doneThreads.qsize()
+
         print("ACTIVE THREADS:", activeThreads)
         for i in xrange(size):            
             t = doneThreads.get()
@@ -837,10 +846,11 @@ if __name__ == "__main__":
     watcher = Thread(target=threadWatcher, name="watcher")
     watcher.daemon = True
     watcher.start()
-    condor_watcher_thread = CondorWatcher()
-    #condor_watcher_thread = Thread(target=condor_thread_watcher, name="condorWatcher")
-    condor_watcher_thread.daemon = True
-    condor_watcher_thread.start()
+
+    if CONDOR_ON:
+        condor_watcher_thread = CondorWatcher()
+        condor_watcher_thread.daemon = True
+        condor_watcher_thread.start()
 
     reactor.listenTCP(42424, MatchExecuterFactory())
     reactor.run()

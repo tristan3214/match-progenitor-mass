@@ -1,5 +1,5 @@
-#!/astro/users/tjhillis/miniconda/miniconda2/bin/python2
-from __future__ import print_function, division
+#!/astro/apps6/anaconda/bin/python2
+from __future__ import print_function, division, absolute_import
 
 import glob
 import os
@@ -49,9 +49,6 @@ class MatchParam(object):
         self.name = None
 
         self._parseDefault()
-        #print(self.parameters.keys())
-        #print(self.parameters["dAv"])
-        #print(self.parameters["background"])
 
     def change(self, string):
         """
@@ -331,22 +328,20 @@ class MatchParam(object):
                 print("Missing/extra paramter(s) in line %d of default parameter file:" % (4 + numCMDs + i))
                 print(line)
                 sys.exit(1)
-            try: # Vmin and Vmax are already specified (ie no generation of these from self.fake needed)
-                for j in range(size):
-                    if j < 2:
-                        params[j] = float(params[j])
-                    else:
-                        params[j] = str(params[j])
-                        
-                    self.parameters[filter + "min"] = params[0]
-                    self.parameters[filter + "max"] = params[1]
-                    self.parameters[filter] = params[2]
-            except ValueError: # if this is raised then need to generate Vmin, Vmax, etc.
-                completeness = self._calculate50()
-                maxes = self._calculateMaxes()
-                self.parameters[filter + "min"] = maxes[i]
+
+            minsAndMax = params[:2]
+            if not self._isStringFloat(minsAndMax[0]):
+                self.parameters[filter + "min"] = "filterMin" # This is calculated after we are done parsing.
+            else:
+                self.parameters[filter + "min"] = float(minsAndMax[0])
+
+            if not self._isStringFloat(minsAndMax[1]):
+                completeness = self._calculateComp(numCMDs, 50) # feed the number of CMDs and the completness limit.
                 self.parameters[filter + "max"] = completeness[i]
-                self.parameters[filter] = filter
+            else:
+                self.parameters[filter + "max"] = float(minsAndMax[1])
+
+            self.parameters[filter] = filter
 
         # exclude/combine gates (Nexclude exclude Ncombine combine (per CMD))
         excludePoints = []
@@ -387,8 +382,6 @@ class MatchParam(object):
                 print(line)
                 sys.exit(1)
 
-                
-                
         # number of time bins (Ntbins)
         line = self._checkForEnd(f.readline())
         try:
@@ -443,7 +436,7 @@ class MatchParam(object):
             if idx is not None: # if the returned idx is None then no string was found in the last line arg3
                 try:
                     self.parameters["scale"] = float(params[2][:idx])
-                    self.parameters["background"] = params[2][idx:]
+                    self.parameters["background"] = params[2][idx:]                        
                 except ValueError: # this assumes somebody indicates "scale" in last line to determine the scale at a later time
                     self.parameters["scale"] = None
                     self.parameters["background"] = params[2][5:] # "scale" is 5 char long
@@ -456,6 +449,22 @@ class MatchParam(object):
             sys.exit(1)
 
         f.close()
+
+        # Calculate the magnitude mins (brightest magnitude) if we find a string still there
+        # recalculated the max magnitudes for the parameter file in the existence of a background
+        calculateMax = []
+        for filter in self.filterSet:
+            try:
+                float(self.parameters[filter + "min"])
+                calculateMax.append(False)
+            except ValueError:
+                calculateMax.append(True)
+        if True in calculateMax:
+            maxes = self._calculateMaxes(numCMDs)
+            for i, filter in enumerate(self.filterSet):
+                if calculateMax[i] == True:
+                    self.parameters[filter + "min"] = maxes[i]
+        
 
     def _testTillString(self, s):
         """
@@ -486,163 +495,117 @@ class MatchParam(object):
             return s.strip()
 
     # hard coded too much; need to generalize to n unique filters
-    def _calculateMaxes(self):
+    def _calculateMaxes(self, n):
         """
-        Calculates the brightest magnitude in the phot file, which is essentially the minium.
+        Calculates the brightest magnitude in the phot file, which is essentially the minium.  Passed in is the number of cmds.
+        2 CMDs gives 3 filters and 1 CMD gives. If there is a detected background file then we use it to compute the brightest.
         """
-        f336_cmd, f438_cmd, f814_cmd = np.loadtxt(self.phot, usecols=[0, 1, 2], unpack=True)
+        file_to_use = self.phot
+        if self.parameters['background'] is not None:
+            file_to_use = self.parameters['background']
+                
+        if n == 1:
+            lowest_cmd, higher_cmd = np.loadtxt(file_to_use, usecols=[0,1], unpack=True)
 
-        f336_min = f336_cmd.min()
-        f438_min = f438_cmd.min()
-        f814_min = f814_cmd.min()
+            lowest_min = lowest_cmd.min()
+            higher_min = higher_cmd.min()
 
-        return [f336_min, f438_min, f814_min]
+            return [lowest_min, higher_min]
+        
+        else:# when the number of cmds is 2 we grab 3 filters
+            lowest_cmd, middle_cmd, largest_cmd = np.loadtxt(file_to_use, usecols=[0, 1, 2], unpack=True)
 
-    def _calculate50(self):
+            lowest_min = lowest_cmd.min()
+            middle_min = middle_cmd.min()
+            largest_min = largest_cmd.min()
+
+            return [lowest_min, middle_min, largest_min]
+
+    def _calculateComp(self, n, completeness):
         """
-        Calculates the 50 percent completeness limit for the passed in fake file.
+        Calculates the 50 percent completeness limit for the passed in fake file. The passed in value is the number of CMDs.
+        If the number is 1 the the fake file has 4 columns and it is 6 if n is 3.
         """
 
-                # change this to get finer/coarser binning
+        # change this to get finer/coarser binning
         size_of_bin = 0.1 # set size of bin
 
         # read in fake file columns
-        f336_in, f438_in, f814_in, f336_outin, f438_outin, f814_outin = np.loadtxt(self.fake,
-                                                                                   usecols=[0, 1, 2, 3, 4, 5], unpack=True)
+        if n == 1:
+            V_in, I_in, V_outin, I_outin = np.loadtxt(self.fake, usecols=[0,1,2,3], unpack=True)
 
-        ### Get the 50% completeness of F336W
+            V_comp = self._getCompleteness(V_in, V_outin, size_of_bin, completeness)
 
-        good_idx = np.where(f336_in < 30.0)[0]
-        f336_in, f336_outin = f336_in[good_idx], f336_outin[good_idx]
-        f336_brightest, f336_faintest = f336_in.min(), f336_in.max()
-        number_of_bins = int(np.ceil((f336_faintest - f336_brightest) / size_of_bin))
+            I_comp = self._getCompleteness(I_in, I_outin, size_of_bin, completeness)
 
-        f336_mag = []
-        f336_fraction = []
+            return [V_comp, I_comp]
 
-        begin_mag = f336_brightest
-        end_mag = f336_brightest + size_of_bin
+            
+        else:
+            f336_in, f438_in, f814_in, f336_outin, f438_outin, f814_outin = np.loadtxt(self.fake,
+                                                                                       usecols=[0, 1, 2, 3, 4, 5], unpack=True)
+
+            ### Get the 50% completeness of F336W
+            f336_50 = self._getCompleteness(f336_in, f336_outin, size_of_bin, 50)
+
+            #### Get the 50% completeness for F438W
+            f438_50 = self._getCompleteness(f438_in, f438_outin, size_of_bin, 50)
+
+            ### Get the 50% completeness for F814W
+            f814_50 = self._getCompleteness(f814_in, f814_outin, size_of_bin, 50)
+
+            return [f336_50, f438_50, f814_50]
+
+
+    def _getCompleteness(self, mag_in, mag_outin, size_of_bin, completeness):
+        good_idx = np.where(mag_in < 30.0)[0]
+        mag_in, mag_outin = mag_in[good_idx], mag_outin[good_idx]
+        mag_brightest, mag_faintest = mag_in.min(), mag_in.max()
+        number_of_bins = int(np.ceil((mag_faintest - mag_brightest) / size_of_bin))
+
+        mag_mag = []
+        mag_fraction = []
+
+        begin_mag = mag_brightest
+        end_mag = mag_brightest + size_of_bin
         for i in xrange(number_of_bins):
-            idx = np.where((f336_in >= begin_mag) & (f336_in < end_mag))[0]
-            recovered = f336_outin[idx]
+            idx = np.where((mag_in >= begin_mag) & (mag_in < end_mag))[0]
+            recovered = mag_outin[idx]
             recovered = recovered[(recovered>=-1.0) & (recovered<=1.0)]
             if i == 0:
-                f336_mag.append(begin_mag)
-                f336_mag.append(end_mag)
+                mag_mag.append(begin_mag)
+                mag_mag.append(end_mag)
 
                 if idx.size <= 0:
-                    f336_fraction.append(1.0)
-                    f336_fraction.append(1.0)
+                    mag_fraction.append(1.0)
+                    mag_fraction.append(1.0)
                 else:
-                    f336_fraction.append(recovered.size / idx.size)
-                    f336_fraction.append(recovered.size / idx.size)
+                    mag_fraction.append(recovered.size / idx.size)
+                    mag_fraction.append(recovered.size / idx.size)
             else:
-                f336_mag.append(end_mag)
+                mag_mag.append(end_mag)
 
                 if idx.size <= 0:
-                    f336_fraction.append(1.0)
+                    mag_fraction.append(1.0)
                 else:
-                    f336_fraction.append(recovered.size / idx.size)
+                    mag_fraction.append(recovered.size / idx.size)
 
             begin_mag = end_mag
             end_mag = end_mag + size_of_bin
+            
+        mag_mag, mag_fraction = np.asarray(mag_mag), np.asarray(mag_fraction)
+        mag_comp = self._interpolateCompMag(mag_mag, mag_fraction, completeness)
 
-        f336_mag, f336_fraction = np.asarray(f336_mag), np.asarray(f336_fraction)
-        f336_50 = self._interpolate50Mag(f336_mag, f336_fraction)
+        return mag_comp
 
-        #### Get the 50% completeness for F438W
-
-        good_idx = np.where(f438_in < 30.0)[0]
-        f438_in, f438_outin = f438_in[good_idx], f438_outin[good_idx]
-        f438_brightest, f438_faintest = f438_in.min(), f438_in.max()
-        number_of_bins = int(np.ceil((f438_faintest - f438_brightest) / size_of_bin))
-
-        f438_mag = []
-        f438_fraction = []
-
-        begin_mag = f438_brightest
-        end_mag = f438_brightest + size_of_bin
-        for i in xrange(number_of_bins):
-            idx = np.where((f438_in >= begin_mag) & (f438_in < end_mag))[0]
-            recovered = f438_outin[idx]
-            recovered = recovered[(recovered>-1.0) & (recovered<1.0)]
-            if i == 0:
-                f438_mag.append(begin_mag)
-                f438_mag.append(end_mag)
-
-                if idx.size <= 0:
-                    f438_fraction.append(1.0)
-                    f438_fraction.append(1.0)
-                else:
-                    f438_fraction.append(recovered.size / idx.size)
-                    f438_fraction.append(recovered.size / idx.size)
-            else:
-                f438_mag.append(end_mag)
-
-                if idx.size <= 0:
-                    f438_fraction.append(1.0)
-                else:
-                    f438_fraction.append(recovered.size / idx.size)
-
-            begin_mag = end_mag
-            end_mag = end_mag + size_of_bin
-
-        f438_mag, f438_fraction = np.asarray(f438_mag), np.asarray(f438_fraction)
-        f438_50 = self._interpolate50Mag(f438_mag, f438_fraction)
-
-        ### Get the 50% completeness for F814W
-
-        good_idx = np.where(f814_in < 30.0)[0]
-        f814_in, f814_outin = f814_in[good_idx], f814_outin[good_idx]
-        f814_brightest, f814_faintest = f814_in.min(), f814_in.max()
-        number_of_bins = int(np.ceil((f814_faintest - f814_brightest) / size_of_bin))
-
-        f814_mag = []
-        f814_fraction = []
-
-        begin_mag = f814_brightest
-        end_mag = f814_brightest + size_of_bin
-        for i in xrange(number_of_bins):
-            idx = np.where((f814_in >= begin_mag) & (f814_in < end_mag))[0]
-            recovered = f814_outin[idx]
-            recovered = recovered[(recovered>-1.0) & (recovered<1.0)]
-            if i == 0:
-                f814_mag.append(begin_mag)
-                f814_mag.append(end_mag)
-
-                if idx.size <= 0:
-                    f814_fraction.append(1.0)
-                    f814_fraction.append(1.0)
-                else:
-                    f814_fraction.append(recovered.size / idx.size)
-                    f814_fraction.append(recovered.size / idx.size)
-            else:
-                f814_mag.append(end_mag)
-
-                if idx.size <= 0:
-                    f814_fraction.append(1.0)
-                else:
-                    f814_fraction.append(recovered.size / idx.size)
-
-            begin_mag = end_mag
-            end_mag = end_mag + size_of_bin
-
-        f814_mag, f814_fraction = np.asarray(f814_mag), np.asarray(f814_fraction)
-        f814_50 = self._interpolate50Mag(f814_mag, f814_fraction)
-
-        # Print interpolations
-        #print("F336W 50%:", f336_50)
-        #print("F438W 50%:", f438_50)
-        #print("F814W 50%:", f814_50)
-
-        return [f336_50, f438_50, f814_50]
-
-    def _interpolate50Mag(self, mags, fracs):
+    def _interpolateCompMag(self, mags, fracs, completeness):
         """
         Linearly extrapolates between the points that bound 0.5. 
         """
-        idx1 = np.where(fracs < 0.5)[0][0]
-        idx2 = np.where(fracs > 0.5)[0][-1]
+        completeness = completeness / 100.0
+        idx1 = np.where(fracs < completeness)[0][0]
+        idx2 = np.where(fracs > completeness)[0][-1]
+
 
         x1 = fracs[idx1]
         y1 = mags[idx1]
@@ -667,7 +630,6 @@ class MatchParam(object):
         nextFile = ""
         if size > 0:
             numbers = [int(files[i].split("_")[1].split(".")[0]) for i in xrange(len(files))]
-            #print(numbers)
             
             numbers = sorted(numbers, key=int)
             nextVal = numbers[-1] + 1
@@ -682,3 +644,13 @@ class MatchParam(object):
         else:
             nextFile = "parameters_01.param"
         return nextFile
+
+    def _isStringFloat(self, string):
+        """
+        Pass in a string and trys to convert to float.  If it fails it will return False else True.
+        """
+        try:
+            float(string)
+            return True
+        except ValueError:
+            return False

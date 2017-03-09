@@ -1,4 +1,4 @@
-#!/astro/users/tjhillis/anaconda2/bin/python2
+#!/astro/apps6/anaconda/bin/python2
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
@@ -135,8 +135,8 @@ class DefaultCalcsfh(ProcessRunner):
     def processFit(self):
         files = [self.cwd+self.parameter, self.cwd+self.phot, self.cwd+self.fake, self.cwd+self.fit,
                  self.cwd+self.co_file, self.cwd+self.zcombine_name, self.cwd+self.cmd_file]
-        self.curr_command = "/astro/users/tjhillis/M83/MatchExecuter/scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
-                            (files[0], files[1], files[2], files[3], files[4], files[5], files[6])
+        self.curr_command = "%s/scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
+                            (os.getcwd(), files[0], files[1], files[2], files[3], files[4], files[5], files[6])
 
     def condorCommands(self):
         """
@@ -214,15 +214,56 @@ class GroupProcess(ProcessRunner):
         """
         # set the current command to run a bash script and pass in the path and baseName to the script
         calcsfhs = [DefaultCalcsfh(calcsfh) for calcsfh in commands]
-        super(GroupProcess, self).__init__("./scripts/group_script.sh %s %s %s" % (path, baseName, calcsfhs[0].phot))
+        super(GroupProcess, self).__init__("/scripts/group_script.sh %s %s %s %s" % (path, baseName, calcsfhs[0].phot, calcsfhs[0].parameter))
 
-class SSPCalcsfh(object):
-    def __init__(self):
-        pass
+class SSPCalcsfh(DefaultCalcsfh):
+    """
+    This class handles running calcsfh commands that contain the -ssp flag.  This flag makes it so the calcsfh output is a
+    large list of fits for a single star within the given parameters like dAv.  The calcsfh output is then put through sspcombine
+    to output what a single star would look like given the input CMD.  It is suggested to run the -full flag when using -ssp to avoid
+    some weird errors without it.
+    """
+    def __init__(self, command):
+        super(SSPCalcsfh, self).__init__(command)
 
-    def stuff(self):
-        print("Child object")
+        # initialize the variable to hold the sspcombine name
+        self.sspcombine_name = None
+        
+    def sspcombine(self):
+        self.curr_command = "sspcombine %s > %s.ssp" % (self.cwd + self.co_file, self.cwd + self.fit)
+        # set a file name for the new zcombine name
+        self.sspcombine_name = self.fit + ".ssp"
 
+    def processFit(self):
+        files = [self.cwd+self.parameter, self.cwd+self.phot, self.cwd+self.fake, self.cwd+self.fit,
+                 self.cwd+self.co_file, self.cwd+self.sspcombine_name, self.cwd+self.cmd_file]
+        self.curr_command = "%s/scripts/ssp_script.sh %s %s %s %s %s %s %s" % \
+                            (os.getcwd(), files[0], files[1], files[2], files[3], files[4], files[5], files[6])
+
+    def condorCommands(self):
+        """
+        Return a list of all the commands that will be run to put into a condor config file.
+        """
+        forCondor = [self.curr_command]
+        self.sspcombine()
+        forCondor.append(self.curr_command)
+        self.processFit()
+        forCondor.append(self.curr_command)
+        if self._group is not None:
+            forCondor.append("group %s %s" % (self._group, self.original))
+        return forCondor
+
+    def _cleanup(self):
+        """
+        This is canceled when the process is canceled abruptly, in which the files corresponding to this run
+        of calcsfh will be erased.
+        """
+        files = [self.cwd+self.fit, self.cwd+self.co_file, (self.cwd+self.sspcombine_name if self.sspcombine_name is not None else None),
+                 (self.cwd+self.cmd_file if self.cmd_file is not None else None)]
+        for file in files:
+            if self._checkFile(file):
+                os.remove(file)
+                
 """
 class extendProcessRunner(ProcessRunner):
     def __init__(self, command):
