@@ -852,5 +852,5 @@ if __name__ == "__main__":
         condor_watcher_thread.daemon = True
         condor_watcher_thread.start()
 
-    reactor.listenTCP(42424, MatchExecuterFactory())
+    reactor.listenTCP(PORT_NUMBER, MatchExecuterFactory())
     reactor.run()

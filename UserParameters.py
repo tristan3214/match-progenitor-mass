@@ -12,4 +12,5 @@ import getpass
 CORE_COUNT = 15
 MAX_CONDOR_SIZE = 3000 # This will be the max size of the queued jobs in condor
 CONDOR_ON = True # Changes this to False if you don't want to use condor
-#USER_ID = getpass.getuser() # This will keep track of the user id 
+#USER_ID = getpass.getuser() # This will keep track of the user id
+PORT_NUMBER = 42424
