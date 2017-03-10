@@ -318,9 +318,8 @@ def magLimitsGreaterFilter(low, high):
 
 """    
 def processDAv(path, baseName, photFile):
-    """
-    Takes in a path with a baseName that will follow standard dAv naming conventions.
-    """
+#    Takes in a path with a baseName that will follow standard dAv naming conventions.
+
     dAvfile = open(path+"best_dAvs.ls", 'a')
     metallicity = "z_0-19" # Defines the metallicity to use for plotting isochrones
     
