@@ -58,6 +58,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     Takes in a path with a baseName that will follow standard dAv naming conventions.
     """
     dAvfile = open(path+"best_dAvs.ls", 'a')
+    massFile = open(path+"best_mass.ls", 'a')
     metallicity = "z_0-19" # Defines the metallicity to use for plotting isochrones
     
     path = path.strip("")
@@ -214,6 +215,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     ax.text(35, 0.9, snr_id, fontsize=20, zorder=10)
     ax.text(30, 0.85, r"$M=%.1f^{+%.1f}_{-%.1f}$" % (central_mass[1], central_mass[0]-central_mass[1], central_mass[1]-central_mass[2]),
             fontsize=20, zorder=10)
+    massFile.write("%s %.2f %.2f %.2f\n" % (baseName, central_mass[1], central_mass[0]-central_mass[1], central_mass[1]-central_mass[2]) )
     
     # plot best fit values vs dAvs
     ax = fig.add_subplot(132)
@@ -289,6 +291,8 @@ def processDAv_general(path, baseName, photFile, paramFile):
 
     plt.savefig(path+baseName+"_testfig", dpi=512)
 
+    dAvfile.close()
+    massFile.close()
 
 def magLimitsGreaterFilter(low, high):
     # define points

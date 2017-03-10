@@ -847,6 +847,11 @@ def threadWatcher():
         print("BACK TO WAITING")
                 
 if __name__ == "__main__":
+    # Check if we are running from the executable directory
+    executeDir = "/".join(sys.argv[0].split("/")[:-1])
+    if executeDir != os.getcwd():
+        os.chdir(executeDir)
+
     watcher = Thread(target=threadWatcher, name="watcher")
     watcher.daemon = True
     watcher.start()
