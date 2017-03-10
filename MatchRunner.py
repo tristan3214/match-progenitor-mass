@@ -187,6 +187,8 @@ def singleRun(args):
                     # change the logZmin
                     param.change("logZmin=-1.5")
                     param.save(name=newFileName)
+            if param.calculateMaxOrMin: # Had to calculate filter mins or maxes and so we save over the file
+                param.save(workingD, paramFile)
                 else:
                     print("Zinc and ssp flags both specified...exiting")
                     sys.exit(1)

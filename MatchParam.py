@@ -44,6 +44,7 @@ class MatchParam(object):
         # flags to tell if there is something like zinc
         self.zinc = False
         self.ssp = False # if a an ssp flag is passed then this will be set to True
+        self.calculateMaxOrMin = False
 
         self.savedTo = None
         self.name = None
@@ -332,12 +333,14 @@ class MatchParam(object):
             minsAndMax = params[:2]
             if not self._isStringFloat(minsAndMax[0]):
                 self.parameters[filter + "min"] = "filterMin" # This is calculated after we are done parsing.
+                self.calculateMaxOrMin = True
             else:
                 self.parameters[filter + "min"] = float(minsAndMax[0])
 
             if not self._isStringFloat(minsAndMax[1]):
                 completeness = self._calculateComp(numCMDs, 50) # feed the number of CMDs and the completness limit.
                 self.parameters[filter + "max"] = completeness[i]
+                self.calculateMaxOrMin = True
             else:
                 self.parameters[filter + "max"] = float(minsAndMax[1])
 
