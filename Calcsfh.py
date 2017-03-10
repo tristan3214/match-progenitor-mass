@@ -216,7 +216,7 @@ class GroupProcess(ProcessRunner):
         """
         # set the current command to run a bash script and pass in the path and baseName to the script
         calcsfhs = [DefaultCalcsfh(calcsfh) for calcsfh in commands]
-        super(GroupProcess, self).__init__("/scripts/group_script.sh %s %s %s %s" % (path, baseName, calcsfhs[0].phot, calcsfhs[0].parameter))    
+        super(GroupProcess, self).__init__("./scripts/group_script.sh %s %s %s %s" % (path, baseName, calcsfhs[0].phot, calcsfhs[0].parameter))    
 
 class SSPCalcsfh(DefaultCalcsfh):
     """
