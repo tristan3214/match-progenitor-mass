@@ -20,6 +20,7 @@ class ProcessRunner(object):
         There will always be a command that is initially passed in when an object is created.
         """
         self.curr_command = command
+        self.abruptlyCanceled = False
 
     def run(self):
         """
@@ -40,15 +41,16 @@ class ProcessRunner(object):
             if t.cancel:
                 print("CANCELED", t.name)
                 os.killpg(os.getpgid(pipe.pid), signal.SIGTERM) # kills group of processes when present
+                self.abruptlyCanceled = True
                 self._cleanup()
                 break
             time.sleep(0.5)
 
-        def _cleanup(self):
+    def cleanup(self):
             """
-            Clean up after
-            """
-            pass
+        Clean up after
+        """
+        pass
 
 
 class DefaultCalcsfh(ProcessRunner):
@@ -214,14 +216,7 @@ class GroupProcess(ProcessRunner):
         """
         # set the current command to run a bash script and pass in the path and baseName to the script
         calcsfhs = [DefaultCalcsfh(calcsfh) for calcsfh in commands]
-        super(GroupProcess, self).__init__("/scripts/group_script.sh %s %s %s %s" % (path, baseName, calcsfhs[0].phot, calcsfhs[0].parameter))
-
-    def _cleaup(self):
-        """
-        A simple place holder method.
-        """
-        pass
-    
+        super(GroupProcess, self).__init__("/scripts/group_script.sh %s %s %s %s" % (path, baseName, calcsfhs[0].phot, calcsfhs[0].parameter))    
 
 class SSPCalcsfh(DefaultCalcsfh):
     """

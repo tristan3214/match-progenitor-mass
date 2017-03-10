@@ -257,18 +257,19 @@ class CommandMethods(object):
         # run the initial command
         calcsfh.run()
 
-        # run zcombine at the end
-        calcsfh.zcombine()
-        calcsfh.run()
+        if not calcsfh.abruptlyCanceled:
+            # run zcombine at the end
+            calcsfh.zcombine()
+            calcsfh.run()
 
-        # process files after
-        calcsfh.processFit()
-        calcsfh.run()
+            # process files after
+            calcsfh.processFit()
+            calcsfh.run()
 
-        # check for group and run if it is the last one in the group
-        if calcsfh._group is not None:
-            dAvRangeGroup[calcsfh._group][calcsfh.original] = True
-            self.runGroup(dAvRangeGroup[calcsfh._group])
+            # check for group and run if it is the last one in the group
+            if calcsfh._group is not None:
+                dAvRangeGroup[calcsfh._group][calcsfh.original] = True
+                self.runGroup(dAvRangeGroup[calcsfh._group])
             
         # cleanup the thread that is done
         cleanupThread(doneThreads)
