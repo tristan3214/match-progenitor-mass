@@ -849,8 +849,10 @@ def threadWatcher():
 if __name__ == "__main__":
     # Check if we are running from the executable directory
     executeDir = "/".join(sys.argv[0].split("/")[:-1])
+    print(executeDir, os.getcwd())
     if executeDir != os.getcwd():
         os.chdir(executeDir)
+    print(os.getcwd())
 
     watcher = Thread(target=threadWatcher, name="watcher")
     watcher.daemon = True
