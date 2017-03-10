@@ -46,8 +46,8 @@ class ProcessRunner(object):
                 break
             time.sleep(0.5)
 
-    def cleanup(self):
-            """
+    def _cleanup(self):
+        """
         Clean up after
         """
         pass
