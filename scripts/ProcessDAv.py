@@ -19,7 +19,7 @@ import seaborn
 #### Internal imports####
 #########################
 # Add parent directory to path to access modules above this directory
-sys.path.insert(0, '..')
+#sys.path.insert(0, '..')
 from PlotSFR import SFH
 from MatchParam import MatchParam
 
