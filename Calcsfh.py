@@ -216,6 +216,13 @@ class GroupProcess(ProcessRunner):
         calcsfhs = [DefaultCalcsfh(calcsfh) for calcsfh in commands]
         super(GroupProcess, self).__init__("/scripts/group_script.sh %s %s %s %s" % (path, baseName, calcsfhs[0].phot, calcsfhs[0].parameter))
 
+    def _cleaup(self):
+        """
+        A simple place holder method.
+        """
+        pass
+    
+
 class SSPCalcsfh(DefaultCalcsfh):
     """
     This class handles running calcsfh commands that contain the -ssp flag.  This flag makes it so the calcsfh output is a

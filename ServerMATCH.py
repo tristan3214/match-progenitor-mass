@@ -705,6 +705,9 @@ class CondorWatcher(threading.Thread):
                 else:
                     print("QUEUE SIZE CONSTANT")
                     break
+            # when things are added to queue but all are run by thread this will continue the condor thread to wait.
+            if currentSize == 0:
+                continue
             # grab commands from queue and make a list of sfh objects
             commands = self.makeCommandList()
             print(commands)
