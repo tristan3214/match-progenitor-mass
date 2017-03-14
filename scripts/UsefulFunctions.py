@@ -264,7 +264,12 @@ class SFH(object):
         Retrieves the errors of the SFH and returns a list with where the errors should be plotted along with the plus and 
         minus errors as [xErrorSpots, yErrorSpots, plusError, minusError].
 
-        Suggested way to plot: plt.fill_between(time, plus, minus, color='0.5', alpha=0.5)
+        CSF Errors:  These errors are calculated with a simulation about a standard-normal distribution.  What is returned
+        is the time over the calculated errors with the plus and minus CSF that can be plotted but is suggested to use fill between.
+        Also returned is the 50th percentile time of the original CSF with the 50th percentiles of the plus and minus CSF representing
+        the plus and minus errors in time.
+
+        Suggested way to plot CSF errors: plt.fill_between(time, plus, minus, color='0.5', alpha=0.5)
         """
         To, Tf, SFR, plusError, minusError = self._extractData()
 
@@ -333,12 +338,19 @@ class SFH(object):
             # Now that we have calculated the plus_csf and minus_csf we need to return two arrays that will be filled in between.
             # However, in some cases the minus might be above the original and the plus might below the original.  In these edge
             # cases we simply replace that CSF value with the original.
-            original = self.getY()
+            original = self.getY() # original CSF values
             
             plus_csf = np.asarray([plus if plus > original[i] else original[i] for i, plus in enumerate(plus_csf)])
             minus_csf = np.asarray([minus if minus < original[i] else original[i] for i, minus in enumerate(minus_csf)])
 
-            return [timePlot / 10**6, plus_csf, minus_csf, fiftyth_csf]
+            # calculate the plus error and minus error in time based off
+            original_time = self._interpolate(0.50, self.getX(), self.getY())
+            minus_time = self._interpolate(0.50, self.getX(), minus_csf)
+            plus_time = self._interpolate(0.50, self.getX(), plus_csf)
+
+            print("INTERPOLATION:", original_time, minus_time, plus_time)
+
+            return [timePlot / 10**6, plus_csf, minus_csf, (original_time, plus_time, minus_time)]
             
     def getLabel(self):
         """
@@ -375,6 +387,42 @@ class SFH(object):
             To, Tf, SFR, plusError, minusError = np.genfromtxt(self._file, usecols=[0, 1, 3, 4, 5], skip_header=6,
                                                                skip_footer=1, unpack=True)
         return [To, Tf, SFR, plusError, minusError]
+
+    def _interpolate(self, interpVals, x, y):
+        """
+        Returns the interpereted x value about the passed in interpVal(s).
+        """
+        linear = lambda y: (y-b) / m
+        if type(interpVals) != list:
+            idx1 = np.where(y >= interpVals)[0][-1] # get the upper value
+            idx2 = np.where(y <= interpVals)[0][0] # get the lower value
+
+            x1 = x[idx1]
+            y1 = y[idx1]
+
+            x2 = x[idx2]
+            y2 = y[idx2]
+
+            m = (y2 - y1) / (x2 - x1)
+            b = (-m * x1 + y1)
+            return linear(interpVals)
+        else:
+            list_of_interps = []
+            for interp in interpVals:
+                idx1 = np.where(y >= interp)[0][-1] # get the upper value
+                idx2 = np.where(y <= interp)[0][0] # get the lower value
+
+                x1 = x[idx1]
+                y1 = y[idx1]
+
+                x2 = x[idx2]
+                y2 = y[idx2]
+
+                m = (y2 - y1) / (x2 - x1)
+                b = (-m * x1 + y1)
+                list_of_interps.append(linear(interp))
+            return list_of_interps
+
 
 if __name__ == "__main__":
     """

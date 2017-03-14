@@ -559,6 +559,10 @@ def processDAv(path, baseName, photFile):
     #plt.show()
 """    
 def interpolate(interpVals, x, y):
+    """
+    Returns the interpereted x value about the passed in interpVal(s).
+    """
+    linear = lambda y: (y-b) / m
     if type(interpVals) != list:
         idx1 = np.where(y >= interpVals)[0][-1] # get the upper value
         idx2 = np.where(y <= interpVals)[0][0] # get the lower value
@@ -571,7 +575,6 @@ def interpolate(interpVals, x, y):
 
         m = (y2 - y1) / (x2 - x1)
         b = (-m * x1 + y1)
-        linear = lambda y: (y-b) / m
         return linear(interpVals)
     else:
         list_of_interps = []
@@ -587,7 +590,6 @@ def interpolate(interpVals, x, y):
 
             m = (y2 - y1) / (x2 - x1)
             b = (-m * x1 + y1)
-            linear = lambda y: (y-b) / m
             list_of_interps.append(linear(interp))
         return list_of_interps
 

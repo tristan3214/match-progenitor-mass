@@ -10,6 +10,7 @@
 # $5 - calcsfh console output file
 # $6 - calcsfh zcombine output file
 # $7 - calcsfh ".cmd" file
+# %8 - calcsfh ".dat" file when the -mcdata flag is used
 echo "Completed calcsfh fit"
 echo $1
 echo $2
@@ -18,4 +19,21 @@ echo $4
 echo $5
 echo $6
 echo $7
-./scripts/hybridMC_python_script.py
+
+# Assign the names of the files to be created
+mcmcFile=$4.mcmc
+moFile=$4.mo
+mcmcZCFile=$4.mcmc.zc
+completeFile=$4.complete
+
+# Run hybridMC
+hybridMC $8 $mcmcFile -nmc=1000 -dt=0.15 -tint=0.9 > $moFile
+
+# Run zcombine on mcmcFile
+zcombine -unweighted -medbest -jeffreys $mcmcFile > $mcmcZCFile
+
+# Run zcmerge to complete the analysis main fit should come first
+zcmerge $6 $mcmcZCFile -absolute > $completeFile
+
+# Pass completeFile in to plot the data
+./scripts/hybridMC_python_script.py $completeFile
