@@ -18,7 +18,4 @@ echo $4
 echo $5
 echo $6
 echo $7
-
-# 
-#  ./scripts/test_plot.py $6
-
+./scripts/hybridMC_python_script.py

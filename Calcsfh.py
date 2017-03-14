@@ -20,7 +20,6 @@ class ProcessRunner(object):
         There will always be a command that is initially passed in when an object is created.
         """
         self.curr_command = command
-        self.abruptlyCanceled = False
 
     def run(self):
         """
@@ -41,7 +40,6 @@ class ProcessRunner(object):
             if t.cancel:
                 print("CANCELED", t.name)
                 os.killpg(os.getpgid(pipe.pid), signal.SIGTERM) # kills group of processes when present
-                self.abruptlyCanceled = True
                 self._cleanup()
                 break
             time.sleep(0.5)
