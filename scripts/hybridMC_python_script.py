@@ -38,7 +38,7 @@ def plotCSFComplete(completeFile):
     sfr = SFH(completeFile, zcmerge=True, bins=bins)
     sfr.calculateSFR()
     sfr_err_spots, sfr_err_sfr, sfr_plus, sfr_minus = sfr.getErrors()
-    csf = SFH("textFiles/set001_fit_004_M151.complete", zcmerge=True, cumulative=True, bins=bins)
+    csf = SFH(completeFile, zcmerge=True, cumulative=True, bins=bins)
     csf.calculateCSF()
     time, plus, minus, time_errors = csf.getErrors()
 
@@ -59,7 +59,7 @@ def plotCSFComplete(completeFile):
     masses = []
     isochrones = {}
     for year in log_year_string: 
-        iso = pd.read_csv("../isochrones/z_0-19_%s" % year, delim_whitespace=True) # We should be running this from the script folder
+        iso = pd.read_csv("/home/tristan/BenResearch/executer/isochrones/z_0-19_%s" % year, delim_whitespace=True) # We should be running this from the script folder
         isochrones[year] = iso
         masses.append(iso['M_ini'].values[-1]) # add the highest mass
     linear_year = 10**log_year / 10**6
@@ -116,6 +116,7 @@ def plotCSFComplete(completeFile):
 
     plt.tight_layout()
 
+    fitName = fitName.split(".")[0]
     plt.savefig(path+fitName)
 
 def getClosestLogYearIndex(percentiles, log_year):
@@ -130,5 +131,7 @@ def getClosestLogYearIndex(percentiles, log_year):
     idx = (np.argmin(distances[0]), np.argmin(distances[1]), np.argmin(distances[2]))
     return idx
 
+"""
 if __name__ == "__main__":
     main()
+"""

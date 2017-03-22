@@ -53,6 +53,8 @@ def main():
     #processDAv("/home/tristan/BenResearch/M83/mount/remnants/M151/", "set001_fit_001")
 """
 
+bins = 22
+
 def processDAv_general(path, baseName, photFile, paramFile):
     """
     Takes in a path with a baseName that will follow standard dAv naming conventions.
@@ -116,7 +118,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     params = {'mathtext.default': 'regular' }
     plt.rcParams.update(params)
     
-    csfs = [SFH(file+".zc", bins=24) for file in files]
+    csfs = [SFH(file+".zc", bins=bins) for file in files]
 
     fig = plt.figure(figsize=(21.0, 9.0))
     #fig = plt.figure()
@@ -135,8 +137,6 @@ def processDAv_general(path, baseName, photFile, paramFile):
     cbar = fig.colorbar(sm)
     cbar.ax.tick_params(labelsize=14)
 
-    plt.ylim([0.0, 1.0])
-    plt.xlim([0, 70])
     plt.ylabel(r"Cumulative Stellar Mass", fontsize=20)
     plt.xlabel("Time (Myrs)", fontsize=20)
     ax.tick_params(labelsize=16)
@@ -190,7 +190,9 @@ def processDAv_general(path, baseName, photFile, paramFile):
     ax2.tick_params(which='minor', pad=0)
     ax2.set_xlabel(r"Mass ($M_\odot$)", fontsize=20)
     ax2.set_axisbelow(True)
-    
+
+    plt.ylim([0.0, 1.0])
+    plt.xlim([0, max(ax2_ticks)])
 
     # Interpolate the percentiles
     central_mass = None
