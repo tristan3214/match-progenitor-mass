@@ -17,7 +17,11 @@ Automatic logging is including to show what the server is doing internally.
 
 
 ## Running
-I suggest using `screen` within an ssh connection on Eagle. 
+I suggest using `screen` within an ssh connection on Eagle.  With a screen running you can start the server detach from the session and log
+out of the ssh connection with the server still running.
+
+Take these steps:
+     Log into Eagle
 
 ## Ports in use
 Tristan Hillis - 42424
