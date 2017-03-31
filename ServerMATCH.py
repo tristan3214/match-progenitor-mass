@@ -20,10 +20,10 @@ from threading import Thread
 
 from UserParameters import *
 import MyLogger
-from Calcsfh import Sleep
 from Calcsfh import DefaultCalcsfh
 from Calcsfh import GroupProcess
-
+from Calcsfh import Sleep
+from Calcsfh import SSPCalcsfh
 """
 This server runs on port 42424
 """
@@ -253,19 +253,31 @@ class CommandMethods(object):
         pass
 
     def calcsfh2(self, line):
-        calcsfh = DefaultCalcsfh(line)
-        # run the initial command
-        calcsfh.run()
+        if "-ssp" not in line:
+            calcsfh = DefaultCalcsfh(line)
+            # run the initial command
+            calcsfh.run()
 
+            # run zcombine at the end
+            calcsfh.zcombine()
+            calcsfh.run()
 
-        # run zcombine at the end
-        calcsfh.zcombine()
-        calcsfh.run()
+            # process calcsfh files after
+            calcsfh.processFit()
+            calcsfh.run()
+        else: # SSP run
+            ssp = SSPCalcsfh(line)
+            # Run the initial command
+            ssp.run()
 
-        # process files after
-        calcsfh.processFit()
-        calcsfh.run()
+            # run sspcombine
+            ssp.sspcombine()
+            ssp.run()
 
+            # process ssp files after
+            ssp.processFit()
+            ssp.run()
+            
         # check for group and run if it is the last one in the group
         if calcsfh._group is not None:
             dAvRangeGroup[calcsfh._group][calcsfh.original] = True
@@ -848,9 +860,7 @@ def threadWatcher():
                 
 if __name__ == "__main__":
     # Check if we are running from the executable directory
-    executeDir = "/".join(sys.argv[0].split("/")[:-1])
-    print(executeDir, os.getcwd())
-    if executeDir != os.getcwd():
+    if MATCH_SERVER_DIR != os.getcwd() + "/":
         os.chdir(executeDir)
     print(os.getcwd())
 

@@ -7,6 +7,7 @@ to their liking.
 
 import multiprocessing
 import getpass
+import os
 
 #CORE_COUNT = multiprocessing.cpu_count() # How many threads will run commands (runningCommands = CORE_COUNT-1)
 CORE_COUNT = 0
@@ -15,3 +16,6 @@ CONDOR_ON = True # Changes this to False if you don't want to use condor
 #USER_ID = getpass.getuser() # This will keep track of the user id
 PORT_NUMBER = 42424 # Change this if somebody else is using the same port
 HOST_IP_ADDRESS = "10.155.88.139" # Change to IP address that your server is running on.  Currently set to Eagle.
+
+## These shouldn't be changed by the user
+MATCH_SERVER_DIR = os.path.dirname(os.path.realpath(__file__)) # This sets the path to the MatchServer directory. Missing forward slash on purpose

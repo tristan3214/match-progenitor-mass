@@ -22,6 +22,7 @@ import seaborn
 #sys.path.insert(0, '..')
 from PlotSFR import SFH
 from MatchParam import MatchParam
+from UserParameters import *
 
 __author__ = "Tristan J. Hillis"
 
@@ -160,7 +161,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     masses = []
     isochrones = {}
     for year in log_year_string: 
-        iso = pd.read_csv("../isochrones/" + metallicity + "_%s" % year, delim_whitespace=True)
+        iso = pd.read_csv("%s/isochrones/"%MATCH_SERVER_DIR + metallicity + "_%s"%year, delim_whitespace=True)
         isochrones[year] = iso
         masses.append(iso['M_ini'].values[-1]) # add the highest mass
     linear_year = 10**log_year / 10**6

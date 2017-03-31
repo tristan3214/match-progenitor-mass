@@ -15,3 +15,8 @@ with MATCH installed.
 
 Automatic logging is including to show what the server is doing internally.
 
+
+#Ports in use
+Tristan Hillis - 42424
+Ben Williams - 42423
+Kristen Garofali - 42426

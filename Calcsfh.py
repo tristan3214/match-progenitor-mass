@@ -9,6 +9,8 @@ import subprocess
 import threading
 import time
 
+from UserParameters import *
+
 __author__ = "Tristan J. Hillis"
 
 class ProcessRunner(object):
@@ -136,7 +138,7 @@ class DefaultCalcsfh(ProcessRunner):
         files = [self.cwd+self.parameter, self.cwd+self.phot, self.cwd+self.fake, self.cwd+self.fit,
                  self.cwd+self.co_file, self.cwd+self.zcombine_name, self.cwd+self.cmd_file]
         self.curr_command = "%s/scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
-                            (os.getcwd(), files[0], files[1], files[2], files[3], files[4], files[5], files[6])
+                            (MATCH_SERVER_DIR, files[0], files[1], files[2], files[3], files[4], files[5], files[6])
 
     def condorCommands(self):
         """
@@ -214,7 +216,8 @@ class GroupProcess(ProcessRunner):
         """
         # set the current command to run a bash script and pass in the path and baseName to the script
         calcsfhs = [DefaultCalcsfh(calcsfh) for calcsfh in commands]
-        super(GroupProcess, self).__init__("./scripts/group_script.sh %s %s %s %s" % (path, baseName, calcsfhs[0].phot, calcsfhs[0].parameter))    
+        super(GroupProcess, self).__init__("%s/scripts/group_script.sh %s %s %s %s" % (MATCH_SERVER_DIR, path, baseName,
+                                                                                       calcsfhs[0].phot, calcsfhs[0].parameter))    
 
 class SSPCalcsfh(DefaultCalcsfh):
     """
