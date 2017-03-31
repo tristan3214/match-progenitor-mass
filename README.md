@@ -25,10 +25,10 @@ Take these steps:
 * Start screen: `screen`
 * Navigate to *MatchExecuter*
 * Start server: `./ServerMatch.py` (for best compatability run only as executable)
-* Detach from screen: `C-a C-d1
-* Continue working on Eagle or log out; the server will continue to run in a screen session.
+* Detach from screen: `C-a C-d`
+* Continue working on Eagle or log out.  The server will continue to run in a screen session.
 * If you want to get back to the server you need to reattach to the screen session.
-  ** Log back into Eagle and run `screen -r`.  Now you are back in the server.
+     ** Log back into Eagle and run `screen -r`.  Now you are back in the server.
 
 Most of you will simply run the fits you need right from Eagle.  However, one key advantage to using a server that sits on an open port and the fact that the Astro file system is the same on whatever computer you log in, fits can be sent to run on Eagle without being on Eagle.  *MatchRunner.py* connects to Eagle's IP and sends commands through the user specified port.  For those running on their local UW-Astro computer just start the server on Eagle and run your commands through *MatchRunner.py* saving the time of sshing to run commands on the server.
 
