@@ -21,7 +21,7 @@ I suggest using `screen` within an ssh connection on Eagle.  With a screen runni
 out of the ssh connection with the server still running.
 
 Take these steps:
-     Log into Eagle
+* Log into Eagle
 
 ## Ports in use
 Tristan Hillis - 42424
