@@ -1,4 +1,4 @@
-##Underwork
+## Underwork
 This code is still not ready for wide spread use and only truely works for my specific tasks.
 
 Please feel free to submit issues as "enhancements" to describe your usage of the program and I will work to code those MATCH commands AND flags in.
@@ -15,6 +15,8 @@ with MATCH installed.
 
 Automatic logging is including to show what the server is doing internally.
 
+
+# Running
 
 #Ports in use
 Tristan Hillis - 42424
