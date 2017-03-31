@@ -16,9 +16,10 @@ with MATCH installed.
 Automatic logging is including to show what the server is doing internally.
 
 
-# Running
+## Running
+I suggest using `screen` within an ssh connection on Eagle. 
 
-#Ports in use
+## Ports in use
 Tristan Hillis - 42424
 Ben Williams - 42423
 Kristen Garofali - 42426
