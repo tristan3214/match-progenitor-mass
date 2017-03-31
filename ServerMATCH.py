@@ -861,7 +861,7 @@ def threadWatcher():
 if __name__ == "__main__":
     # Check if we are running from the executable directory
     if MATCH_SERVER_DIR != os.getcwd() + "/":
-        os.chdir(executeDir)
+        os.chdir(MATCH_SERVER_DIR)
     print(os.getcwd())
 
     watcher = Thread(target=threadWatcher, name="watcher")
