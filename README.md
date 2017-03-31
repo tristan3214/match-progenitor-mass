@@ -28,7 +28,7 @@ Take these steps:
 * Detach from screen: `C-a C-d`
 * Continue working on Eagle or log out.  The server will continue to run in a screen session.
 * If you want to get back to the server you need to reattach to the screen session.
-     ** Log back into Eagle and run `screen -r`.  Now you are back in the server.
+  * Log back into Eagle and run `screen -r`.  Now you are back in the server.
 
 Most of you will simply run the fits you need right from Eagle.  However, one key advantage to using a server that sits on an open port and the fact that the Astro file system is the same on whatever computer you log in, fits can be sent to run on Eagle without being on Eagle.  *MatchRunner.py* connects to Eagle's IP and sends commands through the user specified port.  For those running on their local UW-Astro computer just start the server on Eagle and run your commands through *MatchRunner.py* saving the time of sshing to run commands on the server.
 
@@ -46,7 +46,7 @@ to come up with a way to deal with passwords or store them for that matter.
 These are the steps to take to run Condor jobs:
 * Edit *UserParameters.py*, set `CONDOR_ON = True`, and the max size of your job queue for Condor.
 * Decide whether you want Eagle to process fits at the same time as Condor.
-  ** If yes then set `CORE_COUNT` to a non-zero number, else set it to zero.
+  * If yes then set `CORE_COUNT` to a non-zero number, else set it to zero.
 * That is all there is.  Send commands like normal, to the server, and I will run Condor for you.
 
 Only one Condor configuration file is ever run at one time.  This means once you send all your commands and the server sets up Condor to run
