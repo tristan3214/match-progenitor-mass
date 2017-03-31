@@ -756,12 +756,12 @@ class CondorWatcher(threading.Thread):
 
     def makeCondorConfig(self, commands):
         f = open("jobs.cfg", 'w') # create config file in the ServerMatch directory
-        self.to_job_config = os.getcwd() + "/jobs.cfg"
+        self.to_job_config = MATCH_SERVER_DIR + "/jobs.cfg"
         # write condor config header information
         f.write("Notification = never\n")
         f.write("getenv = true\n")
-        f.write("Executable = %s/scripts/condor_script.sh\n" % os.getcwd())
-        f.write("Initialdir = %s/scripts/\n" % os.getcwd())
+        f.write("Executable = %s/scripts/condor_script.sh\n" % MATCH_SERVER_DIR)
+        f.write("Initialdir = %s/scripts/\n" % MATCH_SERVER_DIR)
         f.write("Universe = vanilla\n\n")
 
         # write commands as queued jobs
