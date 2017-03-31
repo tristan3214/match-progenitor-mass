@@ -22,6 +22,7 @@ class ProcessRunner(object):
         There will always be a command that is initially passed in when an object is created.
         """
         self.curr_command = command
+        self.cwd = None # This holds a global current working directory that is switched to within a Popen
 
     def run(self):
         """
@@ -33,7 +34,7 @@ class ProcessRunner(object):
         # is ever changed from False to True then this method will exit.
         t = threading.current_thread()
         
-        pipe = subprocess.Popen(self.curr_command, shell=True, preexec_fn=os.setsid)
+        pipe = subprocess.Popen(self.cwd + "; " + self.curr_command, shell=True, preexec_fn=os.setsid)
 
         # poll the status of the process
         while pipe.poll() is None:
