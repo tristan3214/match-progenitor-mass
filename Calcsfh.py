@@ -13,6 +13,19 @@ from UserParameters import *
 
 __author__ = "Tristan J. Hillis"
 
+###
+# Useful functions
+###
+def findStringInList(s_list, s):
+    """
+    Takes in a list of strings and returns the index of the found string.
+    """
+    for i, string in enumerate(s_list):
+        if s in string:
+            return i
+
+    return None
+
 class ProcessRunner(object):
     """
     This holds the generic running method used by all these objects.
@@ -171,8 +184,9 @@ class DefaultCalcsfh(ProcessRunner):
 
         # remove group name from command so that it can run in bash
         if self._group is not None:
+            flag_command_idx = findStringInList(self.curr_command.split(), "-group")
             command = self.curr_command.split()
-            command.pop(5 + idx)
+            command.pop(flag_command_idx)
             self.flags.pop(idx)
             self.curr_command = " ".join(command)
     
@@ -297,6 +311,7 @@ class Sleep(ProcessRunner):
     def _cleanup(self):
         print("Cleaning up after sleep")
 
+        
 #test = extendProcessRunner("sleep 10")
 #test.printCommand()
 #calcsfh = DefaultCalcsfh("calcsfh /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_parameter_file_M199_ssp.param /astro/users/tjhillis/M83/remnants/M199/set001_phot_stars_M199.phot /astro/users/tjhillis/M83/remnants/M199/fake_stars_M048.fake /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_ssp -Kroupa -dAv=1.500000 -ssp -full > /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_ssp.co")
