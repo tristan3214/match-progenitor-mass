@@ -22,7 +22,6 @@ class ProcessRunner(object):
         There will always be a command that is initially passed in when an object is created.
         """
         self.curr_command = command
-        self.cwd = None # This holds a global current working directory that is switched to within a Popen
 
     def run(self):
         """
@@ -34,7 +33,7 @@ class ProcessRunner(object):
         # is ever changed from False to True then this method will exit.
         t = threading.current_thread()
         
-        pipe = subprocess.Popen("cd %s; %s " % (self.cwd, self.curr_command), shell=True, preexec_fn=os.setsid)
+        pipe = subprocess.Popen(self.curr_command, shell=True, preexec_fn=os.setsid)
 
         # poll the status of the process
         while pipe.poll() is None:
@@ -74,7 +73,7 @@ class DefaultCalcsfh(ProcessRunner):
         # save command initially
         super(DefaultCalcsfh, self).__init__(command)
         self.original = command # this is the original beginning command
-        self.curr_command = command # variable is populated for running in the run() method
+        #self.curr_command = command # variable is populated for running in the run() method
 
         self.zcombine_name = None # initialize
         self.co_file = None # initialize
@@ -86,6 +85,9 @@ class DefaultCalcsfh(ProcessRunner):
         # working directory
         self.cwd = "/".join(command[1].split("/")[:-1]) + "/" # split the first command that has the parameter file and get the cwd
         print(self.cwd)
+
+        # Add 'cd' to the curr_command
+        self.curr_command = "cd %s;"%self.cwd + self.curr_command
         
         # parameter file name
         self.parameter = command[1].split("/")[-1]
