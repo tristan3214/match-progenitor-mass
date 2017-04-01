@@ -374,7 +374,6 @@ class CommandMethods(object):
 
         # There may be a 'cd' at the beginning edit for this change
         cd = None
-        line = None
         if "cd" == line[:2]:
             cd = " ".join(line.split()[:2])
             line = line.split()[2:]
