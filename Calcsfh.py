@@ -87,7 +87,7 @@ class DefaultCalcsfh(ProcessRunner):
         print(self.cwd)
 
         # Add 'cd' to the curr_command
-        self.curr_command = "cd %s;"%self.cwd + self.curr_command
+        self.curr_command = "cd %s; "%self.cwd + self.curr_command
         
         # parameter file name
         self.parameter = command[1].split("/")[-1]
