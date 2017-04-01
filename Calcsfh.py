@@ -34,6 +34,7 @@ class ProcessRunner(object):
         t = threading.current_thread()
         
         pipe = subprocess.Popen(self.curr_command, shell=True, preexec_fn=os.setsid)
+        print("RUNNING:", self.curr_command)
 
         # poll the status of the process
         while pipe.poll() is None:
