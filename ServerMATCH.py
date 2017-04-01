@@ -415,12 +415,15 @@ class CommandMethods(object):
                 commands.append("%s %s" % (cd, " ".join(newLine)))
             else:
                 commands.append(" ".join(newLine))
-                
+
             print(newLine)
             print(commands[i])
             print()
             currentDaV += step
 
+
+        print("COMMANDS")
+        print(commands)
         dAvRangeGroup[t.name] = {} # add a dictionary 
             
         for command in commands:
