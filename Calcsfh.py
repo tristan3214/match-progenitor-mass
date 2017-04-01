@@ -34,7 +34,7 @@ class ProcessRunner(object):
         # is ever changed from False to True then this method will exit.
         t = threading.current_thread()
         
-        pipe = subprocess.Popen(self.cwd + "; " + self.curr_command, shell=True, preexec_fn=os.setsid)
+        pipe = subprocess.Popen("cd %s; %s " % (self.cwd, self.curr_command), shell=True, preexec_fn=os.setsid)
 
         # poll the status of the process
         while pipe.poll() is None:
