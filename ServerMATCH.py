@@ -371,8 +371,16 @@ class CommandMethods(object):
         that will comprise of the total dAv range.  These commands are added to the queue for later.
         """
         t = threading.current_thread()
-        
-        line = line.split(" ")
+
+        # There may be a 'cd' at the beginning edit for this change
+        cd = None
+        line = None
+        if "cd" == line[:2]:
+            cd = " ".join(line.split()[:2])
+            line = line.split()[2:]
+        else:
+            line = line.split()
+            
         numSteps = int((upper - lower) / step) + 1 # will underestimate by one so I add one
 
         commands = [] # list of commands to be added to queue
@@ -404,7 +412,11 @@ class CommandMethods(object):
                     newLine.insert(-2, "-group=%s" % (t.name))
                     
 
-            commands.append(" ".join(newLine))
+            if cd is not None:
+                commands.append("%s %s" % (cd, " ".join(newLine)))
+            else:
+                commands.append(" ".join(newLine))
+                
             print(newLine)
             print(commands[i])
             print()
