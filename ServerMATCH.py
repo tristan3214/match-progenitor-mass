@@ -749,8 +749,15 @@ class CondorWatcher(threading.Thread):
             
     ### Put condor_thread_watcher methods here
     def filterCommand(self, command):
+        """
+        Takes in a command a command as a string.  Splits it up and parses it 
+        to feed it to the right, associated, object.
+        """
         command_list = command.split()
         if command_list[0] == "calcsfh":
+            if "-ssp" in command_list:
+                return SSPCaclsfh(command)
+            
             return DefaultCalcsfh(command)
     
     def makeCommandList(self):
