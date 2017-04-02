@@ -249,7 +249,9 @@ class SSPCalcsfh(DefaultCalcsfh):
         self.sspcombine_name = None
         
     def sspcombine(self):
-        self.curr_command = "sspcombine %s > %s.ssp" % (self.cwd + self.co_file, self.cwd + self.fit)
+        self.co_shortened = self.fit + ".so"
+        self.curr_command = "tail -n +11 %s > %s; sspcombine %s > %s.ssp" % (self.cwd + self.co_file, self.cwd + self.co_shortened,
+                                                                             self.cwd + self.co_shortened, self.cwd + self.fit)
         # set a file name for the new zcombine name
         self.sspcombine_name = self.fit + ".ssp"
 
@@ -257,7 +259,7 @@ class SSPCalcsfh(DefaultCalcsfh):
         files = [self.cwd+self.parameter, self.cwd+self.phot, self.cwd+self.fake, self.cwd+self.fit,
                  self.cwd+self.co_file, self.cwd+self.sspcombine_name, self.cwd+self.cmd_file]
         self.curr_command = "%s/scripts/ssp_script.sh %s %s %s %s %s %s %s" % \
-                            (os.getcwd(), files[0], files[1], files[2], files[3], files[4], files[5], files[6])
+                            (MATCH_SERVER_DIR, files[0], files[1], files[2], files[3], files[4], files[5], files[6])
 
     def condorCommands(self):
         """
