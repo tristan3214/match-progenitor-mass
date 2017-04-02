@@ -3,4 +3,4 @@
 SCRIPT=`realpath $0`
 SCRIPTPATH=`dirname $SCRIPT`
 
-"$SCRIPTPATH/scripts/condor_python_script.py" $@
+"$SCRIPTPATH/condor_python_script.py" $@

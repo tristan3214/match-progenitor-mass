@@ -41,4 +41,4 @@ zcombine -unweighted -medbest -jeffreys $mcmcFile > $mcmcZCFile
 zcmerge $6 $mcmcZCFile -absolute > $completeFile
 
 # Pass completeFile in to plot the data
-"$SCRIPTPATH/scripts/hybridMC_python_script.py" $completeFile
+"$SCRIPTPATH/hybridMC_python_script.py" $completeFile

@@ -24,5 +24,5 @@ SCRIPT=`realpath $0`
 SCRIPTPATH=`dirname $SCRIPT`
 
 # 
-#"$SCRIPTPATH/scripts/test_plot.py" $6
+#"$SCRIPTPATH/test_plot.py" $6
 
