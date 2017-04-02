@@ -234,7 +234,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     #### Get data of field and photometry file #####
     # field should be from background which we get from reading the parameter file
     param = MatchParam(path+paramFile, None, None)
-    background_path = param.parameters['background']
+    background_path = path + param.parameters['background']
     background_data = np.loadtxt(background_path, unpack=True)
 
     # get photometry data
