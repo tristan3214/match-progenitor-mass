@@ -421,9 +421,6 @@ class CommandMethods(object):
             print()
             currentDaV += step
 
-
-        print("COMMANDS")
-        print(commands)
         dAvRangeGroup[t.name] = {} # add a dictionary 
             
         for command in commands:
@@ -875,7 +872,6 @@ def threadWatcher():
                 
 if __name__ == "__main__":
     # Check if we are running from the executable directory
-    MATCH_SERVER_DIR = os.path.dirname(os.path.realpath(__file__)) # This sets the path to the MatchServer directory. Missing forward slash on purpose.
     if MATCH_SERVER_DIR != os.getcwd() + "/":
         os.chdir(MATCH_SERVER_DIR)
     print(os.getcwd())
