@@ -61,8 +61,8 @@ def plotCSFComplete(completeFile):
     masses = []
     isochrones = {}
     for year in log_year_string: 
-        #iso = pd.read_csv(MATCH_SERVER_DIR + "/isochrones/z_0-19_%s" % year, delim_whitespace=True) # We should be running this from the script folder
-        iso = pd.read_csv("/home/tristan/BenResearch/executer/isochrones/z_0-19_%s" % year, delim_whitespace=True) # We should be running this from the script folder
+        iso = pd.read_csv(MATCH_SERVER_DIR + "/isochrones/z_0-19_%s" % year, delim_whitespace=True) # We should be running this from the script folder
+        #iso = pd.read_csv("/home/tristan/BenResearch/executer/isochrones/z_0-19_%s" % year, delim_whitespace=True) # We should be running this from the script folder
         isochrones[year] = iso
         masses.append(iso['M_ini'].values[-1]) # add the highest mass
     linear_year = 10**log_year / 10**6
