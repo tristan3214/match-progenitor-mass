@@ -778,9 +778,12 @@ class CondorWatcher(threading.Thread):
 
         # write commands as queued jobs
         for i, job in enumerate(commands):
-            f.write("Log = /dev/null\n")
-            f.write("Output = /dev/null\n")
-            f.write("Error = /dev/null\n")
+            #f.write("Log = /dev/null\n")
+            #f.write("Output = /dev/null\n")
+            #f.write("Error = /dev/null\n")
+            f.write("Log = /astro/users/tjhillis/M83/test.log\n")
+            f.write("Output = /astro/users/tjhillis/M83/test.out\n")
+            f.write("Error = /astro/users/tjhillis/M83/test.err\n")
             # string of commands
             analysis = job.condorCommands()
             analysis = " | ".join(analysis)
