@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from astropy.wcs import WCS
 import pointCross
+import sys
 
 """
 Creates a function that takes two files. one being the density for all the current fakes that have been run and the other being a 
