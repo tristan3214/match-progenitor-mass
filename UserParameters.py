@@ -18,4 +18,4 @@ PORT_NUMBER = 42424 # Change this if somebody else is using the same port
 HOST_IP_ADDRESS = "10.155.88.139" # Change to IP address that your server is running on.  Currently set to Eagle.
 
 ## These shouldn't be changed by the user
-MATCH_SERVER_DIR = os.path.dirname(os.path.realpath(__file__)) # This sets the path to the MatchServer directory. Missing forward slash on purpose.
+MATCH_SERVER_DIR = None
