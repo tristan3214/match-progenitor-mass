@@ -756,7 +756,7 @@ class CondorWatcher(threading.Thread):
         command_list = command.split()
         if command_list[0] == "calcsfh":
             if "-ssp" in command_list:
-                return SSPCaclsfh(command)
+                return SSPCalcsfh(command)
             
             return DefaultCalcsfh(command)
     
