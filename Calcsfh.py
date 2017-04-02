@@ -244,8 +244,9 @@ class SSPCalcsfh(DefaultCalcsfh):
     some weird errors without it.
     """
     def __init__(self, command):
+        print("CURRENT WORKING DIRECTORY:", self.cwd)
         super(SSPCalcsfh, self).__init__(command)
-
+        print("CURRENT WORKING DIRECTORY:", self.cwd)
         # initialize the variable to hold the sspcombine name
         self.sspcombine_name = None
         
