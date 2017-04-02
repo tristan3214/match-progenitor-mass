@@ -245,7 +245,6 @@ class SSPCalcsfh(DefaultCalcsfh):
     """
     def __init__(self, command):
         super(SSPCalcsfh, self).__init__(command)
-        print("CURRENT WORKING DIRECTORY:", self.cwd)
         # initialize the variable to hold the sspcombine name
         self.sspcombine_name = None
         

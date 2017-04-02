@@ -267,17 +267,17 @@ class CommandMethods(object):
             calcsfh.processFit()
             calcsfh.run()
         else: # SSP run
-            ssp = SSPCalcsfh(line)
+            calcsfh = SSPCalcsfh(line)
             # Run the initial command
-            ssp.run()
+            calcsfh.run()
 
             # run sspcombine
-            ssp.sspcombine()
-            ssp.run()
+            calcsfh.sspcombine()
+            calcsfh.run()
 
             # process ssp files after
-            ssp.processFit()
-            ssp.run()
+            calcsfh.processFit()
+            calcsfh.run()
             
         # check for group and run if it is the last one in the group
         if calcsfh._group is not None:
