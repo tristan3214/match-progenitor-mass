@@ -45,7 +45,7 @@ def matchDensities(threshold, fakes, densities):
         min_factor = factor[idx]
 
         if min_factor <= threshold:
-            #print(curr_id, fakes['id'][idx])
+            print(curr_id, fakes['id'][idx])
             if str(curr_id) == str(fakes['id'][idx]):
                 count += 1
             matched.append(fakes['id'][idx])
@@ -255,6 +255,10 @@ class SFH(object):
         totSF = np.sum(SF)
         cumSum = np.cumsum(SF)
         cumSumFrac = 1 - (cumSum / totSF)
+
+        if np.isnan(np.min(np.asarray(cumSumFrac))):
+            cumSumFrac = np.linspace(0, 0, len(cumSumFrac))
+        print(cumSumFrac)
         
         self._x = timePlot /  10**6
         self._y = cumSumFrac
@@ -312,7 +316,8 @@ class SFH(object):
             totals = [sim[:self._bins].sum() for sim in SFsimulation]
             
             # find the cumulative mass for only the bins we need
-            cumSF_simulation = [np.cumsum(np.insert(currSF[:self._bins], 0, 0)) for currSF in SFsimulation]                
+            cumSF_simulation = [np.cumsum(np.insert(currSF[:self._bins], 0, 0)) for currSF in SFsimulation]
+            #print(cumSF_simulation)
 
             # calculate the cumulative stellar fraction for all 1000 trials
             csf_simulation = [(1 - (curr_cumSF / totals[i])) for i, curr_cumSF in enumerate(cumSF_simulation)]
@@ -343,12 +348,12 @@ class SFH(object):
             plus_csf = np.asarray([plus if plus > original[i] else original[i] for i, plus in enumerate(plus_csf)])
             minus_csf = np.asarray([minus if minus < original[i] else original[i] for i, minus in enumerate(minus_csf)])
 
+            #print(plus_csf, minus_csf)
+            
             # calculate the plus error and minus error in time based off
             original_time = self._interpolate(0.50, self.getX(), self.getY())
             minus_time = self._interpolate(0.50, self.getX(), minus_csf)
             plus_time = self._interpolate(0.50, self.getX(), plus_csf)
-
-            print("INTERPOLATION:", original_time, minus_time, plus_time)
 
             return [timePlot / 10**6, plus_csf, minus_csf, (original_time, plus_time, minus_time)]
             
@@ -393,24 +398,10 @@ class SFH(object):
         Returns the interpereted x value about the passed in interpVal(s).
         """
         linear = lambda y: (y-b) / m
-        if type(interpVals) != list:
-            idx1 = np.where(y >= interpVals)[0][-1] # get the upper value
-            idx2 = np.where(y <= interpVals)[0][0] # get the lower value
-
-            x1 = x[idx1]
-            y1 = y[idx1]
-
-            x2 = x[idx2]
-            y2 = y[idx2]
-
-            m = (y2 - y1) / (x2 - x1)
-            b = (-m * x1 + y1)
-            return linear(interpVals)
-        else:
-            list_of_interps = []
-            for interp in interpVals:
-                idx1 = np.where(y >= interp)[0][-1] # get the upper value
-                idx2 = np.where(y <= interp)[0][0] # get the lower value
+        try:
+            if type(interpVals) != list:
+                idx1 = np.where(y >= interpVals)[0][-1] # get the upper value
+                idx2 = np.where(y <= interpVals)[0][0] # get the lower value
 
                 x1 = x[idx1]
                 y1 = y[idx1]
@@ -420,8 +411,25 @@ class SFH(object):
 
                 m = (y2 - y1) / (x2 - x1)
                 b = (-m * x1 + y1)
-                list_of_interps.append(linear(interp))
-            return list_of_interps
+                return linear(interpVals)
+            else:
+                list_of_interps = []
+                for interp in interpVals:
+                    idx1 = np.where(y >= interp)[0][-1] # get the upper value
+                    idx2 = np.where(y <= interp)[0][0] # get the lower value
+
+                    x1 = x[idx1]
+                    y1 = y[idx1]
+
+                    x2 = x[idx2]
+                    y2 = y[idx2]
+
+                    m = (y2 - y1) / (x2 - x1)
+                    b = (-m * x1 + y1)
+                    list_of_interps.append(linear(interp))
+                return list_of_interps
+        except IndexError: # If there is a misses index either the passed in interVal is bad or ther is 0 SF.
+            return 0.0
 
 
 if __name__ == "__main__":

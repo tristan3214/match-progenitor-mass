@@ -11,6 +11,7 @@ import seaborn
 import sys
 
 from UsefulFunctions import SFH # Calculates the CSF for plotting
+from UserParameters import *
 
 bins = 22 # With the set binning this will get ~50 Myrs
 
@@ -47,9 +48,10 @@ def plotCSFComplete(completeFile):
     # Plot CSF with error region
     ax[0].fill_between(time, plus, minus, color='0.5', alpha=0.5)
     ax[0].plot(csf.getX(), csf.getY(), color='k')
-    ax[0].axvline(time_errors[0], ymin=0, ymax=1, color='k', linestyle='--', linewidth=0.9)
-    ax[0].axvspan(time_errors[2], time_errors[1], color='r', alpha=0.3)
-
+    if not np.all(csf.getY() == 0):
+        ax[0].axvline(time_errors[0], ymin=0, ymax=1, color='k', linestyle='--', linewidth=0.9)
+        ax[0].axvspan(time_errors[2], time_errors[1], color='r', alpha=0.3)
+        
 
     # Get the masses corresponding with the errors
     log_year = np.arange(6.6, 7.8, 0.05)
@@ -59,6 +61,7 @@ def plotCSFComplete(completeFile):
     masses = []
     isochrones = {}
     for year in log_year_string: 
+        #iso = pd.read_csv(MATCH_SERVER_DIR + "/isochrones/z_0-19_%s" % year, delim_whitespace=True) # We should be running this from the script folder
         iso = pd.read_csv("/home/tristan/BenResearch/executer/isochrones/z_0-19_%s" % year, delim_whitespace=True) # We should be running this from the script folder
         isochrones[year] = iso
         masses.append(iso['M_ini'].values[-1]) # add the highest mass
@@ -94,9 +97,13 @@ def plotCSFComplete(completeFile):
     # get the actual values of mass to display on the graph
     # get the closest log year to the percentiles
     ### IMPORTANT: The time_errors are reversed here because later times give lower initial mass and vice-versa.
-    closest = getClosestLogYearIndex((time_errors[2], time_errors[0], time_errors[1]), log_year)
-    central_mass = (isochrones[log_year_string[closest[0]]]['M_ini'].values[-1], isochrones[log_year_string[closest[1]]]['M_ini'].values[-1],
-                    isochrones[log_year_string[closest[2]]]['M_ini'].values[-1])
+    central_mass = None
+    if not np.all(csf.getY() == 0):
+        closest = getClosestLogYearIndex((time_errors[2], time_errors[0], time_errors[1]), log_year)
+        central_mass = (isochrones[log_year_string[closest[0]]]['M_ini'].values[-1], isochrones[log_year_string[closest[1]]]['M_ini'].values[-1],
+                        isochrones[log_year_string[closest[2]]]['M_ini'].values[-1])
+    else:
+        central_mass = (0, 0, 0)
 
     # Print the mass values on the plot
     ax[0].text(35, 0.9, snr_id, fontsize=12, zorder=10)
@@ -131,7 +138,7 @@ def getClosestLogYearIndex(percentiles, log_year):
     idx = (np.argmin(distances[0]), np.argmin(distances[1]), np.argmin(distances[2]))
     return idx
 
-"""
+
 if __name__ == "__main__":
     main()
-"""
+
