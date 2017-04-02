@@ -1,2 +1,6 @@
 #!/usr/bin/env bash
-python /astro/users/tjhillis/M83/MatchExecuter/scripts/condor_python_script.py $@
+# Get the scripts full path
+SCRIPT=`realpath $0`
+SCRIPTPATH=`dirname $SCRIPT`
+
+"$SCRIPTPATH/scripts/condor_python_script.py" $@

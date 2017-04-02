@@ -19,6 +19,11 @@ echo $4
 echo $5
 echo $6
 echo $7
+echo $8
+
+# Get the script path
+SCRIPT=`realpath $0`
+SCRIPTPATH=`dirname $SCRIPT`
 
 # Assign the names of the files to be created
 mcmcFile=$4.mcmc
@@ -36,4 +41,4 @@ zcombine -unweighted -medbest -jeffreys $mcmcFile > $mcmcZCFile
 zcmerge $6 $mcmcZCFile -absolute > $completeFile
 
 # Pass completeFile in to plot the data
-./scripts/hybridMC_python_script.py $completeFile
+"$SCRIPTPATH/scripts/hybridMC_python_script.py" $completeFile
