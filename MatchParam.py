@@ -61,7 +61,11 @@ class MatchParam(object):
         
         if key in self.parameters.keys():
             valType = type(self.parameters[key])
-            self.parameters[key] = valType(value)
+            if valType != type(None):
+                self.parameters[key] = valType(value)
+            else:
+                self.parameters[key] = value
+                
         else:
             print("Key not found check and try again")
 
@@ -429,7 +433,7 @@ class MatchParam(object):
             params = map(str, line.split())
             size = len(params)
             if size > 3 or size < 3:
-                print("Missing/extra paramter(s) in las line")
+                print("Missing/extra paramter(s) in last line")
                 print(line)
                 sys.exit(1)
             self.parameters["lLine_1"] = params[0]

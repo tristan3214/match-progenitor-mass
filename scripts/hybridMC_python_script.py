@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 plt.ioff() # turn interactive maptlotlib off
 import seaborn
 import sys
+import os
 
 from UsefulFunctions import SFH # Calculates the CSF for plotting
 from UserParameters import *
@@ -122,9 +123,18 @@ def plotCSFComplete(completeFile):
     ax[1].set_ylabel(r'Star Formation Rate ($M_{\odot}\ / \ yr$)')
 
     plt.tight_layout()
-
+    
     fitName = fitName.split(".")[0]
     plt.savefig(path+fitName)
+
+    f = None
+    if os.path.isfile(path+"hybridMC_mass.ls"):
+        f = open(path+"hybridMC_mass.ls", 'w')
+        f.write("fit mass plus minus\n")
+    else:
+        f = open(path+"hybridMC_mass.ls", 'a')
+    f.write("%s %.3f %.3f %.3f\n" % (fitName, central_mass[1], central_mass[0]-central_mass[1], central_mass[1]-central_mass[2]))
+    f.close()
 
 def getClosestLogYearIndex(percentiles, log_year):
     """
