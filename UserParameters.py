@@ -10,7 +10,7 @@ import getpass
 import os
 
 #CORE_COUNT = multiprocessing.cpu_count() # How many threads will run commands (runningCommands = CORE_COUNT-1)
-CORE_COUNT = 12
+CORE_COUNT = 0
 MAX_CONDOR_SIZE = 3000 # This will be the max size of the queued jobs in condor
 CONDOR_ON = True # Changes this to False if you don't want to use condor
 #USER_ID = getpass.getuser() # This will keep track of the user id
