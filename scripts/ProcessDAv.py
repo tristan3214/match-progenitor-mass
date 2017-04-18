@@ -174,11 +174,12 @@ def processDAv_general(path, baseName, photFile, paramFile):
     ax2_ticks = np.linspace(ax.get_xticks()[0], ax.get_xticks()[-1], 2*ax.get_xticks().size - 1)
     f = interp1d(linear_year, masses, fill_value='extrapolate')
     ax2_mass = np.round(f(ax2_ticks), 2)
+    print("TICKS:", ax2_ticks, ax2_mass)
     #ax2_mass = np.round(np.interp(ax2_ticks, linear_year, masses), 2)
     ax2 = ax.twiny()
     ax2.set_xticks(ax2_ticks[::2], minor=False)
     ax2.set_xticklabels(ax2_mass[::2], size=16)
-    ax2.xaxis.grid(False, which='major')
+    ax2.xaxis.grid(True, which='major')
     # add minor ticks
     ax2.set_xticks(ax2_ticks[1::2], minor=True)
     ax2.set_xticklabels(ax2_mass[1::2], size=13, minor=True)
