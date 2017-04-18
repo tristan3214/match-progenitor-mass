@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 plt.ioff() # turn interactive maptlotlib off
 import seaborn
 import sys
+from scipy.interpolate import interp1d
 
 from UsefulFunctions import SFH # Calculates the CSF for plotting
 
@@ -50,7 +51,6 @@ def plotCSFComplete(completeFile):
     ax[0].axvline(time_errors[0], ymin=0, ymax=1, color='k', linestyle='--', linewidth=0.9)
     ax[0].axvspan(time_errors[2], time_errors[1], color='r', alpha=0.3)
 
-
     # Get the masses corresponding with the errors
     log_year = np.arange(6.6, 7.8, 0.05)
     log_year_string = [str(year).replace(".", "-") for year in log_year]
@@ -70,7 +70,8 @@ def plotCSFComplete(completeFile):
 
     # prepare ticks for top x axis
     ax2_ticks = np.linspace(ax[0].get_xticks()[0], ax[0].get_xticks()[-1], 2*ax[0].get_xticks().size - 1)
-    ax2_mass = np.round(np.interp(ax2_ticks, linear_year, masses), 2)
+    f = interp1d(linear_year, masses, fill_value='extrapolate')
+    ax2_mass = np.round(f(ax2_ticks), 2)
     ax2 = ax[0].twiny()
     ax2.set_xticks(ax2_ticks[::2], minor=False)
     ax2.set_xticklabels(ax2_mass[::2], size=12)
@@ -94,9 +95,15 @@ def plotCSFComplete(completeFile):
     # get the actual values of mass to display on the graph
     # get the closest log year to the percentiles
     ### IMPORTANT: The time_errors are reversed here because later times give lower initial mass and vice-versa.
-    closest = getClosestLogYearIndex((time_errors[2], time_errors[0], time_errors[1]), log_year)
-    central_mass = (isochrones[log_year_string[closest[0]]]['M_ini'].values[-1], isochrones[log_year_string[closest[1]]]['M_ini'].values[-1],
-                    isochrones[log_year_string[closest[2]]]['M_ini'].values[-1])
+    center_between_idx = getClosestLogYearIndices(time_errors[0], log_year)
+    plus_between_idx = getClosestLogYearIndices(time_errors[2], log_year)
+    minus_between_idx = getClosestLogYearIndices(time_errors[1], log_year)
+
+    center_mass = interpMass(time_errors[0], center_between_idx[0], center_between_idx[1], isochrones, log_year_string)
+    plus_mass = interpMass(time_errors[2], plus_between_idx[0], plus_between_idx[1], isochrones, log_year_string)
+    minus_mass = interpMass(time_errors[1], minus_between_idx[0], minus_between_idx[1], isochrones, log_year_string)
+    
+    central_mass = (plus_mass, center_mass, minus_mass)
 
     # Print the mass values on the plot
     ax[0].text(35, 0.9, snr_id, fontsize=12, zorder=10)
@@ -115,23 +122,48 @@ def plotCSFComplete(completeFile):
     ax[1].set_ylabel(r'Star Formation Rate ($M_{\odot}\ / \ yr$)')
 
     plt.tight_layout()
-
+    
     fitName = fitName.split(".")[0]
     plt.savefig(path+fitName)
 
-def getClosestLogYearIndex(percentiles, log_year):
+    f = open(path+"hybridMC_mass.ls", 'a')
+    f.write("%s %f %f %f\n" % (fitName, central_mass[1], central_mass[0], central_mass[2]))
+    f.close()
+
+
+def getClosestLogYearIndices(age, log_year):
     """
-    Pass in percentiles as (84th, 50th, 16th) with a log_year that will be compared to.
+    Pass in a year with an array of the available log years, "log_year" that will be compared.
     Percentiles are assumed to be in millions of years and will be converted to log_year.
+    This returns a tuple of indices of where the passed in age falls between in the given available log years.
     """
-    percentiles = np.log10(np.asarray(percentiles) * 10**6) # convert to log years
+    #print("AGES:", age)
+    age = np.log10(np.asarray(age) * 10**6) # convert to log years
+    
+    distances = np.abs(log_year - age)
 
-    distances = (np.abs(log_year - percentiles[0]), np.abs(log_year - percentiles[1]), np.abs(log_year - percentiles[2]))
+    first_closest_idx = np.argmin(distances)
+    
+    # set the first min to infinity to then find the next smallest number
+    distances[first_closest_idx] = np.infty
+    
+    second_closest_idx = np.argmin(distances)
+    
+    return (first_closest_idx, second_closest_idx)
 
-    idx = (np.argmin(distances[0]), np.argmin(distances[1]), np.argmin(distances[2]))
-    return idx
+def interpMass(age_to_interp, age1_idx, age2_idx, isochrones, log_year_string):
+    # turn age to interp into log years
+    age_to_interp = np.log10(age_to_interp * 10**6) # convert to log years
+    log_years = [float(str.replace("-",".")) for str in log_year_string]
+    
+    ages = [float(log_years[age1_idx]), float(log_years[age2_idx])]
+    masses = [isochrones[log_year_string[age1_idx]]['M_ini'].values[-1], isochrones[log_year_string[age2_idx]]['M_ini'].values[-1]]
+    
+    f = interp1d(ages, masses)
+    mass_interp = f(age_to_interp)
 
-"""
+    return mass_interp
+
 if __name__ == "__main__":
     main()
-"""
+
