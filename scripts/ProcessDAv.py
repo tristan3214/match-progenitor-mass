@@ -122,11 +122,13 @@ def processDAv_general(path, baseName, photFile, paramFile):
     csfs = [SFH(file+".zc", bins=bins) for file in files]
 
     fig = plt.figure(figsize=(22.0, 8.0))
+    gs = mpl.gridspec.GridSpec(1, 3, width_ratios=[2,1,1])
     #fig = plt.figure()
         
     # plot Cumulative stellar mass functions
     rainbow = iter(plt.cm.rainbow(np.linspace(0, 1, len(csfs))))
-    ax = fig.add_subplot(131)
+    #ax = fig.add_subplot(131)
+    ax = fig.add_subplot(gs[0])
     for i, csf in enumerate(csfs):
         csf.calculateCSF()
         c = next(rainbow)
@@ -242,7 +244,8 @@ def processDAv_general(path, baseName, photFile, paramFile):
     massFile.write("%s %.2f %.2f %.2f\n" % (baseName, central_mass[1], central_mass[0]-central_mass[1], central_mass[1]-central_mass[2]) )
     
     # plot best fit values vs dAvs
-    ax = fig.add_subplot(132)
+    #ax = fig.add_subplot(132)
+    ax = fig.add_subplot(gs[1])
     ax.scatter(dAvs, bestFits, color='k')
     ax.set_axis_bgcolor('0.8')
     plt.ylabel("Fit value (arbitrary)", fontsize=20)
@@ -250,7 +253,8 @@ def processDAv_general(path, baseName, photFile, paramFile):
     plt.gca().tick_params(labelsize=16, which='major')
 
     # plot cmd with photometry file
-    ax = fig.add_subplot(133)
+    #ax = fig.add_subplot(133)
+    ax = fig.add_subplot(gs[2])
 
     #### Get data of field and photometry file #####
     # field should be from background which we get from reading the parameter file
