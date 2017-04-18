@@ -170,6 +170,8 @@ def processDAv_general(path, baseName, photFile, paramFile):
     plotMasses = np.interp(ax.get_xticks(), linear_year, masses)
     plotMasses = [round(mass,1) for mass in plotMasses]
     
+    plt.tight_layout()
+
     # prepare ticks for top x axis
     print("FIRST TICKS:", ax.get_xticks().size, ax.get_xticks())
     ax2_ticks = np.linspace(ax.get_xticks()[0], ax.get_xticks()[-1], 2*ax.get_xticks().size - 1)
@@ -307,7 +309,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
 
     ax.invert_yaxis()
     plt.gca().tick_params(labelsize=16, which='major')    
-    plt.tight_layout()
+    #plt.tight_layout()
 
     
     plt.savefig(path+baseName+"_testfig")
