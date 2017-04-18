@@ -13,6 +13,19 @@ from UserParameters import *
 
 __author__ = "Tristan J. Hillis"
 
+###
+# Useful functions
+###
+def findStringInList(s_list, s):
+    """
+    Takes in a list of strings and returns the index of the found string.
+    """
+    for i, string in enumerate(s_list):
+        if s in string:
+            return i
+
+    return None
+
 class ProcessRunner(object):
     """
     This holds the generic running method used by all these objects.
@@ -22,7 +35,6 @@ class ProcessRunner(object):
         There will always be a command that is initially passed in when an object is created.
         """
         self.curr_command = command
-        self.cwd = None # This holds a global current working directory that is switched to within a Popen
 
     def run(self):
         """
@@ -34,7 +46,7 @@ class ProcessRunner(object):
         # is ever changed from False to True then this method will exit.
         t = threading.current_thread()
         
-        pipe = subprocess.Popen(self.cwd + "; " + self.curr_command, shell=True, preexec_fn=os.setsid)
+        pipe = subprocess.Popen(self.curr_command, shell=True, preexec_fn=os.setsid)
 
         # poll the status of the process
         while pipe.poll() is None:
@@ -74,7 +86,7 @@ class DefaultCalcsfh(ProcessRunner):
         # save command initially
         super(DefaultCalcsfh, self).__init__(command)
         self.original = command # this is the original beginning command
-        self.curr_command = command # variable is populated for running in the run() method
+        #self.curr_command = command # variable is populated for running in the run() method
 
         self.zcombine_name = None # initialize
         self.co_file = None # initialize
@@ -86,6 +98,9 @@ class DefaultCalcsfh(ProcessRunner):
         # working directory
         self.cwd = "/".join(command[1].split("/")[:-1]) + "/" # split the first command that has the parameter file and get the cwd
         print(self.cwd)
+
+        # Add 'cd' to the curr_command
+        self.curr_command = "cd %s; "%self.cwd + self.curr_command
         
         # parameter file name
         self.parameter = command[1].split("/")[-1]
@@ -113,6 +128,8 @@ class DefaultCalcsfh(ProcessRunner):
         
         # get flags
         self.flags = command[5:-2] # flags start after the fit name and the end of the command will always direct the calcsfh output
+        if "-mcdata" in self.flags:
+            self.mcdata = self.fit + ".dat"
         print(self.flags)
 
         self._getDAv()
@@ -138,8 +155,10 @@ class DefaultCalcsfh(ProcessRunner):
     def processFit(self):
         files = [self.cwd+self.parameter, self.cwd+self.phot, self.cwd+self.fake, self.cwd+self.fit,
                  self.cwd+self.co_file, self.cwd+self.zcombine_name, self.cwd+self.cmd_file]
-        self.curr_command = "%s/scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
-                            (MATCH_SERVER_DIR, files[0], files[1], files[2], files[3], files[4], files[5], files[6])
+        #self.curr_command = "%s/scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
+        #                    (MATCH_SERVER_DIR, files[0], files[1], files[2], files[3], files[4], files[5], files[6])
+        self.curr_command = "%s/scripts/hybridMC_script.sh %s %s %s %s %s %s %s %s" % \
+                            (MATCH_SERVER_DIR, files[0], files[1], files[2], files[3], files[4], files[5], files[6], self.cwd+self.mcdata)
 
     def condorCommands(self):
         """
@@ -168,8 +187,9 @@ class DefaultCalcsfh(ProcessRunner):
 
         # remove group name from command so that it can run in bash
         if self._group is not None:
+            flag_command_idx = findStringInList(self.curr_command.split(), "-group")
             command = self.curr_command.split()
-            command.pop(5 + idx)
+            command.pop(flag_command_idx)
             self.flags.pop(idx)
             self.curr_command = " ".join(command)
     
@@ -229,12 +249,13 @@ class SSPCalcsfh(DefaultCalcsfh):
     """
     def __init__(self, command):
         super(SSPCalcsfh, self).__init__(command)
-
         # initialize the variable to hold the sspcombine name
         self.sspcombine_name = None
         
     def sspcombine(self):
-        self.curr_command = "sspcombine %s > %s.ssp" % (self.cwd + self.co_file, self.cwd + self.fit)
+        self.co_shortened = self.fit + ".so"
+        self.curr_command = "tail -n +11 %s > %s; sspcombine %s > %s.ssp" % (self.cwd + self.co_file, self.cwd + self.co_shortened,
+                                                                             self.cwd + self.co_shortened, self.cwd + self.fit)
         # set a file name for the new zcombine name
         self.sspcombine_name = self.fit + ".ssp"
 
@@ -242,7 +263,7 @@ class SSPCalcsfh(DefaultCalcsfh):
         files = [self.cwd+self.parameter, self.cwd+self.phot, self.cwd+self.fake, self.cwd+self.fit,
                  self.cwd+self.co_file, self.cwd+self.sspcombine_name, self.cwd+self.cmd_file]
         self.curr_command = "%s/scripts/ssp_script.sh %s %s %s %s %s %s %s" % \
-                            (os.getcwd(), files[0], files[1], files[2], files[3], files[4], files[5], files[6])
+                            (MATCH_SERVER_DIR, files[0], files[1], files[2], files[3], files[4], files[5], files[6])
 
     def condorCommands(self):
         """
@@ -294,6 +315,7 @@ class Sleep(ProcessRunner):
     def _cleanup(self):
         print("Cleaning up after sleep")
 
+        
 #test = extendProcessRunner("sleep 10")
 #test.printCommand()
 #calcsfh = DefaultCalcsfh("calcsfh /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_parameter_file_M199_ssp.param /astro/users/tjhillis/M83/remnants/M199/set001_phot_stars_M199.phot /astro/users/tjhillis/M83/remnants/M199/fake_stars_M048.fake /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_ssp -Kroupa -dAv=1.500000 -ssp -full > /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_ssp.co")

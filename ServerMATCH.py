@@ -24,6 +24,7 @@ from Calcsfh import DefaultCalcsfh
 from Calcsfh import GroupProcess
 from Calcsfh import Sleep
 from Calcsfh import SSPCalcsfh
+
 """
 This server runs on port 42424
 """
@@ -266,17 +267,17 @@ class CommandMethods(object):
             calcsfh.processFit()
             calcsfh.run()
         else: # SSP run
-            ssp = SSPCalcsfh(line)
+            calcsfh = SSPCalcsfh(line)
             # Run the initial command
-            ssp.run()
+            calcsfh.run()
 
             # run sspcombine
-            ssp.sspcombine()
-            ssp.run()
+            calcsfh.sspcombine()
+            calcsfh.run()
 
             # process ssp files after
-            ssp.processFit()
-            ssp.run()
+            calcsfh.processFit()
+            calcsfh.run()
             
         # check for group and run if it is the last one in the group
         if calcsfh._group is not None:
@@ -370,8 +371,15 @@ class CommandMethods(object):
         that will comprise of the total dAv range.  These commands are added to the queue for later.
         """
         t = threading.current_thread()
-        
-        line = line.split(" ")
+
+        # There may be a 'cd' at the beginning edit for this change
+        cd = None
+        if "cd" == line[:2]:
+            cd = " ".join(line.split()[:2])
+            line = line.split()[2:]
+        else:
+            line = line.split()
+            
         numSteps = int((upper - lower) / step) + 1 # will underestimate by one so I add one
 
         commands = [] # list of commands to be added to queue
@@ -403,7 +411,11 @@ class CommandMethods(object):
                     newLine.insert(-2, "-group=%s" % (t.name))
                     
 
-            commands.append(" ".join(newLine))
+            if cd is not None:
+                commands.append("%s %s" % (cd, " ".join(newLine)))
+            else:
+                commands.append(" ".join(newLine))
+
             print(newLine)
             print(commands[i])
             print()
@@ -737,8 +749,15 @@ class CondorWatcher(threading.Thread):
             
     ### Put condor_thread_watcher methods here
     def filterCommand(self, command):
+        """
+        Takes in a command a command as a string.  Splits it up and parses it 
+        to feed it to the right, associated, object.
+        """
         command_list = command.split()
         if command_list[0] == "calcsfh":
+            if "-ssp" in command_list:
+                return SSPCalcsfh(command)
+            
             return DefaultCalcsfh(command)
     
     def makeCommandList(self):
@@ -769,6 +788,9 @@ class CondorWatcher(threading.Thread):
             f.write("Log = /dev/null\n")
             f.write("Output = /dev/null\n")
             f.write("Error = /dev/null\n")
+            #f.write("Log = /astro/users/tjhillis/M83/test.log\n")
+            #f.write("Output = /astro/users/tjhillis/M83/test.out\n")
+            #f.write("Error = /astro/users/tjhillis/M83/test.err\n")
             # string of commands
             analysis = job.condorCommands()
             analysis = " | ".join(analysis)

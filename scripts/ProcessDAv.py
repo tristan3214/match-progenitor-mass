@@ -121,7 +121,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     
     csfs = [SFH(file+".zc", bins=bins) for file in files]
 
-    fig = plt.figure(figsize=(21.0, 9.0))
+    fig = plt.figure(figsize=(18.0, 8.0))
     #fig = plt.figure()
         
     # plot Cumulative stellar mass functions
@@ -247,7 +247,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     #### Get data of field and photometry file #####
     # field should be from background which we get from reading the parameter file
     param = MatchParam(path+paramFile, None, None)
-    background_path = param.parameters['background']
+    background_path = path + param.parameters['background']
     background_data = np.loadtxt(background_path, unpack=True)
 
     # get photometry data
@@ -305,7 +305,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     plt.gca().tick_params(labelsize=16, which='major')    
     plt.tight_layout()
 
-    plt.savefig(path+baseName+"_testfig", dpi=512)
+    plt.savefig(path+baseName+"_testfig")
 
     dAvfile.close()
     massFile.close()

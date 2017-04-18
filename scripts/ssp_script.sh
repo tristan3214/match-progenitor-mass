@@ -19,4 +19,9 @@ echo $4
 echo $5
 echo $6
 echo $7
-#  ./scripts/test_plot.py $6
+
+# Get the scripts full path
+SCRIPT=`realpath $0`
+SCRIPTPATH=`dirname $SCRIPT`
+
+#"$SCRIPTPATH/test_plot.py" $6

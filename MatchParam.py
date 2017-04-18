@@ -432,7 +432,7 @@ class MatchParam(object):
             params = map(str, line.split())
             size = len(params)
             if size > 3 or size < 3:
-                print("Missing/extra paramter(s) in las line")
+                print("Missing/extra paramter(s) in last line")
                 print(line)
                 sys.exit(1)
             self.parameters["lLine_1"] = params[0]
