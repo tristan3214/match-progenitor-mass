@@ -60,8 +60,11 @@ class MatchParam(object):
         value = string.split("=")[1]
         
         if key in self.parameters.keys():
-            valType = type(self.parameters[key])
-            self.parameters[key] = valType(value)
+            if self.parameters[key] is not None:
+                valType = type(self.parameters[key])
+                self.parameters[key] = valType(value)
+            else:
+                self.parameters[key] = value
         else:
             print("Key not found check and try again")
 
