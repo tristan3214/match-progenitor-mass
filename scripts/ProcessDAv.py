@@ -121,7 +121,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     
     csfs = [SFH(file+".zc", bins=bins) for file in files]
 
-    fig = plt.figure(figsize=(20.0, 8.0))
+    fig = plt.figure(figsize=(22.0, 8.0))
     #fig = plt.figure()
         
     # plot Cumulative stellar mass functions
@@ -170,7 +170,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     plotMasses = np.interp(ax.get_xticks(), linear_year, masses)
     plotMasses = [round(mass,1) for mass in plotMasses]
     
-    plt.tight_layout()
+    #plt.tight_layout()
 
     # prepare ticks for top x axis
     print("FIRST TICKS:", ax.get_xticks().size, ax.get_xticks())
