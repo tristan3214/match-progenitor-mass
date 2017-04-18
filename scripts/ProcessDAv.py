@@ -205,7 +205,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     ax.set_ylim([0.0, 1.0])
     ax.set_xlim([0.0, max(ax2_ticks)])
 
-    fig.set_width(10)
+    #fig.set_width(10)
     
     # Interpolate the percentiles
     central_mass = None
