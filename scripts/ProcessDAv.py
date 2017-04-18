@@ -195,8 +195,10 @@ def processDAv_general(path, baseName, photFile, paramFile):
     ax2.set_xlabel(r"Mass ($M_\odot$)", fontsize=20)
     ax2.set_axisbelow(True)
 
-    plt.ylim([0.0, 1.0])
-    plt.xlim([0, max(ax2_ticks)])
+    #plt.ylim([0.0, 1.0])
+    #plt.xlim([0, max(ax2_ticks)])
+    ax.set_ylim([0.0, 1.0])
+    ax.set_xlim([0.0, max(ax2_ticks)])
 
     # Interpolate the percentiles
     central_mass = None
