@@ -171,6 +171,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     plotMasses = [round(mass,1) for mass in plotMasses]
     
     # prepare ticks for top x axis
+    print("FIRST TICKS:", ax.get_xticks().size, ax.get_xticks())
     ax2_ticks = np.linspace(ax.get_xticks()[0], ax.get_xticks()[-1], 2*ax.get_xticks().size - 1)
     f = interp1d(linear_year, masses, fill_value='extrapolate')
     ax2_mass = np.round(f(ax2_ticks), 2)
