@@ -121,9 +121,9 @@ def processDAv_general(path, baseName, photFile, paramFile):
     
     csfs = [SFH(file+".zc", bins=bins) for file in files]
 
-    fig = plt.figure(figsize=(20.0, 6.0))
+    fig = plt.figure(figsize=(18.0, 6.0))
     #fig = plt.figure()
-    gs = mpl.gridspec.GridSpec(1, 3, width_ratios=[1.0,1.0,1.0])
+    gs = mpl.gridspec.GridSpec(1, 3, width_ratios=[1.5,1.0,1.0])
     #fig = plt.figure()
         
     # plot Cumulative stellar mass functions
