@@ -6,6 +6,7 @@ import os
 import sys
 
 import numpy as np
+import pandas as pd
 
 """
 m-Mmin m-Mmax d(m-M) Avmin Avmax dAv
@@ -552,13 +553,13 @@ class MatchParam(object):
                                                                                        usecols=[0, 1, 2, 3, 4, 5], unpack=True)
 
             ### Get the 50% completeness of F336W
-            f336_50 = self._getCompleteness(f336_in, f336_outin, size_of_bin, 50)
+            f336_50 = self._getCompleteness(f336_in, f336_outin, size_of_bin, completeness)
 
             #### Get the 50% completeness for F438W
-            f438_50 = self._getCompleteness(f438_in, f438_outin, size_of_bin, 50)
+            f438_50 = self._getCompleteness(f438_in, f438_outin, size_of_bin, completeness)
 
             ### Get the 50% completeness for F814W
-            f814_50 = self._getCompleteness(f814_in, f814_outin, size_of_bin, 50)
+            f814_50 = self._getCompleteness(f814_in, f814_outin, size_of_bin,completeness)
 
             return [f336_50, f438_50, f814_50]
 
@@ -583,8 +584,8 @@ class MatchParam(object):
                 mag_mag.append(end_mag)
 
                 if idx.size <= 0:
-                    mag_fraction.append(1.0)
-                    mag_fraction.append(1.0)
+                    mag_fraction.append(np.nan)
+                    mag_fraction.append(np.nan)
                 else:
                     mag_fraction.append(recovered.size / idx.size)
                     mag_fraction.append(recovered.size / idx.size)
@@ -592,7 +593,7 @@ class MatchParam(object):
                 mag_mag.append(end_mag)
 
                 if idx.size <= 0:
-                    mag_fraction.append(1.0)
+                    mag_fraction.append(np.nan)
                 else:
                     mag_fraction.append(recovered.size / idx.size)
 
@@ -600,6 +601,10 @@ class MatchParam(object):
             end_mag = end_mag + size_of_bin
             
         mag_mag, mag_fraction = np.asarray(mag_mag), np.asarray(mag_fraction)
+        # Fill in the bins that didn't have any "fraction" and were assigned nan.  Filled with
+        # next valid entry.
+        mag_fraction = pd.Series(mag_fraction).fillna(method='backfill').values
+        
         mag_comp = self._interpolateCompMag(mag_mag, mag_fraction, completeness)
 
         return mag_comp
@@ -608,10 +613,14 @@ class MatchParam(object):
         """
         Linearly extrapolates between the points that bound 0.5. 
         """
+        # Make sure that we only get the data from the right half of the graph.
+        max_idx = np.argmax(fracs)
+        fracs = fracs[max_idx:]
+        mags = mags[max_idx:]
+
         completeness = completeness / 100.0
         idx1 = np.where(fracs < completeness)[0][0]
         idx2 = np.where(fracs > completeness)[0][-1]
-
 
         x1 = fracs[idx1]
         y1 = mags[idx1]
@@ -623,7 +632,7 @@ class MatchParam(object):
         b = (-m * x1 + y1)
 
         linear = lambda x: m * x + b
-        return linear(0.5)
+        return linear(completeness)
 
     def _iterateParameter(self):
         """

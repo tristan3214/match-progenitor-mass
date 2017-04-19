@@ -50,10 +50,10 @@ def plotCSFComplete(completeFile):
     ax[0].fill_between(time, plus, minus, color='0.5', alpha=0.5)
     ax[0].plot(csf.getX(), csf.getY(), color='k')
     ax[0].axvline(time_errors[0], ymin=0, ymax=1, color='k', linestyle='--', linewidth=0.9)
-    ax[0].axvspan(time_errors[2], time_errors[1], color='r', alpha=0.3)
+    ax[0].axvspan(time_errors[2], time_errors[1], color='r', alpha=0.25)
     if not np.all(csf.getY() == 0):
         ax[0].axvline(time_errors[0], ymin=0, ymax=1, color='k', linestyle='--', linewidth=0.9)
-        ax[0].axvspan(time_errors[2], time_errors[1], color='r', alpha=0.3)
+        ax[0].axvspan(time_errors[2], time_errors[1], color='r', alpha=0.2)
 
     # Get the masses corresponding with the errors
     log_year = np.arange(6.6, 7.8, 0.05)
@@ -117,7 +117,7 @@ def plotCSFComplete(completeFile):
         
     # Print the mass values on the plot
     ax[0].text(35, 0.9, snr_id, fontsize=12, zorder=10)
-    ax[0].text(30, 0.85, r"$M_\odot=%.1f^{+%.1f}_{-%.1f}$" % (central_mass[1], central_mass[0]-central_mass[1], central_mass[1]-central_mass[2]),
+    ax[0].text(30, 0.85, r"$M_\odot=%.2f^{+%.2f}_{-%.2f}$" % (central_mass[1], central_mass[0]-central_mass[1], central_mass[1]-central_mass[2]),
                fontsize=12, zorder=10)
 
     ax[0].set_ylim([0.0, 1.0])
@@ -137,7 +137,7 @@ def plotCSFComplete(completeFile):
     plt.savefig(path+fitName+"_hybrdidMC")
 
     f = open(path+"hybridMC_mass.ls", 'a')
-    f.write("%s %f %f %f\n" % (fitName, central_mass[1], central_mass[0], central_mass[2]))
+    f.write("%s %f %f %f\n" % (fitName, central_mass[1], central_mass[0]-central_mass[1], central_mass[1]-central_mass[2]))
     f.close()
 
 
