@@ -315,7 +315,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
 
     ax.invert_yaxis()
     plt.gca().tick_params(labelsize=16, which='major')    
-    #plt.tight_layout()
+    plt.tight_layout()
 
     
     plt.savefig(path+baseName+"_testfig")
