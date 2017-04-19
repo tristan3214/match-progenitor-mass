@@ -134,7 +134,7 @@ def plotCSFComplete(completeFile):
     plt.tight_layout()
     
     fitName = fitName.split(".")[0]
-    plt.savefig(path+fitName)
+    plt.savefig(path+fitName+"_hybrdidMC")
 
     f = open(path+"hybridMC_mass.ls", 'a')
     f.write("%s %f %f %f\n" % (fitName, central_mass[1], central_mass[0], central_mass[2]))

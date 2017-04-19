@@ -319,7 +319,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     plt.tight_layout()
 
     
-    plt.savefig(path+baseName+"_testfig")
+    plt.savefig(path+baseName+"_bestDAv")
 
     dAvfile.close()
     massFile.close()
