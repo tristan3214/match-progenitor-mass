@@ -79,7 +79,7 @@ def getDAv(path, fitName):
     if fitName not in name:
         return None
     else:
-        idx = np.where(name == fitName)[0][0]
+        idx = np.where(name == fitName)[0][-1]
         return (dAv[idx], Av[idx])
 def getMass(path, fitName):
     """
@@ -96,7 +96,7 @@ def getMass(path, fitName):
     if fitName not in name:
         return None
     else:
-        idx = np.where(name == fitName)[0][0]
+        idx = np.where(name == fitName)[0][-1]
         return (mass[idx], plus[idx], minus[idx])
 
 
