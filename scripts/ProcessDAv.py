@@ -123,7 +123,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
 
     fig = plt.figure(figsize=(20.0, 6.0))
     #fig = plt.figure()
-    gs = mpl.gridspec.GridSpec(1, 3, width_ratios=[2.0,1.0,1.0])
+    gs = mpl.gridspec.GridSpec(1, 3, width_ratios=[1.75,1.0,1.0])
     #fig = plt.figure()
         
     # plot Cumulative stellar mass functions
