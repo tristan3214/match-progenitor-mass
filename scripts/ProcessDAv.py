@@ -121,7 +121,7 @@ def processDAv_general(path, baseName, photFile, paramFile):
     
     csfs = [SFH(file+".zc", bins=bins) for file in files]
 
-    fig = plt.figure(figsize=(18.0, 8.0))
+    fig = plt.figure(figsize=(20.0, 8.0))
     gs = mpl.gridspec.GridSpec(1, 3, width_ratios=[1,1,1])
     #fig = plt.figure()
         
