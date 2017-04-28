@@ -10,7 +10,9 @@ from UsefulFunctions import SFH
 
 zc = sys.argv[1]
 
-csf = SFH(zc, cumulative=True, bins=2, label="Test_%s" % zc)
+name = zc.spit("/")[-1]
+
+csf = SFH(zc, cumulative=True, bins=2, label="Test_%s" % name)
 
 csf.calculateCSF()
 
@@ -21,4 +23,4 @@ plt.plot(csf.getX(), csf.getY())
 
 #print(os.getcwd())
 
-plt.savefig("/astro/users/tjhillis/M83/remnants/testExecuter/testCSF_%s.png" % zc)
+plt.savefig("/astro/users/tjhillis/M83/remnants/testExecuter/testCSF_%s.png" % name)
