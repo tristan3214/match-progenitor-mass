@@ -157,10 +157,11 @@ class DefaultCalcsfh(ProcessRunner):
     def processFit(self):
         files = [self.cwd+self.parameter, self.cwd+self.phot, self.cwd+self.fake, self.cwd+self.fit,
                  self.cwd+self.co_file, self.cwd+self.zcombine_name, self.cwd+self.cmd_file]
-        #self.curr_command = "%s/scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
-        #                    (MATCH_SERVER_DIR, files[0], files[1], files[2], files[3], files[4], files[5], files[6])
-        self.curr_command = "%s/scripts/hybridMC_script.sh %s %s %s %s %s %s %s %s" % \
-                            (MATCH_SERVER_DIR, files[0], files[1], files[2], files[3], files[4], files[5], files[6], self.cwd+self.mcdata)
+        self.curr_command = "%s/scripts/calcsfh_script.sh %s %s %s %s %s %s %s" % \
+                            (MATCH_SERVER_DIR, files[0], files[1], files[2], files[3], files[4], files[5], files[6])
+        # Uncomment this line below when using hybridMC
+        #self.curr_command = "%s/scripts/hybridMC_script.sh %s %s %s %s %s %s %s %s" % \
+        #                    (MATCH_SERVER_DIR, files[0], files[1], files[2], files[3], files[4], files[5], files[6], self.cwd+self.mcdata)
 
     def condorCommands(self):
         """

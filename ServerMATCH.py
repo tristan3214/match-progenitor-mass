@@ -29,6 +29,7 @@ from Calcsfh import SSPCalcsfh
 This server runs on port 42424
 """
 
+# These have been moved to UserParameters.py
 # Global Variables
 #CORE_COUNT = multiprocessing.cpu_count()
 #CORE_COUNT = 15

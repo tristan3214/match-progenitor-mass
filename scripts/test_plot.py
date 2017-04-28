@@ -6,12 +6,11 @@ import seaborn
 import sys
 import os
 
-from PlotSFR import SFH
-
+from UsefulFunctions import SFH
 
 zc = sys.argv[1]
 
-csf = SFH(zc, cumulative=True, bins=1, label="Test")
+csf = SFH(zc, cumulative=True, bins=2, label="Test_%s" % zc)
 
 csf.calculateCSF()
 
@@ -22,4 +21,4 @@ plt.plot(csf.getX(), csf.getY())
 
 #print(os.getcwd())
 
-plt.savefig("/astro/users/tjhillis/M83/remnants/testExecuter/testCSF.png")
+plt.savefig("/astro/users/tjhillis/M83/remnants/testExecuter/testCSF_%s.png" % zc)

@@ -42,7 +42,9 @@ def main():
 
     commandList = [] # holds the list of commands to be run by the send method
     
-    if args[0] == 'single': # handles single runs
+    if args[0] == 'single': # handles single runs This is going to be removed for more explicit commands (ie calcsfh, fake)
+        commandList = singleRun(args[1:])
+    if args[0] == 'calcsfh':
         commandList = singleRun(args[1:])
     elif args[0] == 'list': # handles passed in list of directories
         commandList = listRun(args[1])
