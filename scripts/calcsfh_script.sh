@@ -19,10 +19,10 @@ echo $5
 echo $6
 echo $7
 
-# Get the scripts full path
+# Get this script's full path
 SCRIPT=`realpath $0`
-SCRIPTPATH=`dirname $SCRIPT`
+SCRIPTPATH=`dirname $SCRIPT` # This points to "MatchServer/scripts/"
 
-# 
-"$SCRIPTPATH/test_plot.py" $6
+# This is just a test command.
+#"$SCRIPTPATH/test_plot.py" $6
 

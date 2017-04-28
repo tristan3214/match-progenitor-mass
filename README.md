@@ -46,12 +46,13 @@ This has to be done with **telnetSend.py**.
 Make sure you match files have these extensions: ".param" for the parameter file, ".phot" for the photometry file, and ".fake" for the fake star file.
 Also the fit name needs to have "fit" somewhere in it.  My code automatically detects for these files given these specific items making it so it doesn't matter which order they come in; as long as it is before the flags.
 After specifiying the files give the match flags, hit enter, and you are off to the races.  If it returns with "that flag doesn't" exist or something similar contact me.
+
 **Backgrounds**: If you have a background to run, it must be in the same folder as the fits that are being run and one doesn't need to specify a full path to it in the match parameter file.
 
 ### List of fits
-The list follows a particular format, that is one fit per line.  For now only calcsfh commands can be started with this formatting but in the future there will be support for other primary commands like `fake`.
+The list follows a particular format, that is one fit per line.  For now, only calcsfh commands can be started with this formatting but in the future there will be support for other primary commands like `fake`.
 
-Here are the arguments and when you refering to files there needs to be a full path for various reasons: match_parameter_file.param match_photometry_file.phot match_fake_file.fake match_fit_name -flags
+Here are the arguments and additionally when you are specifying files there needs to be a full path for various reasons: /fullpath/match_parameter_file.param /fullpath/match_photometry_file.phot /fullpath/match_fake_file.fake /fullpath/match_fit_name -flags
 
 That is all.  Note you don't need to specify calcsfh in the very beginning because it assumes it is calcsfh.  The only **other caveat** is that the files need the specified extensions and fit name needs to have "fit" in it somewhere.  There are reasons for this that I won't go into here.
 
