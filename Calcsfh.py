@@ -93,6 +93,8 @@ class DefaultCalcsfh(ProcessRunner):
         
         ### parse the command of the attributes
         command = command.split()
+        # Add in the MATCH install
+        command[0] = MATCH_EXECUTABLE_BIN + command[0]
         print(command)
 
         # working directory
@@ -147,7 +149,7 @@ class DefaultCalcsfh(ProcessRunner):
         to employ something more complex than the default zcombine command
         """
         # set the current command
-        self.curr_command = "zcombine -bestonly %s > %s.zc" % (self.cwd + self.fit, self.cwd + self.fit)
+        self.curr_command = "%szcombine -bestonly %s > %s.zc" % (MATCH_EXECUTABLE_BIN, self.cwd + self.fit, self.cwd + self.fit)
         # set a file name for the new zcombine name
         self.zcombine_name = self.fit + ".zc"
         print(self.zcombine_name)
@@ -254,7 +256,7 @@ class SSPCalcsfh(DefaultCalcsfh):
         
     def sspcombine(self):
         self.co_shortened = self.fit + ".so"
-        self.curr_command = "tail -n +11 %s > %s; sspcombine %s > %s.ssp" % (self.cwd + self.co_file, self.cwd + self.co_shortened,
+        self.curr_command = "tail -n +11 %s > %s; %ssspcombine %s > %s.ssp" % (self.cwd + self.co_file, self.cwd + self.co_shortened, MATCH_EXECUTABLE_BIN,
                                                                              self.cwd + self.co_shortened, self.cwd + self.fit)
         # set a file name for the new zcombine name
         self.sspcombine_name = self.fit + ".ssp"
