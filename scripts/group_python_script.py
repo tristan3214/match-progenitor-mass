@@ -31,7 +31,7 @@ def runProcessDav(path, commands):
     baseName = "_".join(davFit.fit.split("_")[:-2])
     photometry = davFit.phot
     param_file = davFit.parameter
-    #ProcessDAv(path, baseName, photometry, param_file, bins=2)
+    ProcessDAv(path, baseName, photometry, param_file, bins=2)
     
     return None
 
