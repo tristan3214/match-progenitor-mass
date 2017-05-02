@@ -21,4 +21,5 @@ echo "command 2: ${commands[1]}"
 
 #echo "Passed in quantities ${1}, ${2}, ${3}, and ${4}"
 #"$SCRIPTPATH/ProcessDAv.py" $1 $2 $3 $4
-"$SCRIPTPATH/group_python_script.py" $grouping $directory ${commands[0]}
+"$SCRIPTPATH/group_python_script.py" $grouping $directory "${commands}" # pass in commands as string or it separates it out in the
+                                                                        # python script
