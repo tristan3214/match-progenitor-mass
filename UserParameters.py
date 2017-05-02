@@ -21,4 +21,4 @@ MATCH_SERVER_DIR = "/astro/users/tjhillis/M83/MatchExecuter" # This sets the pat
 MATCH_EXECUTABLE_BIN = "/astro/apps7/opt/match2.7/bin/" # Change this to the disired match install. Forward slash on purpose.
 ####
 
-MATCH_SERVER_DIR = "/home/tristan/BenResearch/executer" # This line is for testing purposes
+#MATCH_SERVER_DIR = "/home/tristan/BenResearch/executer" # This line is for testing purposes
