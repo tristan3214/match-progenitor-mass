@@ -10,6 +10,13 @@
 SCRIPT=`realpath $0`
 SCRIPTPATH=`dirname $SCRIPT`
 
+echo "Passed in"
+echo "${1}, ${2}, ${3}"
 
-echo "Passed in quantities ${1}, ${2}, ${3}, and ${4}"
-"$SCRIPTPATH/ProcessDAv.py" $1 $2 $3 $4
+directory=$1
+commands=( "${@:2}" ) # grab all the commands
+echo "command 1: ${commands[0]}"
+echo "command 2: ${commands[1]}"
+
+#echo "Passed in quantities ${1}, ${2}, ${3}, and ${4}"
+#"$SCRIPTPATH/ProcessDAv.py" $1 $2 $3 $4
