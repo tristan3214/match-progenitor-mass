@@ -1,4 +1,4 @@
-#!/astro/users/tjhillis/anaconda2/bin/python2
+#!/astro/apps6/anaconda/bin/python2
 from __future__ import print_function
 from __future__ import division
 
