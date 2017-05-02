@@ -28,7 +28,7 @@ class MatchParam(object):
     overwriting this symbolic link.  This ensures the user can easily swap out files with different
     defaults automatically.
     """
-    def __init__(self, default, photFile, fakeFile):
+    def __init__(self, default, photFile=None, fakeFile=None, useBackgroundMin=False):
         # Constructs a MATCH parameter file object from a default parameter file to reference the settings.
         # A fakeFile is also specified to construct the Vmin, Vmax, Imin, and Imax using completeness limits
         self.default = default # symbolic link or can be regularly specified parameter file
@@ -44,8 +44,9 @@ class MatchParam(object):
         
         # flags to tell if there is something like zinc
         self.zinc = False
-        self.ssp = False # if a an ssp flag is passed then this will be set to True
-        self.calculateMaxOrMin = False
+        self.ssp = False # if a an ssp flag is passed then this will be set to True by an external program
+        self._calculateMaxOrMin = False
+        self._useBackgroundMin=useBackgroundMin
 
         self.savedTo = None
         self.name = None
@@ -337,14 +338,17 @@ class MatchParam(object):
             minsAndMax = params[:2]
             if not self._isStringFloat(minsAndMax[0]):
                 self.parameters[filter + "min"] = "filterMin" # This is calculated after we are done parsing.
-                self.calculateMaxOrMin = True
+                self._calculateMaxOrMin = True
             else:
                 self.parameters[filter + "min"] = float(minsAndMax[0])
 
             if not self._isStringFloat(minsAndMax[1]):
-                completeness = self._calculateComp(numCMDs, 50) # feed the number of CMDs and the completness limit.
-                self.parameters[filter + "max"] = completeness[i]
-                self.calculateMaxOrMin = True
+                if self.fake is not None:
+                    completeness = self._calculateComp(numCMDs, 50) # feed the number of CMDs and the completness limit.
+                    self.parameters[filter + "max"] = completeness[i]
+                    self._calculateMaxOrMin = True
+                else:
+                    raise GetMagError("Tried to calculate completeness but there is no passed in fake star file.")
             else:
                 self.parameters[filter + "max"] = float(minsAndMax[1])
 
@@ -467,12 +471,15 @@ class MatchParam(object):
             except ValueError:
                 calculateMax.append(True)
         if True in calculateMax:
-            maxes = self._calculateMaxes(numCMDs)
-            for i, filter in enumerate(self.filterSet):
-                if calculateMax[i] == True:
-                    self.parameters[filter + "min"] = maxes[i]
+            if self.phot is not None:
+                maxes = self._calculateMaxes(numCMDs)
+                for i, filter in enumerate(self.filterSet):
+                    if calculateMax[i] == True:
+                        self.parameters[filter + "min"] = maxes[i]
+            else:
+                raise GetMagError("Tried to calculate the min mag but there was no passed in photometry file.")
+                        
         
-
     def _testTillString(self, s):
         """
         Takes in a string s and will check when a string starts assuming there is a float before it.
@@ -508,7 +515,7 @@ class MatchParam(object):
         2 CMDs gives 3 filters and 1 CMD gives. If there is a detected background file then we use it to compute the brightest.
         """
         file_to_use = self.phot
-        if self.parameters['background'] is not None:
+        if self.parameters['background'] is not None and self._useBackgroundMin:
             file_to_use = self.parameters['background']
                 
         if n == 1:
@@ -603,8 +610,7 @@ class MatchParam(object):
         mag_mag, mag_fraction = np.asarray(mag_mag), np.asarray(mag_fraction)
         # Fill in the bins that didn't have any "fraction" and were assigned nan.  Filled with
         # next valid entry.
-        mag_fraction = pd.Series(mag_fraction).fillna(method='backfill').values
-        
+        mag_fraction = pd.Series(mag_fraction).fillna(method='backfill').values        
         mag_comp = self._interpolateCompMag(mag_mag, mag_fraction, completeness)
 
         return mag_comp
@@ -619,8 +625,8 @@ class MatchParam(object):
         mags = mags[max_idx:]
 
         completeness = completeness / 100.0
-        idx1 = np.where(fracs < completeness)[0][0]
-        idx2 = np.where(fracs > completeness)[0][-1]
+        idx1 = np.where(fracs <= completeness)[0][0]
+        idx2 = np.where(fracs >= completeness)[0][-1]
 
         x1 = fracs[idx1]
         y1 = mags[idx1]
@@ -628,6 +634,10 @@ class MatchParam(object):
         x2 = fracs[idx2]
         y2 = mags[idx2]
 
+        dif = abs(y1-y2)
+        if dif > 0.5:
+            raise ValueError("Interpolating between mags is different by > 0.5 check completeness.")
+        
         m = (y2 - y1) / (x2 - x1)
         b = (-m * x1 + y1)
 
@@ -669,3 +679,9 @@ class MatchParam(object):
             return True
         except ValueError:
             return False
+
+class GetMagError(Exception):
+    """This is raised when the min/max mags are to be found without the passed in files.
+    """
+    def __init__(self, message):
+        super(GetMagError, self).__init__(message)

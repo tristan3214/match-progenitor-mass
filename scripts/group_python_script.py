@@ -23,7 +23,7 @@ def runProcessDav(path, commands):
     -------
     out : None
     """
-
+    print("Group run:", commands)
     # extract the baseName, global photometry and parameter file used the best dAv fits
     davFit = DefaultCalcsfh(commands[0])
     baseName = "_".join(davFit.fit.split("_")[:-2])
