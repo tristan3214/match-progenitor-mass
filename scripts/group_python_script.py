@@ -37,7 +37,8 @@ def runProcessDav(path, commands):
 def main():
     grouping = str(sys.argv[1])
     path = sys.argv[2]
-    commands = sys.argv[2:]
+    commands = sys.argv[3:]
+    print("Commands:", commands)
 
     if grouping == 'bestdAv':
         runProcessDav(path, commands)
