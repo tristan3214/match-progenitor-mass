@@ -1,5 +1,4 @@
-#!/usr/bin/env python2
-##!/astro/apps6/anaconda/bin/python2
+#!/astro/apps6/anaconda/bin/python2
 
 from __future__ import print_function, division, absolute_import
 
