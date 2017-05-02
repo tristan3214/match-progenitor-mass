@@ -234,14 +234,20 @@ class GroupProcess(ProcessRunner):
     This class makes a list of DefaultCalcsfh's and will run a script for them using a path and baseName.
     Note it is up to the user to decide what to do with the path name and baseName.
     """
-    def __init__(self, path, baseName, commands):
+    def __init__(self, grouping, path, baseName, commands):
         """
         Takes in a path and a baseName and will pass this to a script that will run the appropriate base name.
         """
         # set the current command to run a bash script and pass in the path and baseName to the script
-        calcsfhs = [DefaultCalcsfh(calcsfh) for calcsfh in commands]
-        super(GroupProcess, self).__init__("%s/scripts/group_script.sh %s %s %s %s" % (MATCH_SERVER_DIR, path, baseName,
-                                                                                       calcsfhs[0].phot, calcsfhs[0].parameter))    
+        #calcsfhs = [DefaultCalcsfh(calcsfh) for calcsfh in commands]
+        #super(GroupProcess, self).__init__("%s/scripts/group_script.sh %s %s %s %s" % (MATCH_SERVER_DIR, path, baseName,
+        #calcsfhs[0].phot, calcsfhs[0].parameter))
+        s = "%s/scripts/group_script.sh %s %s \"%s\"" % (MATCH_SERVER_DIR, grouping, path, commands[0])
+        for command in commands[1:]:
+            s += " \"%s\"" % (command)
+        
+        #super(GroupProcess, self).__init__("%s/scripts/group_script.sh %s %s %s" % (MATCH_SERVER_DIR, path, baseName, commands))
+        super(GroupProcess, self).__init__(s)
 
 class SSPCalcsfh(DefaultCalcsfh):
     """
@@ -319,8 +325,15 @@ class Sleep(ProcessRunner):
         print("Cleaning up after sleep")
 
         
-#test = extendProcessRunner("sleep 10")
-#test.printCommand()
-#calcsfh = DefaultCalcsfh("calcsfh /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_parameter_file_M199_ssp.param /astro/users/tjhillis/M83/remnants/M199/set001_phot_stars_M199.phot /astro/users/tjhillis/M83/remnants/M199/fake_stars_M048.fake /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_ssp -Kroupa -dAv=1.500000 -ssp -full > /astro/users/tjhillis/M83/remnants/M199/set001_fit_002_ssp.co")
 
-#print(calcsfh.curr_command)
+def main():
+    """
+    This is only used for testing purposes
+    """
+    list = ["calcsfh locke command", "calcsfh second command", "fake stuff"]
+
+    group = GroupProcess("/home/tristan/BenResearch/executer/scripts", "stuff", list)
+    group.run()
+
+if __name__ == "__main__":
+    main()

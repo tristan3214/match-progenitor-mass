@@ -525,12 +525,11 @@ class CommandMethods(object):
             baseName = "_".join(baseName[:-2])
             print("BASE NAME:", baseName)
 
-            group = GroupProcess(workingD, baseName, keys)
+            group = GroupProcess('bestdAv', workingD, baseName, keys)
             group.run()
         else:
             # do nothing to group
             print("CURRENTLY DONE:", done)
-            pass
         pass
 
         
@@ -649,7 +648,7 @@ def runGroup(dictionary):
         baseName = "_".join(baseName[:-2])
         print("BASE NAME:", baseName)
 
-        group = GroupProcess(workingD, baseName, keys)
+        group = GroupProcess('bestdAv', workingD, baseName, keys)
         group.run()
     else:
         # do nothing to group
