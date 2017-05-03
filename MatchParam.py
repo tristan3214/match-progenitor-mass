@@ -9,6 +9,41 @@ import numpy as np
 import pandas as pd
 
 """
+Synopsis
+--------
+This is a module that helps to quickly script the making of new parameter files.  Suppose you have a lot of MATCH fits and each one is slightly
+different.  If you feed MatchParam a master parameter file that reflects the common across the fits you can tweak the fit specific
+parameters.  SSP parameter files can be fed as long as you specify to the MatchParam that it is an SSP parameter file. 
+
+It includes advanced usages to make calculating the brightest and dimmest magnitudes per filter when you pass a photometry and/or
+fake star file (See UsingMatchParam.py in "example")
+
+
+Usage (For more advanced usage like changing exclude gates see UsingMatchParam.py in the "example" directory.)
+-----
+# This shows how to feed a fully filled out MATCH parameter file, change something basic, and then save it.
+>>> from MatchParam import MatchParam
+
+>>> param = MatchParam("/path/to/your/param.param")
+>>> param.change("dAv", 0.1)
+>>> param.save(name="new_param.param") # saves in CWD
+>>> param.save(path="/to/save/directory", name="new_param.param")
+
+# To retrieve a basic key's value like the minimum distance modulus value.
+>>> param = MatchParam("/path/to/your/param.param")
+>>> minDistMod = param.parameters['m-Mmin']
+>>> minDistMod # an example
+26.0
+>>> type(minDistMod)
+<type 'float'>
+# OR
+>>> minDistMod = param.get('m-Mmin')
+>>> type(minDistMod) # check the type
+<type 'float'>
+
+Keys (Use the printKeys function in MatchParam to see the object's instance of keys)
+----
+
 m-Mmin m-Mmax d(m-M) Avmin Avmax dAv
 logZmin logZmax dlogZ
 BF Bad0 Bad1
@@ -16,51 +51,111 @@ Ncmds
 Vstep V-Istep fake_sm V-Imin V-Imax V,I  (per CMD)
 Vmin Vmax V                              (per filter)
 Imin Imax I                              (per filter)
-Nexclude_gates exclude_gates Ncombine_gates combine_gates (per CMD)
+Nexclude exclude Ncombine combine (per CMD)
 Ntbins
-To Tf (for each time bin)
+Tstart Tf (for each time bin)
+lLine1 lLine2 scalebackground (optional background bins (takes 3 different numbers with optional background see MATCH README))
+
+Caviates:
+Vstep V-Istep fake_sm V-Imin V-Imax
+Vmin Vmax V
+Imin Imax I
+
+The above vary with the number of CMDs used.
+when Ncmds = 1 Vstep, V-Istep, fake_sm, V-Imin V-Imax are as is
+when Ncmds > 1 Vstep, V-Istep, fake_sm, V-Imin, V-Imax have the CMD num appended (eg Vstep_1, Vstep_2, etc.)
+
+Vmin Vmax V
+Imin Imax I
+The min and max always have the filter name prefixed (eg UVIS438Wmin and UVIS438max)
 """
 
 class MatchParam(object):
+    """This class reads from a "master" MATCH parameter file.  Supports ssp style parameter files.
+
+    Basic Usage
+    -----------
+    >>> param = MatchParam("/path/to/your/param.param")
+    >>> param.change("dAv", 0.1)
+    >>> param.save(name="new_param.param") # saves in CWD
     """
-    This class read from a master parameter file that can be interchanged via a symbolic link.
-    The read in file is default.param and the user specifies their own master parameter file by.
-    overwriting this symbolic link.  This ensures the user can easily swap out files with different
-    defaults automatically.
-    """
-    def __init__(self, default, photFile=None, fakeFile=None, useBackgroundMin=False):
+    def __init__(self, default, photFile=None, fakeFile=None, useBackgroundMin=False, ssp=False):
+        """Pass in a "master" parameter file to script smaller changes and save to new parameter files.
+
+        Parameters
+        ----------
+        default : string
+                  Path to th "master" parameter file to be parsed.
+        photFile : {string} (optional) 
+                   Specify the MATCH photometry file path associated with the parameter file.
+        fakeFile : {string} (optional)
+                   Specify the MATCH fake star file path associated with the parameter file.
+        useBackgroundMin : {boolean}, (optional) 
+                           Set to True if you want the brightest mag to be calculated using a background given
+                           in the parameter file.  Else the photometry file is used during this calculation. 
+                           See use cases above in the module docstring.
+        ssp : {boolean}
+              When passing in an ssp parameter file set this to True.
+        
+
+        Attributes
+        ----------
+        default : string
+                  References the MATCH file path.
+        phot : string
+               Reference the MATCH photometry file if given.
+        fake : string
+               Reference the MATCH fake file if given.
+        parameters : dict
+                     Holds all the parameters parsed from the passed in parameter file.  Keywords follow the names in the
+                     MATCH README.  See module docstring for all the keywords and nuances in calling different filters.
+        filterset : list
+                    Holds the list of filters parsed as strings.
+        zinc : boolean
+               Tells the user if their parameter file is setup for zinc (ie 7 entries instead of 3 on the metallicity line)
+        ssp : boolean
+              Sets the parameter object to be ssp.
+        savedTo : string
+                  Holds the path full path to the saved parameter file.  Set when save is called.
+        name : string
+               Holds the name of the parameter file.  Set when save is called.
+
+        """
         # Constructs a MATCH parameter file object from a default parameter file to reference the settings.
         # A fakeFile is also specified to construct the Vmin, Vmax, Imin, and Imax using completeness limits
-        self.default = default # symbolic link or can be regularly specified parameter file
+        self.default = default # parameter file
         self.phot = photFile # photometry file to be fed to calcsfh
         self.fake = fakeFile # fake file to be fed to calcsfh
-
+        
         # dictionary that will fill with all the parameters (some are to be added in parseDefalut method)
-        self.parameters = {"m-Mmin":None, "d(m-M)":None, "Avmin":None, "Avmax":None, "dAv":None,
-                           "logZmin":None, "logZmax":None, "dlogZ":None, "BF":None, "Bad0":None, "Bad1":None,
-                           "Ncmds":None, "background":None, "scale":-1}
+        self.parameters = {"m-Mmin":None, "m-Mmax":None, "d(m-M)":None, "Avmin":None, "Avmax":None, "dAv":None,
+                           "logZmin":None, "logZmax":None, "dlogZ":None, "initMin":None, "initMax":None, "presMin":None, "presMax":None,
+                           "BF":None, "Bad0":None, "Bad1":None,
+                           "Ncmds":None,
+                           "Nexclude":None, "exclude":[], "Ncombine":None, "combine":[],
+                           "Ntbins":None,
+                           "lLine_1":None, "lLine_2":None, "scale":None, "background":None}
 
         self.filterSet = []
         
         # flags to tell if there is something like zinc
         self.zinc = False
-        self.ssp = False # if a an ssp flag is passed then this will be set to True by an external program
-        self._calculateMaxOrMin = False
-        self._useBackgroundMin=useBackgroundMin
+        self.ssp = ssp # if a an ssp flag is passed then this will be set to True by an external program
 
         self.savedTo = None
         self.name = None
+        
+        #Internal flags
+        self._calculateMaxOrMin = False
+        self._useBackgroundMin=useBackgroundMin
 
         self._parseDefault()
 
-    def change(self, string):
+    def change(self, key, value):
         """
         Pass a that has the parameter to change and the value to set delimited with an equals.
         Exampe: "dAv=0.1" (this would change the Av step to 0.1)
         """
-        key = string.split("=")[0]
-        value = string.split("=")[1]
-        
         if key in self.parameters.keys():
             if self.parameters[key] is not None:
                 valType = type(self.parameters[key])
@@ -77,11 +172,51 @@ class MatchParam(object):
         if key in self.parameters.keys():
             return self.parameters[key]
         else:
-            print("Did not find key:", key)
-            #sys.exit(1)
+            raise KeyError("Did not find key in object.parameters")
+
+    def printKeys(self):
+        # line one (m-Mmin m-Mmax d(m-M) Avmin Avmax dAv)
+        print("m-Mmin m-Mmax d(m-M) Avmin Avmax dAv")
+
+        # line two (logZmin logZmax dlogZ) w/zinc (logZmin logZmax dlogZ initMin initMax presMin presMax)
+        if not self.zinc or self.ssp:
+            print("logZmin logZmax dlogZ")
+        else:
+            print("logZmin logZmax dlogZ initMin initMax presMin presMax")
+            
+        # line three (BF Bad0 Bad1)
+        print("BF Bad0 Bad1")
+
+        # line four (Ncmds)
+        print("Ncmds")
+
+        # line five to (five + Ncmds) (Vstep V-Istep fake_sm V-Imin V-Imax V,I  (per CMD))
+        if self.parameters["Ncmds"] == 1:
+            print("Vstep V-Istep fake_sm V-Imin V-Imax V I")
+        else:
+            for i in range(int(self.parameters["Ncmds"])):
+                print("Vstep_" + str(i+1) + " V-Istep_" + str(i+1) + " fake_sm_" + str(i+1) + " V-Imin_" + str(i+1) + \
+                      " V-Imax_" + str(i+1) + " V_" + str(i+1) + " I_" + str(i+1))
+                
+        # lines for each filter (filterMin filterMax filter(per filter))
+        for i, filter in enumerate(self.filterSet):
+            print(filter + "min " + filter + "max " + filter)
+
+        # exclude/combine gates (Nexclude exclude Ncombine combine (per CMD))
+        print("Nexclude exclude Ncombine combine")
+
+        # number of time bins (Ntbins)
+        print("Ntbins")
+
+        # time bins
+        print("tstart tend (passed in as lists of start and end times of same size)")
+        
+        # last line
+        if self.parameters['scale'] is not None:
+            print("lLine_1 lLine_2 scale[background]")
     
-            
-            
+
+        
     def save(self, path=None, name=None):
         """
         Used to save the current MatchParam object into a standard MATCH parameter file. Call after making any
@@ -165,6 +300,80 @@ class MatchParam(object):
 
         f.close()
 
+    def print(self):
+        """This prints the currently loaded parameters in the format of the MATCH parameter file.
+        """
+        # line one (m-Mmin m-Mmax d(m-M) Avmin Avmax dAv)
+        print("%.2f %.2f %.2f %.3f %.3f %.2f" % (self.parameters["m-Mmin"], self.parameters["m-Mmax"], self.parameters["d(m-M)"],
+                                                 self.parameters["Avmin"], self.parameters["Avmax"],self.parameters["dAv"]))
+
+        # line two (logZmin logZmax dlogZ) w/zinc (logZmin logZmax dlogZ initMin initMax presMin presMax)
+        if not self.zinc or self.ssp:
+            print("%.2f %.2f %.2f" % (self.parameters["logZmin"], self.parameters["logZmax"], self.parameters["dlogZ"]))
+        else:
+            print("%.2f %.2f %.2f %.2f %.2f %.2f %.2f" % (self.parameters["logZmin"], self.parameters["logZmax"],
+                                                          self.parameters["dlogZ"], self.parameters["initMin"],
+                                                          self.parameters["initMax"], self.parameters["presMin"],
+                                                          self.parameters["presMax"]))
+        # line three (BF Bad0 Bad1)
+        print("%.2f %f %f" % (self.parameters["BF"], self.parameters["Bad0"], self.parameters["Bad1"]))
+
+        # line four (Ncmds)
+        print("%d" % (self.parameters["Ncmds"]))
+
+        # line five to (five + Ncmds) (Vstep V-Istep fake_sm V-Imin V-Imax V,I  (per CMD))
+        if self.parameters["Ncmds"] == 1:
+            print("%.2f %.2f %d %.2f %.2f %s,%s" % (self.parameters["Vstep"], self.parameters["V-Istep"],
+                                                    self.parameters["fake_sm"], self.parameters["V-Imin"],
+                                                    self.parameters["V-Imax"], self.parameters["V"],
+                                                    self.parameters["I"]))
+        else:
+            for i in range(int(self.parameters["Ncmds"])):
+                print("%.2f %.2f %d %.2f %.2f %s,%s" % (self.parameters["Vstep_" + str(i+1)], self.parameters["V-Istep_" + str(i+1)],
+                                                        self.parameters["fake_sm_" + str(i+1)], self.parameters["V-Imin_" + str(i+1)],
+                                                        self.parameters["V-Imax_" + str(i+1)], self.parameters["V_" + str(i+1)],
+                                                        self.parameters["I_" + str(i+1)]))
+        # lines for each filter (filterMin filterMax filter(per filter))
+        for i, filter in enumerate(self.filterSet):
+            print("%.1f %.1f %s" % (self.parameters[filter + "min"], self.parameters[filter + "max"],
+                                    self.parameters[filter]))
+
+        # exclude/combine gates (Nexclude exclude Ncombine combine (per CMD))
+        s = ""
+        for i in range(int(self.parameters["Ncmds"])):
+            s += "%d" % self.parameters["Nexclude"]
+            if self.parameters["Nexclude"] != 0:
+                exclude = self.parameters["exclude"]
+                for j in range(len(exclude)//2):
+                    s += " %.2f %.2f" % (exclude[2*j], exclude[2*j + 1])
+                    
+            s += " %d" % self.parameters["Ncombine"]
+            if self.parameters["Ncombine"] != 0:
+                combine = self.parameters["combine"]
+                for j in range(len(combine)//2):
+                    s += " %.2f %.2f" % (combine[2*j], combine[2*j + 1])
+            if i + 1 != self.parameters["Ncmds"]:
+                s += "\n"
+        print(s)
+
+        # number of time bins (Ntbins)
+        print("%d" % self.parameters["Ntbins"])
+
+        # time bins
+        start = self.parameters["tstart"]
+        end = self.parameters["tend"]
+        for i, time in enumerate(start):
+            print("  %.2f  %.2f" % (time, end[i]))
+
+        # last line
+        if self.parameters['scale'] is not None:
+            if self.parameters['background'] is not None:
+                print("%s %s %s%s" % (self.parameters["lLine_1"], self.parameters["lLine_2"], str(self.parameters["scale"]),
+                                      str(self.parameters['background'])))
+            else:
+                print("%s %s %s" % (self.parameters["lLine_1"], self.parameters["lLine_2"], str(self.parameters["scale"])))
+
+
     def _parseDefault(self):
         """
         Go through defualt parameter file and populate dictionary of parameters.
@@ -175,7 +384,7 @@ class MatchParam(object):
         # line one (IMF m-Mmin m-Mmax d(m-M) Avmin Avmax dAv)
         line = self._checkForEnd(f.readline())
         try:
-            params = map(float, line.split())
+            params = list(map(float, line.split()))
             if len(params) < 6 or len(params) > 6:
                 print("Missing/extra paramter(s) in line one of default parameter file:")
                 print(line)
@@ -187,7 +396,7 @@ class MatchParam(object):
                 self.parameters["d(m-M)"] = params[2]
                 self.parameters["Avmin"] = params[3]
                 self.parameters["Avmax"] = params[4]
-                print("param 6", params[5])
+                #print("param 6", params[5])
                 self.parameters["dAv"] = params[5]
 
         except ValueError:
@@ -198,7 +407,7 @@ class MatchParam(object):
         # line two (logZmin logZmax dlogZ) w/zinc (logZmin logZmax dlogZ initMin initMax presMin presMax)
         line = self._checkForEnd(f.readline())
         try:
-            params = map(float, line.split())
+            params = list(map(float, line.split()))
             size = len(params)
             if size > 3: # zinc flag should be specified
                 self.zinc = True
@@ -231,7 +440,7 @@ class MatchParam(object):
         # line 3 (BF Bad0 Bad1)
         line = self._checkForEnd(f.readline())
         try:
-            params = map(float, line.split())
+            params = list(map(float, line.split()))
             size = len(params)
             if size > 3 or size < 3:
                 print("Missing/extra paramter(s) in line three of default parameter file:")
@@ -249,7 +458,7 @@ class MatchParam(object):
         # line 4 (Ncmds)
         line = self._checkForEnd(f.readline())
         try:
-            params = map(float, line.split())
+            params = list(map(float, line.split()))
             size = len(params)
             if size > 1 or size < 1:
                 print("Missing/extra paramter(s) in line three of default parameter file:")
@@ -267,7 +476,7 @@ class MatchParam(object):
         for i in range(numCMDs):
             line = self._checkForEnd(f.readline())
             try:
-                params = map(str, line.split())
+                params = list(map(str, line.split()))
                 size = len(params)
                 if size > 6 or size < 6:
                     print("Missing/extra paramter(s) in line three of default parameter file:")
@@ -328,7 +537,7 @@ class MatchParam(object):
         self.filterSet = filterSet
         for i, filter in enumerate(filterSet):
             line = self._checkForEnd(f.readline())
-            params = map(str, line.split())
+            params = list(map(str, line.split()))
             size = len(params)
             if size > 3 or size < 3:
                 print("Missing/extra paramter(s) in line %d of default parameter file:" % (4 + numCMDs + i))
@@ -361,7 +570,7 @@ class MatchParam(object):
             line = self._checkForEnd(f.readline())
             try:
                 count = 0
-                params = map(float, line.split())
+                params = list(map(float, line.split()))
 
                 self.parameters["Nexclude"] = int(params[0])
                 count += 1
@@ -372,7 +581,7 @@ class MatchParam(object):
                         excludePoints.append(params[count+1])
                         count += 2
                     self.parameters["exclude"] = excludePoints
-                    print(self.parameters["exclude"])
+                    #print(self.parameters["exclude"])
                     
                 if not params[count].is_integer():
                     print("Ncombine found to not be an integer this suggests user input error...")
@@ -387,7 +596,7 @@ class MatchParam(object):
                         combinePoints.append(params[count])
                         combinePoints.append(params[count+1])
                         count += 2
-                    self.parameters["combine"] = combinePoints
+                    #self.parameters["combine"] = combinePoints
             except ValueError:
                 print("Could not convert float(s) in exclude/combine gates line of the defualt parameter file:")
                 print(line)
@@ -396,7 +605,7 @@ class MatchParam(object):
         # number of time bins (Ntbins)
         line = self._checkForEnd(f.readline())
         try:
-            params = map(int, line.split())
+            params = list(map(int, line.split()))
             size = len(params)
             if size > 1 or size < 1:
                 print("Missing/extra paramter(s) in line %d of default parameter file:" % (4 + numCMDs + i))
@@ -415,7 +624,7 @@ class MatchParam(object):
         for i in range(self.parameters["Ntbins"]):
             line = self._checkForEnd(f.readline())
             try:
-                params = map(float, line.split())
+                params = list(map(float, line.split()))
                 size = len(params)
                 if size > 2 or size < 2:
                     print("Missing/extra paramter(s) in line %d of default parameter file:" % (4 + numCMDs + i))
@@ -432,32 +641,36 @@ class MatchParam(object):
         self.parameters["tend"] = end
 
         # last line
-        line = self._checkForEnd(f.readline())
-        try: # no background given
-            params = map(str, line.split())
-            size = len(params)
-            if size > 3 or size < 3:
-                print("Missing/extra paramter(s) in last line")
+        try:
+            line = self._checkForEnd(f.readline())
+            try: # no background given
+                params = list(map(str, line.split()))
+                size = len(params)
+                if size > 3 or size < 3:
+                    print("Missing/extra paramter(s) in last line")
+                    print(line)
+                    sys.exit(1)
+                self.parameters["lLine_1"] = params[0]
+                self.parameters["lLine_2"] = params[1]
+                idx = self._testTillString(params[2])
+
+                if idx is not None: # if the returned idx is None then no string was found in the last line arg3
+                    try:
+                        self.parameters["scale"] = float(params[2][:idx])
+                        self.parameters["background"] = params[2][idx:]                        
+                    except ValueError: # this assumes somebody indicates "scale" in last line to determine the scale at a later time
+                        self.parameters["scale"] = None
+                        self.parameters["background"] = params[2][5:] # "scale" is 5 char long
+                else:
+                    self.parameters["scale"] = float(params[2])
+
+            except ValueError: # potential background
+                print("Could not convert to string in last line:")
                 print(line)
                 sys.exit(1)
-            self.parameters["lLine_1"] = params[0]
-            self.parameters["lLine_2"] = params[1]
-            idx = self._testTillString(params[2])
-            
-            if idx is not None: # if the returned idx is None then no string was found in the last line arg3
-                try:
-                    self.parameters["scale"] = float(params[2][:idx])
-                    self.parameters["background"] = params[2][idx:]                        
-                except ValueError: # this assumes somebody indicates "scale" in last line to determine the scale at a later time
-                    self.parameters["scale"] = None
-                    self.parameters["background"] = params[2][5:] # "scale" is 5 char long
-            else:
-                self.parameters["scale"] = float(params[2])
-
-        except ValueError: # potential background
-            print("Could not convert to string in last line:")
-            print(line)
-            sys.exit(1)
+        except EOFError:
+            #print("No background line given")
+            pass
 
         f.close()
 
@@ -486,7 +699,7 @@ class MatchParam(object):
         """
         size = len(s)
         idx = None
-        for i in xrange(size):
+        for i in range(size):
             substring = s[:i+1]
             if i == 0 and substring == "-": # if there is a negative in front
                 continue
@@ -498,14 +711,15 @@ class MatchParam(object):
         return idx
                 
     def _checkForEnd(self, s):
+        #print(s.strip())
         if s == "":
-            print("Reached end of file unexpectedly in default parameter file...exiting")
-            sys.exit(1)
+            #print("Reached end of file unexpectedly in default parameter file...exiting")
+            raise EOFError("End of parameter file")
         elif s == "\n":
             print("Unexpected blank line in default parameter file...exiting")
             sys.exit(1)
         else:
-            print(s.strip())
+            #print(s.strip())
             return s.strip()
 
     # hard coded too much; need to generalize to n unique filters
@@ -582,7 +796,7 @@ class MatchParam(object):
 
         begin_mag = mag_brightest
         end_mag = mag_brightest + size_of_bin
-        for i in xrange(number_of_bins):
+        for i in range(number_of_bins):
             idx = np.where((mag_in >= begin_mag) & (mag_in < end_mag))[0]
             recovered = mag_outin[idx]
             recovered = recovered[(recovered>=-1.0) & (recovered<=1.0)]
@@ -654,7 +868,7 @@ class MatchParam(object):
 
         nextFile = ""
         if size > 0:
-            numbers = [int(files[i].split("_")[1].split(".")[0]) for i in xrange(len(files))]
+            numbers = [int(files[i].split("_")[1].split(".")[0]) for i in range(len(files))]
             
             numbers = sorted(numbers, key=int)
             nextVal = numbers[-1] + 1
