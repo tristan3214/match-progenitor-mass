@@ -11,6 +11,8 @@ import pandas as pd
 """
 Synopsis
 --------
+Works on Python 2.7 and Python 3.x.
+
 This is a module that helps to quickly script the making of new parameter files.  Suppose you have a lot of MATCH fits and each one is slightly
 different.  If you feed MatchParam a master parameter file that reflects the common across the fits you can tweak the fit specific
 parameters.  SSP parameter files can be fed as long as you specify to the MatchParam that it is an SSP parameter file. 

@@ -15,6 +15,14 @@ with MATCH installed.
 
 Automatic logging is including to show what the server is doing internally.
 
+## Notable Files
+### MatchParam.py
+This file helps to deal with large numbers of parameter files.  No more copying parameter files opening each one and editting all those parameters.
+By feeding one MATCH parameter file you can then script your changes and save the new parameter to where you want.
+
+Take a look at MatchParam.py and examples of running it in UsingMatchParam.py in the *example* file.
+
+Note: This file is Python agnostic; written in Python 2.7 it will run on Python 3.x.
 
 ## Running Server
 I suggest using `screen` within an ssh connection on Eagle.  With a screen running, you can start the server detach from the session and log
