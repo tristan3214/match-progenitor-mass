@@ -124,7 +124,6 @@ class MatchParam(object):
 
         """
         # Constructs a MATCH parameter file object from a default parameter file to reference the settings.
-        # A fakeFile is also specified to construct the Vmin, Vmax, Imin, and Imax using completeness limits
         self.default = default # parameter file
         self.phot = photFile # photometry file to be fed to calcsfh
         self.fake = fakeFile # fake file to be fed to calcsfh
@@ -138,10 +137,11 @@ class MatchParam(object):
                            "Ntbins":None,
                            "lLine_1":None, "lLine_2":None, "scale":None, "background":None}
 
+        # Holds the filters being used in the parameter file.
         self.filterSet = []
         
         # flags to tell if there is something like zinc
-        self.zinc = False
+        self.zinc = False # auto-detected by parsing the parameter file
         self.ssp = ssp # if a an ssp flag is passed then this will be set to True by an external program
 
         self.savedTo = None
@@ -154,9 +154,22 @@ class MatchParam(object):
         self._parseDefault()
 
     def change(self, key, value):
-        """
-        Pass a that has the parameter to change and the value to set delimited with an equals.
-        Exampe: "dAv=0.1" (this would change the Av step to 0.1)
+        """Change one of the values within the parameter file.
+
+        Parameters
+        ----------
+        key : string
+              This should be a valid key.
+        value : type dependent on the keys
+
+        Return
+        ------
+        None
+
+        Example
+        -------
+        >>> param = MatchParam("your_parameter.param")
+        >>> param.change('dAv', 0.1) # This would change the Av step to 0.1.
         """
         if key in self.parameters.keys():
             if self.parameters[key] is not None:
@@ -165,11 +178,23 @@ class MatchParam(object):
             else:
                 self.parameters[key] = value
         else:
-            print("Key not found check and try again")
+            raise KeyError("Key not found:", key))
+        
+        return None
 
     def get(self, key):
-        """
-        Pass in a key to retrieve the value of from the self.parameters dictionary."
+        """Pass in a key to retrieve the value of from the self.parameters dictionary.  Raises exception if it is not
+        a valid key.
+        
+        Parameters
+        ----------
+        key : string
+              Must be a valid parameter key input.
+        
+        Return
+        ------
+        {string, float} : type depends on the parameter
+                          Returns a the value associated with the passed in key.
         """
         if key in self.parameters.keys():
             return self.parameters[key]
@@ -177,6 +202,17 @@ class MatchParam(object):
             raise KeyError("Did not find key in object.parameters")
 
     def printKeys(self):
+        """Print instances keys.  Use this to visually see what keys you can use.  It prints out in the 
+        style of the MATCH parameter file.
+
+        Parameters
+        ----------
+        None
+
+        Return
+        ------
+        None
+        """
         # line one (m-Mmin m-Mmax d(m-M) Avmin Avmax dAv)
         print("m-Mmin m-Mmax d(m-M) Avmin Avmax dAv")
 
@@ -211,7 +247,7 @@ class MatchParam(object):
         print("Ntbins")
 
         # time bins
-        print("tstart tend (passed in as lists of start and end times of same size)")
+        print("    tstart tend (passed in as lists of start and end times of same size)")
         
         # last line
         if self.parameters['scale'] is not None:
@@ -220,9 +256,18 @@ class MatchParam(object):
 
         
     def save(self, path=None, name=None):
-        """
-        Used to save the current MatchParam object into a standard MATCH parameter file. Call after making any
-        wanted changes to the generated MATCH parameter file.
+        """Used to save the current MatchParam object into a standard MATCH parameter file.
+
+        Parameters
+        ----------
+        path : {string}
+               Path to save directory.
+        name : {string}
+               Specify a name for the new parameter file.
+
+        Return
+        ------
+        None
         """
         if path is None:
             path = os.getcwd() + "/"
@@ -724,7 +769,6 @@ class MatchParam(object):
             #print(s.strip())
             return s.strip()
 
-    # hard coded too much; need to generalize to n unique filters
     def _calculateMaxes(self, n):
         """
         Calculates the brightest magnitude in the phot file, which is essentially the minium.  Passed in is the number of cmds.
@@ -756,7 +800,6 @@ class MatchParam(object):
         Calculates the 50 percent completeness limit for the passed in fake file. The passed in value is the number of CMDs.
         If the number is 1 the the fake file has 4 columns and it is 6 if n is 3.
         """
-
         # change this to get finer/coarser binning
         size_of_bin = 0.1 # set size of bin
 
